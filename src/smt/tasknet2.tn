@@ -1,0 +1,147 @@
+tasknet HeatDriveCommunicate {
+  end = 300;
+
+  timelines {
+    heating       : state(off, on) = off;
+    driving       : state(off, on) = off;
+    communicating : state(off, on) = off;
+
+    radio         : atomic = false;
+
+    memory        : claim [0.0, 100.0] = 100.0;
+
+    distance      : rate [0.0, 100.0] bounds  [0.0, 100.0] = 100.0;
+    temperature   : rate [0.0, 100.0] bounds  [0.0, 100.0] = 50.0;
+    battery       : rate [20.0, 100.0] bounds [0.0, 100.0] = 100.0;
+  }
+
+  task heating {
+    id 1;
+    priority 1;
+    #start_range [0, 20];
+    #end_range   [80, 100];
+    duration 80;
+    start 10;
+
+    pre {
+      driving       = off;
+      communicating = off;
+      battery in [40.0, 100.0];
+    }
+
+    inv {
+      driving       = off;
+      communicating = off;
+      battery in [30.0, 100.0];
+    }
+
+    post {
+      temperature in [20.0, 100.0];
+    }
+
+    impacts {
+      pre {
+        heating = on;
+      }
+      maint {
+        temperature +~ 1.0;
+        battery     +~ -0.01;
+      }
+      post {
+        heating = off;
+      }
+    }
+  }
+
+  task driving {
+    id 2;
+    priority 1;
+    #start_range [100, 120];
+    #end_range   [180, 200];
+    duration 80;
+    start 110;
+    after heating;
+
+    pre {
+      communicating = off;
+      distance      in [5.0, 100.0];
+      temperature   in [50.0, 100.0];
+      battery       in [40.0, 100.0];
+    }
+
+    inv {
+      communicating = off;
+      temperature   in [50.0, 100.0];
+      battery       in [20.0, 100.0];
+    }
+
+    post {
+      distance in [10.0, 50.0];
+    }
+
+    impacts {
+      pre {
+        driving = on;
+      }
+      maint {
+        distance    +~ -1.0;
+        temperature +~ -0.2;
+        battery     +~ -0.2;
+      }
+      post {
+        driving = off;
+      }
+    }
+  }
+
+  task communicating {
+    id 3;
+    priority 1;
+    #start_range [200, 220];
+    #end_range   [280, 300];
+    duration 80;
+    start 210;
+
+    pre {
+      driving = off;
+      radio   = false;
+      memory  in [40.0, 100.0];
+      battery in [50.0, 100.0];
+    }
+
+    inv {
+      battery in [20.0, 100.0];
+    }
+
+    post {
+      memory in [0.0, 100.0];
+    }
+
+    impacts {
+      pre {
+        communicating = on;
+        radio         = true;
+      }
+      maint {
+        battery +~ -0.2;
+      }
+      post {
+        communicating = off;
+        radio         = false;
+        memory        += -100.0;
+      }
+    }
+  }
+
+  constraints {
+    prop c1: always (driving = on -> eventually communicating = on);
+  }
+
+  properties {
+    prop p1: always (battery >= 60.0);
+
+    prop p2: always (driving = on -> eventually communicating = on);
+
+    prop p3: always (driving = on -> once heating = on);
+  }
+}

@@ -1,0 +1,3615 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    DOT
+
+Grammar
+
+Rule 0     S' -> start
+Rule 1     empty -> <empty>
+Rule 2     start -> tasknet
+Rule 3     tasknet -> TASKNET NAME LBRACE tasknet_body_items RBRACE
+Rule 4     tasknet_body_items -> tasknet_body_item
+Rule 5     tasknet_body_items -> tasknet_body_items tasknet_body_item
+Rule 6     tasknet_body_item -> end_decl
+Rule 7     tasknet_body_item -> timelines_block
+Rule 8     tasknet_body_item -> initial_block
+Rule 9     tasknet_body_item -> task_def
+Rule 10    tasknet_body_item -> constraints_tl_block
+Rule 11    tasknet_body_item -> properties_block
+Rule 12    end_decl -> END EQ NUMBER SEMI
+Rule 13    timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE
+Rule 14    timeline_decl_list -> empty
+Rule 15    timeline_decl_list -> timeline_decl_list timeline_decl
+Rule 16    timeline_decl_list -> timeline_decl
+Rule 17    timeline_decl -> NAME COLON timeline_kind SEMI
+Rule 18    timeline_kind -> STATE LPAREN state_list RPAREN EQ NAME
+Rule 19    state_list -> NAME
+Rule 20    state_list -> state_list COMMA NAME
+Rule 21    timeline_kind -> ATOMIC init_bool_opt
+Rule 22    claim_kw -> CLAIM
+Rule 23    claim_kw -> CLAIMABLE
+Rule 24    cumul_kw -> CUMUL
+Rule 25    cumul_kw -> CUMULATIVE
+Rule 26    range -> LBRACKET NUMBER COMMA NUMBER RBRACKET
+Rule 27    range_opt -> empty
+Rule 28    range_opt -> range
+Rule 29    bounds_opt -> empty
+Rule 30    bounds_opt -> BOUNDS range
+Rule 31    init_opt -> empty
+Rule 32    init_opt -> EQ NUMBER
+Rule 33    init_bool_opt -> empty
+Rule 34    init_bool_opt -> EQ TRUE
+Rule 35    init_bool_opt -> EQ FALSE
+Rule 36    timeline_kind -> claim_kw range_opt init_opt
+Rule 37    timeline_kind -> cumul_kw range_opt bounds_opt init_opt
+Rule 38    timeline_kind -> RATE range_opt bounds_opt init_opt
+Rule 39    initial_block -> INITIAL LBRACE tlcon_list RBRACE
+Rule 40    task_list -> empty
+Rule 41    task_list -> task_list task_def
+Rule 42    task_list -> task_def
+Rule 43    task_def -> TASK NAME LBRACE task_body_items RBRACE
+Rule 44    task_body_items -> task_body_item
+Rule 45    task_body_items -> task_body_items task_body_item
+Rule 46    task_body_item -> task_id
+Rule 47    task_body_item -> task_priority
+Rule 48    task_body_item -> task_start_range
+Rule 49    task_body_item -> task_end_range
+Rule 50    task_body_item -> task_duration
+Rule 51    task_body_item -> task_start_opt
+Rule 52    task_body_item -> task_after
+Rule 53    task_body_item -> constraints_block
+Rule 54    task_body_item -> pre_block
+Rule 55    task_body_item -> inv_block
+Rule 56    task_body_item -> post_block
+Rule 57    task_body_item -> task_impacts
+Rule 58    task_id -> ID_KW NUMBER SEMI
+Rule 59    task_priority -> PRIORITY NUMBER SEMI
+Rule 60    task_start_range -> START_RANGE range SEMI
+Rule 61    task_end_range -> END_RANGE range SEMI
+Rule 62    task_duration -> DURATION NUMBER SEMI
+Rule 63    task_start_opt -> START_KW NUMBER SEMI
+Rule 64    task_start_opt -> empty
+Rule 65    task_after -> AFTER name_list SEMI
+Rule 66    name_list -> empty
+Rule 67    name_list -> NAME
+Rule 68    name_list -> name_list COMMA NAME
+Rule 69    constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE
+Rule 70    constraints_items -> constraints_item
+Rule 71    constraints_items -> constraints_items constraints_item
+Rule 72    constraints_item -> pre_block
+Rule 73    constraints_item -> inv_block
+Rule 74    constraints_item -> post_block
+Rule 75    pre_block -> PRE LBRACE tlcon_list RBRACE
+Rule 76    inv_block -> INV LBRACE tlcon_list RBRACE
+Rule 77    post_block -> POST LBRACE tlcon_list RBRACE
+Rule 78    tlcon_list -> empty
+Rule 79    tlcon_list -> tlcon_stmt
+Rule 80    tlcon_list -> tlcon_list tlcon_stmt
+Rule 81    tlcon_stmt -> NAME EQ value SEMI
+Rule 82    tlcon_stmt -> NAME IN con_list SEMI
+Rule 83    con_list -> con_item
+Rule 84    con_list -> con_list con_item
+Rule 85    con_item -> value
+Rule 86    con_item -> range
+Rule 87    task_impacts -> impacts_block
+Rule 88    task_impacts -> empty
+Rule 89    impacts_block -> IMPACTS LBRACE impact_group_list RBRACE
+Rule 90    impact_group_list -> empty
+Rule 91    impact_group_list -> impact_group
+Rule 92    impact_group_list -> impact_group_list impact_group
+Rule 93    impact_group -> impact_when LBRACE impact_group_entries RBRACE
+Rule 94    impact_when -> PRE
+Rule 95    impact_when -> MAINT
+Rule 96    impact_when -> POST
+Rule 97    impact_group_entries -> impact_group_entry
+Rule 98    impact_group_entries -> impact_group_entries impact_group_entry
+Rule 99    impact_group_entry -> NAME impact_rhs SEMI
+Rule 100   impact_rhs -> EQ value
+Rule 101   impact_rhs -> PLUS_EQ NUMBER
+Rule 102   impact_rhs -> MINUS_EQ NUMBER
+Rule 103   impact_rhs -> PLUS_RATE NUMBER
+Rule 104   impact_rhs -> MINUS_RATE NUMBER
+Rule 105   constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE
+Rule 106   properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE
+Rule 107   temporal_prop_list -> temporal_prop
+Rule 108   temporal_prop_list -> temporal_prop_list temporal_prop
+Rule 109   temporal_prop -> PROP NAME COLON tl_formula SEMI
+Rule 110   tl_formula -> tl_imp
+Rule 111   tl_imp -> tl_or
+Rule 112   tl_imp -> tl_or IMPLIES tl_imp
+Rule 113   tl_or -> tl_and
+Rule 114   tl_or -> tl_or OR tl_and
+Rule 115   tl_and -> tl_u
+Rule 116   tl_and -> tl_and AND tl_u
+Rule 117   tl_u -> tl_unary
+Rule 118   tl_u -> tl_unary UNTIL tl_unary
+Rule 119   tl_u -> tl_unary SINCE tl_unary
+Rule 120   tl_unary -> NOT tl_unary
+Rule 121   tl_unary -> ALWAYS tl_unary
+Rule 122   tl_unary -> EVENTUALLY tl_unary
+Rule 123   tl_unary -> SOFAR tl_unary
+Rule 124   tl_unary -> ONCE tl_unary
+Rule 125   tl_unary -> LPAREN tl_formula RPAREN
+Rule 126   tl_unary -> tl_atom
+Rule 127   tl_atom -> NAME cmp_op NUMBER
+Rule 128   tl_atom -> NAME EQ NAME
+Rule 129   tl_atom -> NAME EQ TRUE
+Rule 130   tl_atom -> NAME EQ FALSE
+Rule 131   cmp_op -> LT
+Rule 132   cmp_op -> LE
+Rule 133   cmp_op -> EQ
+Rule 134   cmp_op -> GE
+Rule 135   cmp_op -> GT
+Rule 136   value -> STRING
+Rule 137   value -> NUMBER
+Rule 138   value -> TRUE
+Rule 139   value -> FALSE
+Rule 140   value -> NAME
+
+Terminals, with rules where they appear
+
+AFTER                : 65
+ALWAYS               : 121
+AND                  : 116
+ATOMIC               : 21
+BOUNDS               : 30
+CLAIM                : 22
+CLAIMABLE            : 23
+COLON                : 17 109
+COMMA                : 20 26 68
+CONSTRAINTS          : 69 105
+CUMUL                : 24
+CUMULATIVE           : 25
+DOT                  : 
+DURATION             : 62
+END                  : 12
+END_RANGE            : 61
+EQ                   : 12 18 32 34 35 81 100 128 129 130 133
+EVENTUALLY           : 122
+FALSE                : 35 130 139
+GE                   : 134
+GT                   : 135
+ID_KW                : 58
+IMPACTS              : 89
+IMPLIES              : 112
+IN                   : 82
+INITIAL              : 39
+INV                  : 76
+LBRACE               : 3 13 39 43 69 75 76 77 89 93 105 106
+LBRACKET             : 26
+LE                   : 132
+LPAREN               : 18 125
+LT                   : 131
+MAINT                : 95
+MINUS_EQ             : 102
+MINUS_RATE           : 104
+NAME                 : 3 17 18 19 20 43 67 68 81 82 99 109 127 128 128 129 130 140
+NOT                  : 120
+NUMBER               : 12 26 26 32 58 59 62 63 101 102 103 104 127 137
+ONCE                 : 124
+OR                   : 114
+PLUS_EQ              : 101
+PLUS_RATE            : 103
+POST                 : 77 96
+PRE                  : 75 94
+PRIORITY             : 59
+PROP                 : 109
+PROPERTIES           : 106
+RATE                 : 38
+RBRACE               : 3 13 39 43 69 75 76 77 89 93 105 106
+RBRACKET             : 26
+RPAREN               : 18 125
+SEMI                 : 12 17 58 59 60 61 62 63 65 81 82 99 109
+SINCE                : 119
+SOFAR                : 123
+START_KW             : 63
+START_RANGE          : 60
+STATE                : 18
+STRING               : 136
+TASK                 : 43
+TASKNET              : 3
+TIMELINES            : 13
+TRUE                 : 34 129 138
+UNTIL                : 118
+error                : 
+
+Nonterminals, with rules where they appear
+
+bounds_opt           : 37 38
+claim_kw             : 36
+cmp_op               : 127
+con_item             : 83 84
+con_list             : 82 84
+constraints_block    : 53
+constraints_item     : 70 71
+constraints_items    : 69 71
+constraints_tl_block : 10
+cumul_kw             : 37
+empty                : 14 27 29 31 33 40 64 66 78 88 90
+end_decl             : 6
+impact_group         : 91 92
+impact_group_entries : 93 98
+impact_group_entry   : 97 98
+impact_group_list    : 89 92
+impact_rhs           : 99
+impact_when          : 93
+impacts_block        : 87
+init_bool_opt        : 21
+init_opt             : 36 37 38
+initial_block        : 8
+inv_block            : 55 73
+name_list            : 65 68
+post_block           : 56 74
+pre_block            : 54 72
+properties_block     : 11
+range                : 28 30 60 61 86
+range_opt            : 36 37 38
+start                : 0
+state_list           : 18 20
+task_after           : 52
+task_body_item       : 44 45
+task_body_items      : 43 45
+task_def             : 9 41 42
+task_duration        : 50
+task_end_range       : 49
+task_id              : 46
+task_impacts         : 57
+task_list            : 41
+task_priority        : 47
+task_start_opt       : 51
+task_start_range     : 48
+tasknet              : 2
+tasknet_body_item    : 4 5
+tasknet_body_items   : 3 5
+temporal_prop        : 107 108
+temporal_prop_list   : 105 106 108
+timeline_decl        : 15 16
+timeline_decl_list   : 13 15
+timeline_kind        : 17
+timelines_block      : 7
+tl_and               : 113 114 116
+tl_atom              : 126
+tl_formula           : 109 125
+tl_imp               : 110 112
+tl_or                : 111 112 114
+tl_u                 : 115 116
+tl_unary             : 117 118 118 119 119 120 121 122 123 124
+tlcon_list           : 39 75 76 77 80
+tlcon_stmt           : 79 80
+value                : 81 85 100
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . start
+    (2) start -> . tasknet
+    (3) tasknet -> . TASKNET NAME LBRACE tasknet_body_items RBRACE
+
+    TASKNET         shift and go to state 3
+
+    start                          shift and go to state 1
+    tasknet                        shift and go to state 2
+
+state 1
+
+    (0) S' -> start .
+
+
+
+state 2
+
+    (2) start -> tasknet .
+
+    $end            reduce using rule 2 (start -> tasknet .)
+
+
+state 3
+
+    (3) tasknet -> TASKNET . NAME LBRACE tasknet_body_items RBRACE
+
+    NAME            shift and go to state 4
+
+
+state 4
+
+    (3) tasknet -> TASKNET NAME . LBRACE tasknet_body_items RBRACE
+
+    LBRACE          shift and go to state 5
+
+
+state 5
+
+    (3) tasknet -> TASKNET NAME LBRACE . tasknet_body_items RBRACE
+    (4) tasknet_body_items -> . tasknet_body_item
+    (5) tasknet_body_items -> . tasknet_body_items tasknet_body_item
+    (6) tasknet_body_item -> . end_decl
+    (7) tasknet_body_item -> . timelines_block
+    (8) tasknet_body_item -> . initial_block
+    (9) tasknet_body_item -> . task_def
+    (10) tasknet_body_item -> . constraints_tl_block
+    (11) tasknet_body_item -> . properties_block
+    (12) end_decl -> . END EQ NUMBER SEMI
+    (13) timelines_block -> . TIMELINES LBRACE timeline_decl_list RBRACE
+    (39) initial_block -> . INITIAL LBRACE tlcon_list RBRACE
+    (43) task_def -> . TASK NAME LBRACE task_body_items RBRACE
+    (105) constraints_tl_block -> . CONSTRAINTS LBRACE temporal_prop_list RBRACE
+    (106) properties_block -> . PROPERTIES LBRACE temporal_prop_list RBRACE
+
+    END             shift and go to state 14
+    TIMELINES       shift and go to state 15
+    INITIAL         shift and go to state 16
+    TASK            shift and go to state 17
+    CONSTRAINTS     shift and go to state 18
+    PROPERTIES      shift and go to state 19
+
+    tasknet_body_items             shift and go to state 6
+    tasknet_body_item              shift and go to state 7
+    end_decl                       shift and go to state 8
+    timelines_block                shift and go to state 9
+    initial_block                  shift and go to state 10
+    task_def                       shift and go to state 11
+    constraints_tl_block           shift and go to state 12
+    properties_block               shift and go to state 13
+
+state 6
+
+    (3) tasknet -> TASKNET NAME LBRACE tasknet_body_items . RBRACE
+    (5) tasknet_body_items -> tasknet_body_items . tasknet_body_item
+    (6) tasknet_body_item -> . end_decl
+    (7) tasknet_body_item -> . timelines_block
+    (8) tasknet_body_item -> . initial_block
+    (9) tasknet_body_item -> . task_def
+    (10) tasknet_body_item -> . constraints_tl_block
+    (11) tasknet_body_item -> . properties_block
+    (12) end_decl -> . END EQ NUMBER SEMI
+    (13) timelines_block -> . TIMELINES LBRACE timeline_decl_list RBRACE
+    (39) initial_block -> . INITIAL LBRACE tlcon_list RBRACE
+    (43) task_def -> . TASK NAME LBRACE task_body_items RBRACE
+    (105) constraints_tl_block -> . CONSTRAINTS LBRACE temporal_prop_list RBRACE
+    (106) properties_block -> . PROPERTIES LBRACE temporal_prop_list RBRACE
+
+    RBRACE          shift and go to state 20
+    END             shift and go to state 14
+    TIMELINES       shift and go to state 15
+    INITIAL         shift and go to state 16
+    TASK            shift and go to state 17
+    CONSTRAINTS     shift and go to state 18
+    PROPERTIES      shift and go to state 19
+
+    tasknet_body_item              shift and go to state 21
+    end_decl                       shift and go to state 8
+    timelines_block                shift and go to state 9
+    initial_block                  shift and go to state 10
+    task_def                       shift and go to state 11
+    constraints_tl_block           shift and go to state 12
+    properties_block               shift and go to state 13
+
+state 7
+
+    (4) tasknet_body_items -> tasknet_body_item .
+
+    RBRACE          reduce using rule 4 (tasknet_body_items -> tasknet_body_item .)
+    END             reduce using rule 4 (tasknet_body_items -> tasknet_body_item .)
+    TIMELINES       reduce using rule 4 (tasknet_body_items -> tasknet_body_item .)
+    INITIAL         reduce using rule 4 (tasknet_body_items -> tasknet_body_item .)
+    TASK            reduce using rule 4 (tasknet_body_items -> tasknet_body_item .)
+    CONSTRAINTS     reduce using rule 4 (tasknet_body_items -> tasknet_body_item .)
+    PROPERTIES      reduce using rule 4 (tasknet_body_items -> tasknet_body_item .)
+
+
+state 8
+
+    (6) tasknet_body_item -> end_decl .
+
+    RBRACE          reduce using rule 6 (tasknet_body_item -> end_decl .)
+    END             reduce using rule 6 (tasknet_body_item -> end_decl .)
+    TIMELINES       reduce using rule 6 (tasknet_body_item -> end_decl .)
+    INITIAL         reduce using rule 6 (tasknet_body_item -> end_decl .)
+    TASK            reduce using rule 6 (tasknet_body_item -> end_decl .)
+    CONSTRAINTS     reduce using rule 6 (tasknet_body_item -> end_decl .)
+    PROPERTIES      reduce using rule 6 (tasknet_body_item -> end_decl .)
+
+
+state 9
+
+    (7) tasknet_body_item -> timelines_block .
+
+    RBRACE          reduce using rule 7 (tasknet_body_item -> timelines_block .)
+    END             reduce using rule 7 (tasknet_body_item -> timelines_block .)
+    TIMELINES       reduce using rule 7 (tasknet_body_item -> timelines_block .)
+    INITIAL         reduce using rule 7 (tasknet_body_item -> timelines_block .)
+    TASK            reduce using rule 7 (tasknet_body_item -> timelines_block .)
+    CONSTRAINTS     reduce using rule 7 (tasknet_body_item -> timelines_block .)
+    PROPERTIES      reduce using rule 7 (tasknet_body_item -> timelines_block .)
+
+
+state 10
+
+    (8) tasknet_body_item -> initial_block .
+
+    RBRACE          reduce using rule 8 (tasknet_body_item -> initial_block .)
+    END             reduce using rule 8 (tasknet_body_item -> initial_block .)
+    TIMELINES       reduce using rule 8 (tasknet_body_item -> initial_block .)
+    INITIAL         reduce using rule 8 (tasknet_body_item -> initial_block .)
+    TASK            reduce using rule 8 (tasknet_body_item -> initial_block .)
+    CONSTRAINTS     reduce using rule 8 (tasknet_body_item -> initial_block .)
+    PROPERTIES      reduce using rule 8 (tasknet_body_item -> initial_block .)
+
+
+state 11
+
+    (9) tasknet_body_item -> task_def .
+
+    RBRACE          reduce using rule 9 (tasknet_body_item -> task_def .)
+    END             reduce using rule 9 (tasknet_body_item -> task_def .)
+    TIMELINES       reduce using rule 9 (tasknet_body_item -> task_def .)
+    INITIAL         reduce using rule 9 (tasknet_body_item -> task_def .)
+    TASK            reduce using rule 9 (tasknet_body_item -> task_def .)
+    CONSTRAINTS     reduce using rule 9 (tasknet_body_item -> task_def .)
+    PROPERTIES      reduce using rule 9 (tasknet_body_item -> task_def .)
+
+
+state 12
+
+    (10) tasknet_body_item -> constraints_tl_block .
+
+    RBRACE          reduce using rule 10 (tasknet_body_item -> constraints_tl_block .)
+    END             reduce using rule 10 (tasknet_body_item -> constraints_tl_block .)
+    TIMELINES       reduce using rule 10 (tasknet_body_item -> constraints_tl_block .)
+    INITIAL         reduce using rule 10 (tasknet_body_item -> constraints_tl_block .)
+    TASK            reduce using rule 10 (tasknet_body_item -> constraints_tl_block .)
+    CONSTRAINTS     reduce using rule 10 (tasknet_body_item -> constraints_tl_block .)
+    PROPERTIES      reduce using rule 10 (tasknet_body_item -> constraints_tl_block .)
+
+
+state 13
+
+    (11) tasknet_body_item -> properties_block .
+
+    RBRACE          reduce using rule 11 (tasknet_body_item -> properties_block .)
+    END             reduce using rule 11 (tasknet_body_item -> properties_block .)
+    TIMELINES       reduce using rule 11 (tasknet_body_item -> properties_block .)
+    INITIAL         reduce using rule 11 (tasknet_body_item -> properties_block .)
+    TASK            reduce using rule 11 (tasknet_body_item -> properties_block .)
+    CONSTRAINTS     reduce using rule 11 (tasknet_body_item -> properties_block .)
+    PROPERTIES      reduce using rule 11 (tasknet_body_item -> properties_block .)
+
+
+state 14
+
+    (12) end_decl -> END . EQ NUMBER SEMI
+
+    EQ              shift and go to state 22
+
+
+state 15
+
+    (13) timelines_block -> TIMELINES . LBRACE timeline_decl_list RBRACE
+
+    LBRACE          shift and go to state 23
+
+
+state 16
+
+    (39) initial_block -> INITIAL . LBRACE tlcon_list RBRACE
+
+    LBRACE          shift and go to state 24
+
+
+state 17
+
+    (43) task_def -> TASK . NAME LBRACE task_body_items RBRACE
+
+    NAME            shift and go to state 25
+
+
+state 18
+
+    (105) constraints_tl_block -> CONSTRAINTS . LBRACE temporal_prop_list RBRACE
+
+    LBRACE          shift and go to state 26
+
+
+state 19
+
+    (106) properties_block -> PROPERTIES . LBRACE temporal_prop_list RBRACE
+
+    LBRACE          shift and go to state 27
+
+
+state 20
+
+    (3) tasknet -> TASKNET NAME LBRACE tasknet_body_items RBRACE .
+
+    $end            reduce using rule 3 (tasknet -> TASKNET NAME LBRACE tasknet_body_items RBRACE .)
+
+
+state 21
+
+    (5) tasknet_body_items -> tasknet_body_items tasknet_body_item .
+
+    RBRACE          reduce using rule 5 (tasknet_body_items -> tasknet_body_items tasknet_body_item .)
+    END             reduce using rule 5 (tasknet_body_items -> tasknet_body_items tasknet_body_item .)
+    TIMELINES       reduce using rule 5 (tasknet_body_items -> tasknet_body_items tasknet_body_item .)
+    INITIAL         reduce using rule 5 (tasknet_body_items -> tasknet_body_items tasknet_body_item .)
+    TASK            reduce using rule 5 (tasknet_body_items -> tasknet_body_items tasknet_body_item .)
+    CONSTRAINTS     reduce using rule 5 (tasknet_body_items -> tasknet_body_items tasknet_body_item .)
+    PROPERTIES      reduce using rule 5 (tasknet_body_items -> tasknet_body_items tasknet_body_item .)
+
+
+state 22
+
+    (12) end_decl -> END EQ . NUMBER SEMI
+
+    NUMBER          shift and go to state 28
+
+
+state 23
+
+    (13) timelines_block -> TIMELINES LBRACE . timeline_decl_list RBRACE
+    (14) timeline_decl_list -> . empty
+    (15) timeline_decl_list -> . timeline_decl_list timeline_decl
+    (16) timeline_decl_list -> . timeline_decl
+    (1) empty -> .
+    (17) timeline_decl -> . NAME COLON timeline_kind SEMI
+
+  ! shift/reduce conflict for NAME resolved as shift
+    RBRACE          reduce using rule 1 (empty -> .)
+    NAME            shift and go to state 32
+
+  ! NAME            [ reduce using rule 1 (empty -> .) ]
+
+    timeline_decl_list             shift and go to state 29
+    empty                          shift and go to state 30
+    timeline_decl                  shift and go to state 31
+
+state 24
+
+    (39) initial_block -> INITIAL LBRACE . tlcon_list RBRACE
+    (78) tlcon_list -> . empty
+    (79) tlcon_list -> . tlcon_stmt
+    (80) tlcon_list -> . tlcon_list tlcon_stmt
+    (1) empty -> .
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+  ! shift/reduce conflict for NAME resolved as shift
+    RBRACE          reduce using rule 1 (empty -> .)
+    NAME            shift and go to state 36
+
+  ! NAME            [ reduce using rule 1 (empty -> .) ]
+
+    tlcon_list                     shift and go to state 33
+    empty                          shift and go to state 34
+    tlcon_stmt                     shift and go to state 35
+
+state 25
+
+    (43) task_def -> TASK NAME . LBRACE task_body_items RBRACE
+
+    LBRACE          shift and go to state 37
+
+
+state 26
+
+    (105) constraints_tl_block -> CONSTRAINTS LBRACE . temporal_prop_list RBRACE
+    (107) temporal_prop_list -> . temporal_prop
+    (108) temporal_prop_list -> . temporal_prop_list temporal_prop
+    (109) temporal_prop -> . PROP NAME COLON tl_formula SEMI
+
+    PROP            shift and go to state 40
+
+    temporal_prop_list             shift and go to state 38
+    temporal_prop                  shift and go to state 39
+
+state 27
+
+    (106) properties_block -> PROPERTIES LBRACE . temporal_prop_list RBRACE
+    (107) temporal_prop_list -> . temporal_prop
+    (108) temporal_prop_list -> . temporal_prop_list temporal_prop
+    (109) temporal_prop -> . PROP NAME COLON tl_formula SEMI
+
+    PROP            shift and go to state 40
+
+    temporal_prop_list             shift and go to state 41
+    temporal_prop                  shift and go to state 39
+
+state 28
+
+    (12) end_decl -> END EQ NUMBER . SEMI
+
+    SEMI            shift and go to state 42
+
+
+state 29
+
+    (13) timelines_block -> TIMELINES LBRACE timeline_decl_list . RBRACE
+    (15) timeline_decl_list -> timeline_decl_list . timeline_decl
+    (17) timeline_decl -> . NAME COLON timeline_kind SEMI
+
+    RBRACE          shift and go to state 43
+    NAME            shift and go to state 32
+
+    timeline_decl                  shift and go to state 44
+
+state 30
+
+    (14) timeline_decl_list -> empty .
+
+    RBRACE          reduce using rule 14 (timeline_decl_list -> empty .)
+    NAME            reduce using rule 14 (timeline_decl_list -> empty .)
+
+
+state 31
+
+    (16) timeline_decl_list -> timeline_decl .
+
+    RBRACE          reduce using rule 16 (timeline_decl_list -> timeline_decl .)
+    NAME            reduce using rule 16 (timeline_decl_list -> timeline_decl .)
+
+
+state 32
+
+    (17) timeline_decl -> NAME . COLON timeline_kind SEMI
+
+    COLON           shift and go to state 45
+
+
+state 33
+
+    (39) initial_block -> INITIAL LBRACE tlcon_list . RBRACE
+    (80) tlcon_list -> tlcon_list . tlcon_stmt
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+    RBRACE          shift and go to state 46
+    NAME            shift and go to state 36
+
+    tlcon_stmt                     shift and go to state 47
+
+state 34
+
+    (78) tlcon_list -> empty .
+
+    RBRACE          reduce using rule 78 (tlcon_list -> empty .)
+    NAME            reduce using rule 78 (tlcon_list -> empty .)
+
+
+state 35
+
+    (79) tlcon_list -> tlcon_stmt .
+
+    RBRACE          reduce using rule 79 (tlcon_list -> tlcon_stmt .)
+    NAME            reduce using rule 79 (tlcon_list -> tlcon_stmt .)
+
+
+state 36
+
+    (81) tlcon_stmt -> NAME . EQ value SEMI
+    (82) tlcon_stmt -> NAME . IN con_list SEMI
+
+    EQ              shift and go to state 48
+    IN              shift and go to state 49
+
+
+state 37
+
+    (43) task_def -> TASK NAME LBRACE . task_body_items RBRACE
+    (44) task_body_items -> . task_body_item
+    (45) task_body_items -> . task_body_items task_body_item
+    (46) task_body_item -> . task_id
+    (47) task_body_item -> . task_priority
+    (48) task_body_item -> . task_start_range
+    (49) task_body_item -> . task_end_range
+    (50) task_body_item -> . task_duration
+    (51) task_body_item -> . task_start_opt
+    (52) task_body_item -> . task_after
+    (53) task_body_item -> . constraints_block
+    (54) task_body_item -> . pre_block
+    (55) task_body_item -> . inv_block
+    (56) task_body_item -> . post_block
+    (57) task_body_item -> . task_impacts
+    (58) task_id -> . ID_KW NUMBER SEMI
+    (59) task_priority -> . PRIORITY NUMBER SEMI
+    (60) task_start_range -> . START_RANGE range SEMI
+    (61) task_end_range -> . END_RANGE range SEMI
+    (62) task_duration -> . DURATION NUMBER SEMI
+    (63) task_start_opt -> . START_KW NUMBER SEMI
+    (64) task_start_opt -> . empty
+    (65) task_after -> . AFTER name_list SEMI
+    (69) constraints_block -> . CONSTRAINTS LBRACE constraints_items RBRACE
+    (75) pre_block -> . PRE LBRACE tlcon_list RBRACE
+    (76) inv_block -> . INV LBRACE tlcon_list RBRACE
+    (77) post_block -> . POST LBRACE tlcon_list RBRACE
+    (87) task_impacts -> . impacts_block
+    (88) task_impacts -> . empty
+    (1) empty -> .
+    (89) impacts_block -> . IMPACTS LBRACE impact_group_list RBRACE
+
+  ! shift/reduce conflict for ID_KW resolved as shift
+  ! shift/reduce conflict for PRIORITY resolved as shift
+  ! shift/reduce conflict for START_RANGE resolved as shift
+  ! shift/reduce conflict for END_RANGE resolved as shift
+  ! shift/reduce conflict for DURATION resolved as shift
+  ! shift/reduce conflict for START_KW resolved as shift
+  ! shift/reduce conflict for AFTER resolved as shift
+  ! shift/reduce conflict for CONSTRAINTS resolved as shift
+  ! shift/reduce conflict for PRE resolved as shift
+  ! shift/reduce conflict for INV resolved as shift
+  ! shift/reduce conflict for POST resolved as shift
+  ! shift/reduce conflict for IMPACTS resolved as shift
+    ID_KW           shift and go to state 64
+    PRIORITY        shift and go to state 65
+    START_RANGE     shift and go to state 66
+    END_RANGE       shift and go to state 67
+    DURATION        shift and go to state 68
+    START_KW        shift and go to state 69
+    AFTER           shift and go to state 71
+    CONSTRAINTS     shift and go to state 72
+    PRE             shift and go to state 73
+    INV             shift and go to state 74
+    POST            shift and go to state 75
+    RBRACE          reduce using rule 1 (empty -> .)
+    IMPACTS         shift and go to state 77
+
+  ! ID_KW           [ reduce using rule 1 (empty -> .) ]
+  ! PRIORITY        [ reduce using rule 1 (empty -> .) ]
+  ! START_RANGE     [ reduce using rule 1 (empty -> .) ]
+  ! END_RANGE       [ reduce using rule 1 (empty -> .) ]
+  ! DURATION        [ reduce using rule 1 (empty -> .) ]
+  ! START_KW        [ reduce using rule 1 (empty -> .) ]
+  ! AFTER           [ reduce using rule 1 (empty -> .) ]
+  ! CONSTRAINTS     [ reduce using rule 1 (empty -> .) ]
+  ! PRE             [ reduce using rule 1 (empty -> .) ]
+  ! INV             [ reduce using rule 1 (empty -> .) ]
+  ! POST            [ reduce using rule 1 (empty -> .) ]
+  ! IMPACTS         [ reduce using rule 1 (empty -> .) ]
+
+    task_body_items                shift and go to state 50
+    task_body_item                 shift and go to state 51
+    task_id                        shift and go to state 52
+    task_priority                  shift and go to state 53
+    task_start_range               shift and go to state 54
+    task_end_range                 shift and go to state 55
+    task_duration                  shift and go to state 56
+    task_start_opt                 shift and go to state 57
+    task_after                     shift and go to state 58
+    constraints_block              shift and go to state 59
+    pre_block                      shift and go to state 60
+    inv_block                      shift and go to state 61
+    post_block                     shift and go to state 62
+    task_impacts                   shift and go to state 63
+    empty                          shift and go to state 70
+    impacts_block                  shift and go to state 76
+
+state 38
+
+    (105) constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list . RBRACE
+    (108) temporal_prop_list -> temporal_prop_list . temporal_prop
+    (109) temporal_prop -> . PROP NAME COLON tl_formula SEMI
+
+    RBRACE          shift and go to state 78
+    PROP            shift and go to state 40
+
+    temporal_prop                  shift and go to state 79
+
+state 39
+
+    (107) temporal_prop_list -> temporal_prop .
+
+    RBRACE          reduce using rule 107 (temporal_prop_list -> temporal_prop .)
+    PROP            reduce using rule 107 (temporal_prop_list -> temporal_prop .)
+
+
+state 40
+
+    (109) temporal_prop -> PROP . NAME COLON tl_formula SEMI
+
+    NAME            shift and go to state 80
+
+
+state 41
+
+    (106) properties_block -> PROPERTIES LBRACE temporal_prop_list . RBRACE
+    (108) temporal_prop_list -> temporal_prop_list . temporal_prop
+    (109) temporal_prop -> . PROP NAME COLON tl_formula SEMI
+
+    RBRACE          shift and go to state 81
+    PROP            shift and go to state 40
+
+    temporal_prop                  shift and go to state 79
+
+state 42
+
+    (12) end_decl -> END EQ NUMBER SEMI .
+
+    RBRACE          reduce using rule 12 (end_decl -> END EQ NUMBER SEMI .)
+    END             reduce using rule 12 (end_decl -> END EQ NUMBER SEMI .)
+    TIMELINES       reduce using rule 12 (end_decl -> END EQ NUMBER SEMI .)
+    INITIAL         reduce using rule 12 (end_decl -> END EQ NUMBER SEMI .)
+    TASK            reduce using rule 12 (end_decl -> END EQ NUMBER SEMI .)
+    CONSTRAINTS     reduce using rule 12 (end_decl -> END EQ NUMBER SEMI .)
+    PROPERTIES      reduce using rule 12 (end_decl -> END EQ NUMBER SEMI .)
+
+
+state 43
+
+    (13) timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .
+
+    RBRACE          reduce using rule 13 (timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .)
+    END             reduce using rule 13 (timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .)
+    TIMELINES       reduce using rule 13 (timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .)
+    INITIAL         reduce using rule 13 (timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .)
+    TASK            reduce using rule 13 (timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .)
+    CONSTRAINTS     reduce using rule 13 (timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .)
+    PROPERTIES      reduce using rule 13 (timelines_block -> TIMELINES LBRACE timeline_decl_list RBRACE .)
+
+
+state 44
+
+    (15) timeline_decl_list -> timeline_decl_list timeline_decl .
+
+    RBRACE          reduce using rule 15 (timeline_decl_list -> timeline_decl_list timeline_decl .)
+    NAME            reduce using rule 15 (timeline_decl_list -> timeline_decl_list timeline_decl .)
+
+
+state 45
+
+    (17) timeline_decl -> NAME COLON . timeline_kind SEMI
+    (18) timeline_kind -> . STATE LPAREN state_list RPAREN EQ NAME
+    (21) timeline_kind -> . ATOMIC init_bool_opt
+    (36) timeline_kind -> . claim_kw range_opt init_opt
+    (37) timeline_kind -> . cumul_kw range_opt bounds_opt init_opt
+    (38) timeline_kind -> . RATE range_opt bounds_opt init_opt
+    (22) claim_kw -> . CLAIM
+    (23) claim_kw -> . CLAIMABLE
+    (24) cumul_kw -> . CUMUL
+    (25) cumul_kw -> . CUMULATIVE
+
+    STATE           shift and go to state 83
+    ATOMIC          shift and go to state 84
+    RATE            shift and go to state 87
+    CLAIM           shift and go to state 88
+    CLAIMABLE       shift and go to state 89
+    CUMUL           shift and go to state 90
+    CUMULATIVE      shift and go to state 91
+
+    timeline_kind                  shift and go to state 82
+    claim_kw                       shift and go to state 85
+    cumul_kw                       shift and go to state 86
+
+state 46
+
+    (39) initial_block -> INITIAL LBRACE tlcon_list RBRACE .
+
+    RBRACE          reduce using rule 39 (initial_block -> INITIAL LBRACE tlcon_list RBRACE .)
+    END             reduce using rule 39 (initial_block -> INITIAL LBRACE tlcon_list RBRACE .)
+    TIMELINES       reduce using rule 39 (initial_block -> INITIAL LBRACE tlcon_list RBRACE .)
+    INITIAL         reduce using rule 39 (initial_block -> INITIAL LBRACE tlcon_list RBRACE .)
+    TASK            reduce using rule 39 (initial_block -> INITIAL LBRACE tlcon_list RBRACE .)
+    CONSTRAINTS     reduce using rule 39 (initial_block -> INITIAL LBRACE tlcon_list RBRACE .)
+    PROPERTIES      reduce using rule 39 (initial_block -> INITIAL LBRACE tlcon_list RBRACE .)
+
+
+state 47
+
+    (80) tlcon_list -> tlcon_list tlcon_stmt .
+
+    RBRACE          reduce using rule 80 (tlcon_list -> tlcon_list tlcon_stmt .)
+    NAME            reduce using rule 80 (tlcon_list -> tlcon_list tlcon_stmt .)
+
+
+state 48
+
+    (81) tlcon_stmt -> NAME EQ . value SEMI
+    (136) value -> . STRING
+    (137) value -> . NUMBER
+    (138) value -> . TRUE
+    (139) value -> . FALSE
+    (140) value -> . NAME
+
+    STRING          shift and go to state 94
+    NUMBER          shift and go to state 95
+    TRUE            shift and go to state 96
+    FALSE           shift and go to state 97
+    NAME            shift and go to state 92
+
+    value                          shift and go to state 93
+
+state 49
+
+    (82) tlcon_stmt -> NAME IN . con_list SEMI
+    (83) con_list -> . con_item
+    (84) con_list -> . con_list con_item
+    (85) con_item -> . value
+    (86) con_item -> . range
+    (136) value -> . STRING
+    (137) value -> . NUMBER
+    (138) value -> . TRUE
+    (139) value -> . FALSE
+    (140) value -> . NAME
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    STRING          shift and go to state 94
+    NUMBER          shift and go to state 95
+    TRUE            shift and go to state 96
+    FALSE           shift and go to state 97
+    NAME            shift and go to state 92
+    LBRACKET        shift and go to state 102
+
+    con_list                       shift and go to state 98
+    con_item                       shift and go to state 99
+    value                          shift and go to state 100
+    range                          shift and go to state 101
+
+state 50
+
+    (43) task_def -> TASK NAME LBRACE task_body_items . RBRACE
+    (45) task_body_items -> task_body_items . task_body_item
+    (46) task_body_item -> . task_id
+    (47) task_body_item -> . task_priority
+    (48) task_body_item -> . task_start_range
+    (49) task_body_item -> . task_end_range
+    (50) task_body_item -> . task_duration
+    (51) task_body_item -> . task_start_opt
+    (52) task_body_item -> . task_after
+    (53) task_body_item -> . constraints_block
+    (54) task_body_item -> . pre_block
+    (55) task_body_item -> . inv_block
+    (56) task_body_item -> . post_block
+    (57) task_body_item -> . task_impacts
+    (58) task_id -> . ID_KW NUMBER SEMI
+    (59) task_priority -> . PRIORITY NUMBER SEMI
+    (60) task_start_range -> . START_RANGE range SEMI
+    (61) task_end_range -> . END_RANGE range SEMI
+    (62) task_duration -> . DURATION NUMBER SEMI
+    (63) task_start_opt -> . START_KW NUMBER SEMI
+    (64) task_start_opt -> . empty
+    (65) task_after -> . AFTER name_list SEMI
+    (69) constraints_block -> . CONSTRAINTS LBRACE constraints_items RBRACE
+    (75) pre_block -> . PRE LBRACE tlcon_list RBRACE
+    (76) inv_block -> . INV LBRACE tlcon_list RBRACE
+    (77) post_block -> . POST LBRACE tlcon_list RBRACE
+    (87) task_impacts -> . impacts_block
+    (88) task_impacts -> . empty
+    (1) empty -> .
+    (89) impacts_block -> . IMPACTS LBRACE impact_group_list RBRACE
+
+  ! shift/reduce conflict for RBRACE resolved as shift
+  ! shift/reduce conflict for ID_KW resolved as shift
+  ! shift/reduce conflict for PRIORITY resolved as shift
+  ! shift/reduce conflict for START_RANGE resolved as shift
+  ! shift/reduce conflict for END_RANGE resolved as shift
+  ! shift/reduce conflict for DURATION resolved as shift
+  ! shift/reduce conflict for START_KW resolved as shift
+  ! shift/reduce conflict for AFTER resolved as shift
+  ! shift/reduce conflict for CONSTRAINTS resolved as shift
+  ! shift/reduce conflict for PRE resolved as shift
+  ! shift/reduce conflict for INV resolved as shift
+  ! shift/reduce conflict for POST resolved as shift
+  ! shift/reduce conflict for IMPACTS resolved as shift
+    RBRACE          shift and go to state 103
+    ID_KW           shift and go to state 64
+    PRIORITY        shift and go to state 65
+    START_RANGE     shift and go to state 66
+    END_RANGE       shift and go to state 67
+    DURATION        shift and go to state 68
+    START_KW        shift and go to state 69
+    AFTER           shift and go to state 71
+    CONSTRAINTS     shift and go to state 72
+    PRE             shift and go to state 73
+    INV             shift and go to state 74
+    POST            shift and go to state 75
+    IMPACTS         shift and go to state 77
+
+  ! RBRACE          [ reduce using rule 1 (empty -> .) ]
+  ! ID_KW           [ reduce using rule 1 (empty -> .) ]
+  ! PRIORITY        [ reduce using rule 1 (empty -> .) ]
+  ! START_RANGE     [ reduce using rule 1 (empty -> .) ]
+  ! END_RANGE       [ reduce using rule 1 (empty -> .) ]
+  ! DURATION        [ reduce using rule 1 (empty -> .) ]
+  ! START_KW        [ reduce using rule 1 (empty -> .) ]
+  ! AFTER           [ reduce using rule 1 (empty -> .) ]
+  ! CONSTRAINTS     [ reduce using rule 1 (empty -> .) ]
+  ! PRE             [ reduce using rule 1 (empty -> .) ]
+  ! INV             [ reduce using rule 1 (empty -> .) ]
+  ! POST            [ reduce using rule 1 (empty -> .) ]
+  ! IMPACTS         [ reduce using rule 1 (empty -> .) ]
+
+    task_body_item                 shift and go to state 104
+    task_id                        shift and go to state 52
+    task_priority                  shift and go to state 53
+    task_start_range               shift and go to state 54
+    task_end_range                 shift and go to state 55
+    task_duration                  shift and go to state 56
+    task_start_opt                 shift and go to state 57
+    task_after                     shift and go to state 58
+    constraints_block              shift and go to state 59
+    pre_block                      shift and go to state 60
+    inv_block                      shift and go to state 61
+    post_block                     shift and go to state 62
+    task_impacts                   shift and go to state 63
+    empty                          shift and go to state 70
+    impacts_block                  shift and go to state 76
+
+state 51
+
+    (44) task_body_items -> task_body_item .
+
+    RBRACE          reduce using rule 44 (task_body_items -> task_body_item .)
+    ID_KW           reduce using rule 44 (task_body_items -> task_body_item .)
+    PRIORITY        reduce using rule 44 (task_body_items -> task_body_item .)
+    START_RANGE     reduce using rule 44 (task_body_items -> task_body_item .)
+    END_RANGE       reduce using rule 44 (task_body_items -> task_body_item .)
+    DURATION        reduce using rule 44 (task_body_items -> task_body_item .)
+    START_KW        reduce using rule 44 (task_body_items -> task_body_item .)
+    AFTER           reduce using rule 44 (task_body_items -> task_body_item .)
+    CONSTRAINTS     reduce using rule 44 (task_body_items -> task_body_item .)
+    PRE             reduce using rule 44 (task_body_items -> task_body_item .)
+    INV             reduce using rule 44 (task_body_items -> task_body_item .)
+    POST            reduce using rule 44 (task_body_items -> task_body_item .)
+    IMPACTS         reduce using rule 44 (task_body_items -> task_body_item .)
+
+
+state 52
+
+    (46) task_body_item -> task_id .
+
+    RBRACE          reduce using rule 46 (task_body_item -> task_id .)
+    ID_KW           reduce using rule 46 (task_body_item -> task_id .)
+    PRIORITY        reduce using rule 46 (task_body_item -> task_id .)
+    START_RANGE     reduce using rule 46 (task_body_item -> task_id .)
+    END_RANGE       reduce using rule 46 (task_body_item -> task_id .)
+    DURATION        reduce using rule 46 (task_body_item -> task_id .)
+    START_KW        reduce using rule 46 (task_body_item -> task_id .)
+    AFTER           reduce using rule 46 (task_body_item -> task_id .)
+    CONSTRAINTS     reduce using rule 46 (task_body_item -> task_id .)
+    PRE             reduce using rule 46 (task_body_item -> task_id .)
+    INV             reduce using rule 46 (task_body_item -> task_id .)
+    POST            reduce using rule 46 (task_body_item -> task_id .)
+    IMPACTS         reduce using rule 46 (task_body_item -> task_id .)
+
+
+state 53
+
+    (47) task_body_item -> task_priority .
+
+    RBRACE          reduce using rule 47 (task_body_item -> task_priority .)
+    ID_KW           reduce using rule 47 (task_body_item -> task_priority .)
+    PRIORITY        reduce using rule 47 (task_body_item -> task_priority .)
+    START_RANGE     reduce using rule 47 (task_body_item -> task_priority .)
+    END_RANGE       reduce using rule 47 (task_body_item -> task_priority .)
+    DURATION        reduce using rule 47 (task_body_item -> task_priority .)
+    START_KW        reduce using rule 47 (task_body_item -> task_priority .)
+    AFTER           reduce using rule 47 (task_body_item -> task_priority .)
+    CONSTRAINTS     reduce using rule 47 (task_body_item -> task_priority .)
+    PRE             reduce using rule 47 (task_body_item -> task_priority .)
+    INV             reduce using rule 47 (task_body_item -> task_priority .)
+    POST            reduce using rule 47 (task_body_item -> task_priority .)
+    IMPACTS         reduce using rule 47 (task_body_item -> task_priority .)
+
+
+state 54
+
+    (48) task_body_item -> task_start_range .
+
+    RBRACE          reduce using rule 48 (task_body_item -> task_start_range .)
+    ID_KW           reduce using rule 48 (task_body_item -> task_start_range .)
+    PRIORITY        reduce using rule 48 (task_body_item -> task_start_range .)
+    START_RANGE     reduce using rule 48 (task_body_item -> task_start_range .)
+    END_RANGE       reduce using rule 48 (task_body_item -> task_start_range .)
+    DURATION        reduce using rule 48 (task_body_item -> task_start_range .)
+    START_KW        reduce using rule 48 (task_body_item -> task_start_range .)
+    AFTER           reduce using rule 48 (task_body_item -> task_start_range .)
+    CONSTRAINTS     reduce using rule 48 (task_body_item -> task_start_range .)
+    PRE             reduce using rule 48 (task_body_item -> task_start_range .)
+    INV             reduce using rule 48 (task_body_item -> task_start_range .)
+    POST            reduce using rule 48 (task_body_item -> task_start_range .)
+    IMPACTS         reduce using rule 48 (task_body_item -> task_start_range .)
+
+
+state 55
+
+    (49) task_body_item -> task_end_range .
+
+    RBRACE          reduce using rule 49 (task_body_item -> task_end_range .)
+    ID_KW           reduce using rule 49 (task_body_item -> task_end_range .)
+    PRIORITY        reduce using rule 49 (task_body_item -> task_end_range .)
+    START_RANGE     reduce using rule 49 (task_body_item -> task_end_range .)
+    END_RANGE       reduce using rule 49 (task_body_item -> task_end_range .)
+    DURATION        reduce using rule 49 (task_body_item -> task_end_range .)
+    START_KW        reduce using rule 49 (task_body_item -> task_end_range .)
+    AFTER           reduce using rule 49 (task_body_item -> task_end_range .)
+    CONSTRAINTS     reduce using rule 49 (task_body_item -> task_end_range .)
+    PRE             reduce using rule 49 (task_body_item -> task_end_range .)
+    INV             reduce using rule 49 (task_body_item -> task_end_range .)
+    POST            reduce using rule 49 (task_body_item -> task_end_range .)
+    IMPACTS         reduce using rule 49 (task_body_item -> task_end_range .)
+
+
+state 56
+
+    (50) task_body_item -> task_duration .
+
+    RBRACE          reduce using rule 50 (task_body_item -> task_duration .)
+    ID_KW           reduce using rule 50 (task_body_item -> task_duration .)
+    PRIORITY        reduce using rule 50 (task_body_item -> task_duration .)
+    START_RANGE     reduce using rule 50 (task_body_item -> task_duration .)
+    END_RANGE       reduce using rule 50 (task_body_item -> task_duration .)
+    DURATION        reduce using rule 50 (task_body_item -> task_duration .)
+    START_KW        reduce using rule 50 (task_body_item -> task_duration .)
+    AFTER           reduce using rule 50 (task_body_item -> task_duration .)
+    CONSTRAINTS     reduce using rule 50 (task_body_item -> task_duration .)
+    PRE             reduce using rule 50 (task_body_item -> task_duration .)
+    INV             reduce using rule 50 (task_body_item -> task_duration .)
+    POST            reduce using rule 50 (task_body_item -> task_duration .)
+    IMPACTS         reduce using rule 50 (task_body_item -> task_duration .)
+
+
+state 57
+
+    (51) task_body_item -> task_start_opt .
+
+    RBRACE          reduce using rule 51 (task_body_item -> task_start_opt .)
+    ID_KW           reduce using rule 51 (task_body_item -> task_start_opt .)
+    PRIORITY        reduce using rule 51 (task_body_item -> task_start_opt .)
+    START_RANGE     reduce using rule 51 (task_body_item -> task_start_opt .)
+    END_RANGE       reduce using rule 51 (task_body_item -> task_start_opt .)
+    DURATION        reduce using rule 51 (task_body_item -> task_start_opt .)
+    START_KW        reduce using rule 51 (task_body_item -> task_start_opt .)
+    AFTER           reduce using rule 51 (task_body_item -> task_start_opt .)
+    CONSTRAINTS     reduce using rule 51 (task_body_item -> task_start_opt .)
+    PRE             reduce using rule 51 (task_body_item -> task_start_opt .)
+    INV             reduce using rule 51 (task_body_item -> task_start_opt .)
+    POST            reduce using rule 51 (task_body_item -> task_start_opt .)
+    IMPACTS         reduce using rule 51 (task_body_item -> task_start_opt .)
+
+
+state 58
+
+    (52) task_body_item -> task_after .
+
+    RBRACE          reduce using rule 52 (task_body_item -> task_after .)
+    ID_KW           reduce using rule 52 (task_body_item -> task_after .)
+    PRIORITY        reduce using rule 52 (task_body_item -> task_after .)
+    START_RANGE     reduce using rule 52 (task_body_item -> task_after .)
+    END_RANGE       reduce using rule 52 (task_body_item -> task_after .)
+    DURATION        reduce using rule 52 (task_body_item -> task_after .)
+    START_KW        reduce using rule 52 (task_body_item -> task_after .)
+    AFTER           reduce using rule 52 (task_body_item -> task_after .)
+    CONSTRAINTS     reduce using rule 52 (task_body_item -> task_after .)
+    PRE             reduce using rule 52 (task_body_item -> task_after .)
+    INV             reduce using rule 52 (task_body_item -> task_after .)
+    POST            reduce using rule 52 (task_body_item -> task_after .)
+    IMPACTS         reduce using rule 52 (task_body_item -> task_after .)
+
+
+state 59
+
+    (53) task_body_item -> constraints_block .
+
+    RBRACE          reduce using rule 53 (task_body_item -> constraints_block .)
+    ID_KW           reduce using rule 53 (task_body_item -> constraints_block .)
+    PRIORITY        reduce using rule 53 (task_body_item -> constraints_block .)
+    START_RANGE     reduce using rule 53 (task_body_item -> constraints_block .)
+    END_RANGE       reduce using rule 53 (task_body_item -> constraints_block .)
+    DURATION        reduce using rule 53 (task_body_item -> constraints_block .)
+    START_KW        reduce using rule 53 (task_body_item -> constraints_block .)
+    AFTER           reduce using rule 53 (task_body_item -> constraints_block .)
+    CONSTRAINTS     reduce using rule 53 (task_body_item -> constraints_block .)
+    PRE             reduce using rule 53 (task_body_item -> constraints_block .)
+    INV             reduce using rule 53 (task_body_item -> constraints_block .)
+    POST            reduce using rule 53 (task_body_item -> constraints_block .)
+    IMPACTS         reduce using rule 53 (task_body_item -> constraints_block .)
+
+
+state 60
+
+    (54) task_body_item -> pre_block .
+
+    RBRACE          reduce using rule 54 (task_body_item -> pre_block .)
+    ID_KW           reduce using rule 54 (task_body_item -> pre_block .)
+    PRIORITY        reduce using rule 54 (task_body_item -> pre_block .)
+    START_RANGE     reduce using rule 54 (task_body_item -> pre_block .)
+    END_RANGE       reduce using rule 54 (task_body_item -> pre_block .)
+    DURATION        reduce using rule 54 (task_body_item -> pre_block .)
+    START_KW        reduce using rule 54 (task_body_item -> pre_block .)
+    AFTER           reduce using rule 54 (task_body_item -> pre_block .)
+    CONSTRAINTS     reduce using rule 54 (task_body_item -> pre_block .)
+    PRE             reduce using rule 54 (task_body_item -> pre_block .)
+    INV             reduce using rule 54 (task_body_item -> pre_block .)
+    POST            reduce using rule 54 (task_body_item -> pre_block .)
+    IMPACTS         reduce using rule 54 (task_body_item -> pre_block .)
+
+
+state 61
+
+    (55) task_body_item -> inv_block .
+
+    RBRACE          reduce using rule 55 (task_body_item -> inv_block .)
+    ID_KW           reduce using rule 55 (task_body_item -> inv_block .)
+    PRIORITY        reduce using rule 55 (task_body_item -> inv_block .)
+    START_RANGE     reduce using rule 55 (task_body_item -> inv_block .)
+    END_RANGE       reduce using rule 55 (task_body_item -> inv_block .)
+    DURATION        reduce using rule 55 (task_body_item -> inv_block .)
+    START_KW        reduce using rule 55 (task_body_item -> inv_block .)
+    AFTER           reduce using rule 55 (task_body_item -> inv_block .)
+    CONSTRAINTS     reduce using rule 55 (task_body_item -> inv_block .)
+    PRE             reduce using rule 55 (task_body_item -> inv_block .)
+    INV             reduce using rule 55 (task_body_item -> inv_block .)
+    POST            reduce using rule 55 (task_body_item -> inv_block .)
+    IMPACTS         reduce using rule 55 (task_body_item -> inv_block .)
+
+
+state 62
+
+    (56) task_body_item -> post_block .
+
+    RBRACE          reduce using rule 56 (task_body_item -> post_block .)
+    ID_KW           reduce using rule 56 (task_body_item -> post_block .)
+    PRIORITY        reduce using rule 56 (task_body_item -> post_block .)
+    START_RANGE     reduce using rule 56 (task_body_item -> post_block .)
+    END_RANGE       reduce using rule 56 (task_body_item -> post_block .)
+    DURATION        reduce using rule 56 (task_body_item -> post_block .)
+    START_KW        reduce using rule 56 (task_body_item -> post_block .)
+    AFTER           reduce using rule 56 (task_body_item -> post_block .)
+    CONSTRAINTS     reduce using rule 56 (task_body_item -> post_block .)
+    PRE             reduce using rule 56 (task_body_item -> post_block .)
+    INV             reduce using rule 56 (task_body_item -> post_block .)
+    POST            reduce using rule 56 (task_body_item -> post_block .)
+    IMPACTS         reduce using rule 56 (task_body_item -> post_block .)
+
+
+state 63
+
+    (57) task_body_item -> task_impacts .
+
+    RBRACE          reduce using rule 57 (task_body_item -> task_impacts .)
+    ID_KW           reduce using rule 57 (task_body_item -> task_impacts .)
+    PRIORITY        reduce using rule 57 (task_body_item -> task_impacts .)
+    START_RANGE     reduce using rule 57 (task_body_item -> task_impacts .)
+    END_RANGE       reduce using rule 57 (task_body_item -> task_impacts .)
+    DURATION        reduce using rule 57 (task_body_item -> task_impacts .)
+    START_KW        reduce using rule 57 (task_body_item -> task_impacts .)
+    AFTER           reduce using rule 57 (task_body_item -> task_impacts .)
+    CONSTRAINTS     reduce using rule 57 (task_body_item -> task_impacts .)
+    PRE             reduce using rule 57 (task_body_item -> task_impacts .)
+    INV             reduce using rule 57 (task_body_item -> task_impacts .)
+    POST            reduce using rule 57 (task_body_item -> task_impacts .)
+    IMPACTS         reduce using rule 57 (task_body_item -> task_impacts .)
+
+
+state 64
+
+    (58) task_id -> ID_KW . NUMBER SEMI
+
+    NUMBER          shift and go to state 105
+
+
+state 65
+
+    (59) task_priority -> PRIORITY . NUMBER SEMI
+
+    NUMBER          shift and go to state 106
+
+
+state 66
+
+    (60) task_start_range -> START_RANGE . range SEMI
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    LBRACKET        shift and go to state 102
+
+    range                          shift and go to state 107
+
+state 67
+
+    (61) task_end_range -> END_RANGE . range SEMI
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    LBRACKET        shift and go to state 102
+
+    range                          shift and go to state 108
+
+state 68
+
+    (62) task_duration -> DURATION . NUMBER SEMI
+
+    NUMBER          shift and go to state 109
+
+
+state 69
+
+    (63) task_start_opt -> START_KW . NUMBER SEMI
+
+    NUMBER          shift and go to state 110
+
+
+state 70
+
+    (64) task_start_opt -> empty .
+    (88) task_impacts -> empty .
+
+  ! reduce/reduce conflict for RBRACE resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for ID_KW resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for PRIORITY resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for START_RANGE resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for END_RANGE resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for DURATION resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for START_KW resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for AFTER resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for CONSTRAINTS resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for PRE resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for INV resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for POST resolved using rule 64 (task_start_opt -> empty .)
+  ! reduce/reduce conflict for IMPACTS resolved using rule 64 (task_start_opt -> empty .)
+    RBRACE          reduce using rule 64 (task_start_opt -> empty .)
+    ID_KW           reduce using rule 64 (task_start_opt -> empty .)
+    PRIORITY        reduce using rule 64 (task_start_opt -> empty .)
+    START_RANGE     reduce using rule 64 (task_start_opt -> empty .)
+    END_RANGE       reduce using rule 64 (task_start_opt -> empty .)
+    DURATION        reduce using rule 64 (task_start_opt -> empty .)
+    START_KW        reduce using rule 64 (task_start_opt -> empty .)
+    AFTER           reduce using rule 64 (task_start_opt -> empty .)
+    CONSTRAINTS     reduce using rule 64 (task_start_opt -> empty .)
+    PRE             reduce using rule 64 (task_start_opt -> empty .)
+    INV             reduce using rule 64 (task_start_opt -> empty .)
+    POST            reduce using rule 64 (task_start_opt -> empty .)
+    IMPACTS         reduce using rule 64 (task_start_opt -> empty .)
+
+  ! RBRACE          [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! ID_KW           [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! PRIORITY        [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! START_RANGE     [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! END_RANGE       [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! DURATION        [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! START_KW        [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! AFTER           [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! CONSTRAINTS     [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! PRE             [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! INV             [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! POST            [ reduce using rule 88 (task_impacts -> empty .) ]
+  ! IMPACTS         [ reduce using rule 88 (task_impacts -> empty .) ]
+
+
+state 71
+
+    (65) task_after -> AFTER . name_list SEMI
+    (66) name_list -> . empty
+    (67) name_list -> . NAME
+    (68) name_list -> . name_list COMMA NAME
+    (1) empty -> .
+
+    NAME            shift and go to state 113
+    SEMI            reduce using rule 1 (empty -> .)
+    COMMA           reduce using rule 1 (empty -> .)
+
+    name_list                      shift and go to state 111
+    empty                          shift and go to state 112
+
+state 72
+
+    (69) constraints_block -> CONSTRAINTS . LBRACE constraints_items RBRACE
+
+    LBRACE          shift and go to state 114
+
+
+state 73
+
+    (75) pre_block -> PRE . LBRACE tlcon_list RBRACE
+
+    LBRACE          shift and go to state 115
+
+
+state 74
+
+    (76) inv_block -> INV . LBRACE tlcon_list RBRACE
+
+    LBRACE          shift and go to state 116
+
+
+state 75
+
+    (77) post_block -> POST . LBRACE tlcon_list RBRACE
+
+    LBRACE          shift and go to state 117
+
+
+state 76
+
+    (87) task_impacts -> impacts_block .
+
+    RBRACE          reduce using rule 87 (task_impacts -> impacts_block .)
+    ID_KW           reduce using rule 87 (task_impacts -> impacts_block .)
+    PRIORITY        reduce using rule 87 (task_impacts -> impacts_block .)
+    START_RANGE     reduce using rule 87 (task_impacts -> impacts_block .)
+    END_RANGE       reduce using rule 87 (task_impacts -> impacts_block .)
+    DURATION        reduce using rule 87 (task_impacts -> impacts_block .)
+    START_KW        reduce using rule 87 (task_impacts -> impacts_block .)
+    AFTER           reduce using rule 87 (task_impacts -> impacts_block .)
+    CONSTRAINTS     reduce using rule 87 (task_impacts -> impacts_block .)
+    PRE             reduce using rule 87 (task_impacts -> impacts_block .)
+    INV             reduce using rule 87 (task_impacts -> impacts_block .)
+    POST            reduce using rule 87 (task_impacts -> impacts_block .)
+    IMPACTS         reduce using rule 87 (task_impacts -> impacts_block .)
+
+
+state 77
+
+    (89) impacts_block -> IMPACTS . LBRACE impact_group_list RBRACE
+
+    LBRACE          shift and go to state 118
+
+
+state 78
+
+    (105) constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .
+
+    RBRACE          reduce using rule 105 (constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .)
+    END             reduce using rule 105 (constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .)
+    TIMELINES       reduce using rule 105 (constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .)
+    INITIAL         reduce using rule 105 (constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .)
+    TASK            reduce using rule 105 (constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .)
+    CONSTRAINTS     reduce using rule 105 (constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .)
+    PROPERTIES      reduce using rule 105 (constraints_tl_block -> CONSTRAINTS LBRACE temporal_prop_list RBRACE .)
+
+
+state 79
+
+    (108) temporal_prop_list -> temporal_prop_list temporal_prop .
+
+    RBRACE          reduce using rule 108 (temporal_prop_list -> temporal_prop_list temporal_prop .)
+    PROP            reduce using rule 108 (temporal_prop_list -> temporal_prop_list temporal_prop .)
+
+
+state 80
+
+    (109) temporal_prop -> PROP NAME . COLON tl_formula SEMI
+
+    COLON           shift and go to state 119
+
+
+state 81
+
+    (106) properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .
+
+    RBRACE          reduce using rule 106 (properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .)
+    END             reduce using rule 106 (properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .)
+    TIMELINES       reduce using rule 106 (properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .)
+    INITIAL         reduce using rule 106 (properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .)
+    TASK            reduce using rule 106 (properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .)
+    CONSTRAINTS     reduce using rule 106 (properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .)
+    PROPERTIES      reduce using rule 106 (properties_block -> PROPERTIES LBRACE temporal_prop_list RBRACE .)
+
+
+state 82
+
+    (17) timeline_decl -> NAME COLON timeline_kind . SEMI
+
+    SEMI            shift and go to state 120
+
+
+state 83
+
+    (18) timeline_kind -> STATE . LPAREN state_list RPAREN EQ NAME
+
+    LPAREN          shift and go to state 121
+
+
+state 84
+
+    (21) timeline_kind -> ATOMIC . init_bool_opt
+    (33) init_bool_opt -> . empty
+    (34) init_bool_opt -> . EQ TRUE
+    (35) init_bool_opt -> . EQ FALSE
+    (1) empty -> .
+
+    EQ              shift and go to state 124
+    SEMI            reduce using rule 1 (empty -> .)
+
+    init_bool_opt                  shift and go to state 122
+    empty                          shift and go to state 123
+
+state 85
+
+    (36) timeline_kind -> claim_kw . range_opt init_opt
+    (27) range_opt -> . empty
+    (28) range_opt -> . range
+    (1) empty -> .
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    EQ              reduce using rule 1 (empty -> .)
+    SEMI            reduce using rule 1 (empty -> .)
+    LBRACKET        shift and go to state 102
+
+    range_opt                      shift and go to state 125
+    empty                          shift and go to state 126
+    range                          shift and go to state 127
+
+state 86
+
+    (37) timeline_kind -> cumul_kw . range_opt bounds_opt init_opt
+    (27) range_opt -> . empty
+    (28) range_opt -> . range
+    (1) empty -> .
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    BOUNDS          reduce using rule 1 (empty -> .)
+    EQ              reduce using rule 1 (empty -> .)
+    SEMI            reduce using rule 1 (empty -> .)
+    LBRACKET        shift and go to state 102
+
+    range_opt                      shift and go to state 128
+    empty                          shift and go to state 126
+    range                          shift and go to state 127
+
+state 87
+
+    (38) timeline_kind -> RATE . range_opt bounds_opt init_opt
+    (27) range_opt -> . empty
+    (28) range_opt -> . range
+    (1) empty -> .
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    BOUNDS          reduce using rule 1 (empty -> .)
+    EQ              reduce using rule 1 (empty -> .)
+    SEMI            reduce using rule 1 (empty -> .)
+    LBRACKET        shift and go to state 102
+
+    range_opt                      shift and go to state 129
+    empty                          shift and go to state 126
+    range                          shift and go to state 127
+
+state 88
+
+    (22) claim_kw -> CLAIM .
+
+    LBRACKET        reduce using rule 22 (claim_kw -> CLAIM .)
+    EQ              reduce using rule 22 (claim_kw -> CLAIM .)
+    SEMI            reduce using rule 22 (claim_kw -> CLAIM .)
+
+
+state 89
+
+    (23) claim_kw -> CLAIMABLE .
+
+    LBRACKET        reduce using rule 23 (claim_kw -> CLAIMABLE .)
+    EQ              reduce using rule 23 (claim_kw -> CLAIMABLE .)
+    SEMI            reduce using rule 23 (claim_kw -> CLAIMABLE .)
+
+
+state 90
+
+    (24) cumul_kw -> CUMUL .
+
+    LBRACKET        reduce using rule 24 (cumul_kw -> CUMUL .)
+    BOUNDS          reduce using rule 24 (cumul_kw -> CUMUL .)
+    EQ              reduce using rule 24 (cumul_kw -> CUMUL .)
+    SEMI            reduce using rule 24 (cumul_kw -> CUMUL .)
+
+
+state 91
+
+    (25) cumul_kw -> CUMULATIVE .
+
+    LBRACKET        reduce using rule 25 (cumul_kw -> CUMULATIVE .)
+    BOUNDS          reduce using rule 25 (cumul_kw -> CUMULATIVE .)
+    EQ              reduce using rule 25 (cumul_kw -> CUMULATIVE .)
+    SEMI            reduce using rule 25 (cumul_kw -> CUMULATIVE .)
+
+
+state 92
+
+    (140) value -> NAME .
+
+    SEMI            reduce using rule 140 (value -> NAME .)
+    STRING          reduce using rule 140 (value -> NAME .)
+    NUMBER          reduce using rule 140 (value -> NAME .)
+    TRUE            reduce using rule 140 (value -> NAME .)
+    FALSE           reduce using rule 140 (value -> NAME .)
+    NAME            reduce using rule 140 (value -> NAME .)
+    LBRACKET        reduce using rule 140 (value -> NAME .)
+
+
+state 93
+
+    (81) tlcon_stmt -> NAME EQ value . SEMI
+
+    SEMI            shift and go to state 130
+
+
+state 94
+
+    (136) value -> STRING .
+
+    SEMI            reduce using rule 136 (value -> STRING .)
+    STRING          reduce using rule 136 (value -> STRING .)
+    NUMBER          reduce using rule 136 (value -> STRING .)
+    TRUE            reduce using rule 136 (value -> STRING .)
+    FALSE           reduce using rule 136 (value -> STRING .)
+    NAME            reduce using rule 136 (value -> STRING .)
+    LBRACKET        reduce using rule 136 (value -> STRING .)
+
+
+state 95
+
+    (137) value -> NUMBER .
+
+    SEMI            reduce using rule 137 (value -> NUMBER .)
+    STRING          reduce using rule 137 (value -> NUMBER .)
+    NUMBER          reduce using rule 137 (value -> NUMBER .)
+    TRUE            reduce using rule 137 (value -> NUMBER .)
+    FALSE           reduce using rule 137 (value -> NUMBER .)
+    NAME            reduce using rule 137 (value -> NUMBER .)
+    LBRACKET        reduce using rule 137 (value -> NUMBER .)
+
+
+state 96
+
+    (138) value -> TRUE .
+
+    SEMI            reduce using rule 138 (value -> TRUE .)
+    STRING          reduce using rule 138 (value -> TRUE .)
+    NUMBER          reduce using rule 138 (value -> TRUE .)
+    TRUE            reduce using rule 138 (value -> TRUE .)
+    FALSE           reduce using rule 138 (value -> TRUE .)
+    NAME            reduce using rule 138 (value -> TRUE .)
+    LBRACKET        reduce using rule 138 (value -> TRUE .)
+
+
+state 97
+
+    (139) value -> FALSE .
+
+    SEMI            reduce using rule 139 (value -> FALSE .)
+    STRING          reduce using rule 139 (value -> FALSE .)
+    NUMBER          reduce using rule 139 (value -> FALSE .)
+    TRUE            reduce using rule 139 (value -> FALSE .)
+    FALSE           reduce using rule 139 (value -> FALSE .)
+    NAME            reduce using rule 139 (value -> FALSE .)
+    LBRACKET        reduce using rule 139 (value -> FALSE .)
+
+
+state 98
+
+    (82) tlcon_stmt -> NAME IN con_list . SEMI
+    (84) con_list -> con_list . con_item
+    (85) con_item -> . value
+    (86) con_item -> . range
+    (136) value -> . STRING
+    (137) value -> . NUMBER
+    (138) value -> . TRUE
+    (139) value -> . FALSE
+    (140) value -> . NAME
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    SEMI            shift and go to state 131
+    STRING          shift and go to state 94
+    NUMBER          shift and go to state 95
+    TRUE            shift and go to state 96
+    FALSE           shift and go to state 97
+    NAME            shift and go to state 92
+    LBRACKET        shift and go to state 102
+
+    con_item                       shift and go to state 132
+    value                          shift and go to state 100
+    range                          shift and go to state 101
+
+state 99
+
+    (83) con_list -> con_item .
+
+    SEMI            reduce using rule 83 (con_list -> con_item .)
+    STRING          reduce using rule 83 (con_list -> con_item .)
+    NUMBER          reduce using rule 83 (con_list -> con_item .)
+    TRUE            reduce using rule 83 (con_list -> con_item .)
+    FALSE           reduce using rule 83 (con_list -> con_item .)
+    NAME            reduce using rule 83 (con_list -> con_item .)
+    LBRACKET        reduce using rule 83 (con_list -> con_item .)
+
+
+state 100
+
+    (85) con_item -> value .
+
+    SEMI            reduce using rule 85 (con_item -> value .)
+    STRING          reduce using rule 85 (con_item -> value .)
+    NUMBER          reduce using rule 85 (con_item -> value .)
+    TRUE            reduce using rule 85 (con_item -> value .)
+    FALSE           reduce using rule 85 (con_item -> value .)
+    NAME            reduce using rule 85 (con_item -> value .)
+    LBRACKET        reduce using rule 85 (con_item -> value .)
+
+
+state 101
+
+    (86) con_item -> range .
+
+    SEMI            reduce using rule 86 (con_item -> range .)
+    STRING          reduce using rule 86 (con_item -> range .)
+    NUMBER          reduce using rule 86 (con_item -> range .)
+    TRUE            reduce using rule 86 (con_item -> range .)
+    FALSE           reduce using rule 86 (con_item -> range .)
+    NAME            reduce using rule 86 (con_item -> range .)
+    LBRACKET        reduce using rule 86 (con_item -> range .)
+
+
+state 102
+
+    (26) range -> LBRACKET . NUMBER COMMA NUMBER RBRACKET
+
+    NUMBER          shift and go to state 133
+
+
+state 103
+
+    (43) task_def -> TASK NAME LBRACE task_body_items RBRACE .
+
+    RBRACE          reduce using rule 43 (task_def -> TASK NAME LBRACE task_body_items RBRACE .)
+    END             reduce using rule 43 (task_def -> TASK NAME LBRACE task_body_items RBRACE .)
+    TIMELINES       reduce using rule 43 (task_def -> TASK NAME LBRACE task_body_items RBRACE .)
+    INITIAL         reduce using rule 43 (task_def -> TASK NAME LBRACE task_body_items RBRACE .)
+    TASK            reduce using rule 43 (task_def -> TASK NAME LBRACE task_body_items RBRACE .)
+    CONSTRAINTS     reduce using rule 43 (task_def -> TASK NAME LBRACE task_body_items RBRACE .)
+    PROPERTIES      reduce using rule 43 (task_def -> TASK NAME LBRACE task_body_items RBRACE .)
+
+
+state 104
+
+    (45) task_body_items -> task_body_items task_body_item .
+
+    RBRACE          reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    ID_KW           reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    PRIORITY        reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    START_RANGE     reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    END_RANGE       reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    DURATION        reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    START_KW        reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    AFTER           reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    CONSTRAINTS     reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    PRE             reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    INV             reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    POST            reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+    IMPACTS         reduce using rule 45 (task_body_items -> task_body_items task_body_item .)
+
+
+state 105
+
+    (58) task_id -> ID_KW NUMBER . SEMI
+
+    SEMI            shift and go to state 134
+
+
+state 106
+
+    (59) task_priority -> PRIORITY NUMBER . SEMI
+
+    SEMI            shift and go to state 135
+
+
+state 107
+
+    (60) task_start_range -> START_RANGE range . SEMI
+
+    SEMI            shift and go to state 136
+
+
+state 108
+
+    (61) task_end_range -> END_RANGE range . SEMI
+
+    SEMI            shift and go to state 137
+
+
+state 109
+
+    (62) task_duration -> DURATION NUMBER . SEMI
+
+    SEMI            shift and go to state 138
+
+
+state 110
+
+    (63) task_start_opt -> START_KW NUMBER . SEMI
+
+    SEMI            shift and go to state 139
+
+
+state 111
+
+    (65) task_after -> AFTER name_list . SEMI
+    (68) name_list -> name_list . COMMA NAME
+
+    SEMI            shift and go to state 140
+    COMMA           shift and go to state 141
+
+
+state 112
+
+    (66) name_list -> empty .
+
+    SEMI            reduce using rule 66 (name_list -> empty .)
+    COMMA           reduce using rule 66 (name_list -> empty .)
+
+
+state 113
+
+    (67) name_list -> NAME .
+
+    SEMI            reduce using rule 67 (name_list -> NAME .)
+    COMMA           reduce using rule 67 (name_list -> NAME .)
+
+
+state 114
+
+    (69) constraints_block -> CONSTRAINTS LBRACE . constraints_items RBRACE
+    (70) constraints_items -> . constraints_item
+    (71) constraints_items -> . constraints_items constraints_item
+    (72) constraints_item -> . pre_block
+    (73) constraints_item -> . inv_block
+    (74) constraints_item -> . post_block
+    (75) pre_block -> . PRE LBRACE tlcon_list RBRACE
+    (76) inv_block -> . INV LBRACE tlcon_list RBRACE
+    (77) post_block -> . POST LBRACE tlcon_list RBRACE
+
+    PRE             shift and go to state 73
+    INV             shift and go to state 74
+    POST            shift and go to state 75
+
+    constraints_items              shift and go to state 142
+    constraints_item               shift and go to state 143
+    pre_block                      shift and go to state 144
+    inv_block                      shift and go to state 145
+    post_block                     shift and go to state 146
+
+state 115
+
+    (75) pre_block -> PRE LBRACE . tlcon_list RBRACE
+    (78) tlcon_list -> . empty
+    (79) tlcon_list -> . tlcon_stmt
+    (80) tlcon_list -> . tlcon_list tlcon_stmt
+    (1) empty -> .
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+  ! shift/reduce conflict for NAME resolved as shift
+    RBRACE          reduce using rule 1 (empty -> .)
+    NAME            shift and go to state 36
+
+  ! NAME            [ reduce using rule 1 (empty -> .) ]
+
+    tlcon_list                     shift and go to state 147
+    empty                          shift and go to state 34
+    tlcon_stmt                     shift and go to state 35
+
+state 116
+
+    (76) inv_block -> INV LBRACE . tlcon_list RBRACE
+    (78) tlcon_list -> . empty
+    (79) tlcon_list -> . tlcon_stmt
+    (80) tlcon_list -> . tlcon_list tlcon_stmt
+    (1) empty -> .
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+  ! shift/reduce conflict for NAME resolved as shift
+    RBRACE          reduce using rule 1 (empty -> .)
+    NAME            shift and go to state 36
+
+  ! NAME            [ reduce using rule 1 (empty -> .) ]
+
+    tlcon_list                     shift and go to state 148
+    empty                          shift and go to state 34
+    tlcon_stmt                     shift and go to state 35
+
+state 117
+
+    (77) post_block -> POST LBRACE . tlcon_list RBRACE
+    (78) tlcon_list -> . empty
+    (79) tlcon_list -> . tlcon_stmt
+    (80) tlcon_list -> . tlcon_list tlcon_stmt
+    (1) empty -> .
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+  ! shift/reduce conflict for NAME resolved as shift
+    RBRACE          reduce using rule 1 (empty -> .)
+    NAME            shift and go to state 36
+
+  ! NAME            [ reduce using rule 1 (empty -> .) ]
+
+    tlcon_list                     shift and go to state 149
+    empty                          shift and go to state 34
+    tlcon_stmt                     shift and go to state 35
+
+state 118
+
+    (89) impacts_block -> IMPACTS LBRACE . impact_group_list RBRACE
+    (90) impact_group_list -> . empty
+    (91) impact_group_list -> . impact_group
+    (92) impact_group_list -> . impact_group_list impact_group
+    (1) empty -> .
+    (93) impact_group -> . impact_when LBRACE impact_group_entries RBRACE
+    (94) impact_when -> . PRE
+    (95) impact_when -> . MAINT
+    (96) impact_when -> . POST
+
+  ! shift/reduce conflict for PRE resolved as shift
+  ! shift/reduce conflict for MAINT resolved as shift
+  ! shift/reduce conflict for POST resolved as shift
+    RBRACE          reduce using rule 1 (empty -> .)
+    PRE             shift and go to state 154
+    MAINT           shift and go to state 155
+    POST            shift and go to state 156
+
+  ! PRE             [ reduce using rule 1 (empty -> .) ]
+  ! MAINT           [ reduce using rule 1 (empty -> .) ]
+  ! POST            [ reduce using rule 1 (empty -> .) ]
+
+    impact_group_list              shift and go to state 150
+    empty                          shift and go to state 151
+    impact_group                   shift and go to state 152
+    impact_when                    shift and go to state 153
+
+state 119
+
+    (109) temporal_prop -> PROP NAME COLON . tl_formula SEMI
+    (110) tl_formula -> . tl_imp
+    (111) tl_imp -> . tl_or
+    (112) tl_imp -> . tl_or IMPLIES tl_imp
+    (113) tl_or -> . tl_and
+    (114) tl_or -> . tl_or OR tl_and
+    (115) tl_and -> . tl_u
+    (116) tl_and -> . tl_and AND tl_u
+    (117) tl_u -> . tl_unary
+    (118) tl_u -> . tl_unary UNTIL tl_unary
+    (119) tl_u -> . tl_unary SINCE tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_formula                     shift and go to state 158
+    tl_imp                         shift and go to state 159
+    tl_or                          shift and go to state 160
+    tl_and                         shift and go to state 161
+    tl_u                           shift and go to state 162
+    tl_unary                       shift and go to state 163
+    tl_atom                        shift and go to state 170
+
+state 120
+
+    (17) timeline_decl -> NAME COLON timeline_kind SEMI .
+
+    RBRACE          reduce using rule 17 (timeline_decl -> NAME COLON timeline_kind SEMI .)
+    NAME            reduce using rule 17 (timeline_decl -> NAME COLON timeline_kind SEMI .)
+
+
+state 121
+
+    (18) timeline_kind -> STATE LPAREN . state_list RPAREN EQ NAME
+    (19) state_list -> . NAME
+    (20) state_list -> . state_list COMMA NAME
+
+    NAME            shift and go to state 172
+
+    state_list                     shift and go to state 171
+
+state 122
+
+    (21) timeline_kind -> ATOMIC init_bool_opt .
+
+    SEMI            reduce using rule 21 (timeline_kind -> ATOMIC init_bool_opt .)
+
+
+state 123
+
+    (33) init_bool_opt -> empty .
+
+    SEMI            reduce using rule 33 (init_bool_opt -> empty .)
+
+
+state 124
+
+    (34) init_bool_opt -> EQ . TRUE
+    (35) init_bool_opt -> EQ . FALSE
+
+    TRUE            shift and go to state 173
+    FALSE           shift and go to state 174
+
+
+state 125
+
+    (36) timeline_kind -> claim_kw range_opt . init_opt
+    (31) init_opt -> . empty
+    (32) init_opt -> . EQ NUMBER
+    (1) empty -> .
+
+    EQ              shift and go to state 177
+    SEMI            reduce using rule 1 (empty -> .)
+
+    init_opt                       shift and go to state 175
+    empty                          shift and go to state 176
+
+state 126
+
+    (27) range_opt -> empty .
+
+    EQ              reduce using rule 27 (range_opt -> empty .)
+    SEMI            reduce using rule 27 (range_opt -> empty .)
+    BOUNDS          reduce using rule 27 (range_opt -> empty .)
+
+
+state 127
+
+    (28) range_opt -> range .
+
+    EQ              reduce using rule 28 (range_opt -> range .)
+    SEMI            reduce using rule 28 (range_opt -> range .)
+    BOUNDS          reduce using rule 28 (range_opt -> range .)
+
+
+state 128
+
+    (37) timeline_kind -> cumul_kw range_opt . bounds_opt init_opt
+    (29) bounds_opt -> . empty
+    (30) bounds_opt -> . BOUNDS range
+    (1) empty -> .
+
+    BOUNDS          shift and go to state 180
+    EQ              reduce using rule 1 (empty -> .)
+    SEMI            reduce using rule 1 (empty -> .)
+
+    bounds_opt                     shift and go to state 178
+    empty                          shift and go to state 179
+
+state 129
+
+    (38) timeline_kind -> RATE range_opt . bounds_opt init_opt
+    (29) bounds_opt -> . empty
+    (30) bounds_opt -> . BOUNDS range
+    (1) empty -> .
+
+    BOUNDS          shift and go to state 180
+    EQ              reduce using rule 1 (empty -> .)
+    SEMI            reduce using rule 1 (empty -> .)
+
+    bounds_opt                     shift and go to state 181
+    empty                          shift and go to state 179
+
+state 130
+
+    (81) tlcon_stmt -> NAME EQ value SEMI .
+
+    RBRACE          reduce using rule 81 (tlcon_stmt -> NAME EQ value SEMI .)
+    NAME            reduce using rule 81 (tlcon_stmt -> NAME EQ value SEMI .)
+
+
+state 131
+
+    (82) tlcon_stmt -> NAME IN con_list SEMI .
+
+    RBRACE          reduce using rule 82 (tlcon_stmt -> NAME IN con_list SEMI .)
+    NAME            reduce using rule 82 (tlcon_stmt -> NAME IN con_list SEMI .)
+
+
+state 132
+
+    (84) con_list -> con_list con_item .
+
+    SEMI            reduce using rule 84 (con_list -> con_list con_item .)
+    STRING          reduce using rule 84 (con_list -> con_list con_item .)
+    NUMBER          reduce using rule 84 (con_list -> con_list con_item .)
+    TRUE            reduce using rule 84 (con_list -> con_list con_item .)
+    FALSE           reduce using rule 84 (con_list -> con_list con_item .)
+    NAME            reduce using rule 84 (con_list -> con_list con_item .)
+    LBRACKET        reduce using rule 84 (con_list -> con_list con_item .)
+
+
+state 133
+
+    (26) range -> LBRACKET NUMBER . COMMA NUMBER RBRACKET
+
+    COMMA           shift and go to state 182
+
+
+state 134
+
+    (58) task_id -> ID_KW NUMBER SEMI .
+
+    RBRACE          reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    ID_KW           reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    PRIORITY        reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    START_RANGE     reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    END_RANGE       reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    DURATION        reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    START_KW        reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    AFTER           reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    CONSTRAINTS     reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    PRE             reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    INV             reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    POST            reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+    IMPACTS         reduce using rule 58 (task_id -> ID_KW NUMBER SEMI .)
+
+
+state 135
+
+    (59) task_priority -> PRIORITY NUMBER SEMI .
+
+    RBRACE          reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    ID_KW           reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    PRIORITY        reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    START_RANGE     reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    END_RANGE       reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    DURATION        reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    START_KW        reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    AFTER           reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    CONSTRAINTS     reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    PRE             reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    INV             reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    POST            reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+    IMPACTS         reduce using rule 59 (task_priority -> PRIORITY NUMBER SEMI .)
+
+
+state 136
+
+    (60) task_start_range -> START_RANGE range SEMI .
+
+    RBRACE          reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    ID_KW           reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    PRIORITY        reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    START_RANGE     reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    END_RANGE       reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    DURATION        reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    START_KW        reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    AFTER           reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    CONSTRAINTS     reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    PRE             reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    INV             reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    POST            reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+    IMPACTS         reduce using rule 60 (task_start_range -> START_RANGE range SEMI .)
+
+
+state 137
+
+    (61) task_end_range -> END_RANGE range SEMI .
+
+    RBRACE          reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    ID_KW           reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    PRIORITY        reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    START_RANGE     reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    END_RANGE       reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    DURATION        reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    START_KW        reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    AFTER           reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    CONSTRAINTS     reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    PRE             reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    INV             reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    POST            reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+    IMPACTS         reduce using rule 61 (task_end_range -> END_RANGE range SEMI .)
+
+
+state 138
+
+    (62) task_duration -> DURATION NUMBER SEMI .
+
+    RBRACE          reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    ID_KW           reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    PRIORITY        reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    START_RANGE     reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    END_RANGE       reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    DURATION        reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    START_KW        reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    AFTER           reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    CONSTRAINTS     reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    PRE             reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    INV             reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    POST            reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+    IMPACTS         reduce using rule 62 (task_duration -> DURATION NUMBER SEMI .)
+
+
+state 139
+
+    (63) task_start_opt -> START_KW NUMBER SEMI .
+
+    RBRACE          reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    ID_KW           reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    PRIORITY        reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    START_RANGE     reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    END_RANGE       reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    DURATION        reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    START_KW        reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    AFTER           reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    CONSTRAINTS     reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    PRE             reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    INV             reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    POST            reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+    IMPACTS         reduce using rule 63 (task_start_opt -> START_KW NUMBER SEMI .)
+
+
+state 140
+
+    (65) task_after -> AFTER name_list SEMI .
+
+    RBRACE          reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    ID_KW           reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    PRIORITY        reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    START_RANGE     reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    END_RANGE       reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    DURATION        reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    START_KW        reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    AFTER           reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    CONSTRAINTS     reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    PRE             reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    INV             reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    POST            reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+    IMPACTS         reduce using rule 65 (task_after -> AFTER name_list SEMI .)
+
+
+state 141
+
+    (68) name_list -> name_list COMMA . NAME
+
+    NAME            shift and go to state 183
+
+
+state 142
+
+    (69) constraints_block -> CONSTRAINTS LBRACE constraints_items . RBRACE
+    (71) constraints_items -> constraints_items . constraints_item
+    (72) constraints_item -> . pre_block
+    (73) constraints_item -> . inv_block
+    (74) constraints_item -> . post_block
+    (75) pre_block -> . PRE LBRACE tlcon_list RBRACE
+    (76) inv_block -> . INV LBRACE tlcon_list RBRACE
+    (77) post_block -> . POST LBRACE tlcon_list RBRACE
+
+    RBRACE          shift and go to state 184
+    PRE             shift and go to state 73
+    INV             shift and go to state 74
+    POST            shift and go to state 75
+
+    constraints_item               shift and go to state 185
+    pre_block                      shift and go to state 144
+    inv_block                      shift and go to state 145
+    post_block                     shift and go to state 146
+
+state 143
+
+    (70) constraints_items -> constraints_item .
+
+    RBRACE          reduce using rule 70 (constraints_items -> constraints_item .)
+    PRE             reduce using rule 70 (constraints_items -> constraints_item .)
+    INV             reduce using rule 70 (constraints_items -> constraints_item .)
+    POST            reduce using rule 70 (constraints_items -> constraints_item .)
+
+
+state 144
+
+    (72) constraints_item -> pre_block .
+
+    RBRACE          reduce using rule 72 (constraints_item -> pre_block .)
+    PRE             reduce using rule 72 (constraints_item -> pre_block .)
+    INV             reduce using rule 72 (constraints_item -> pre_block .)
+    POST            reduce using rule 72 (constraints_item -> pre_block .)
+
+
+state 145
+
+    (73) constraints_item -> inv_block .
+
+    RBRACE          reduce using rule 73 (constraints_item -> inv_block .)
+    PRE             reduce using rule 73 (constraints_item -> inv_block .)
+    INV             reduce using rule 73 (constraints_item -> inv_block .)
+    POST            reduce using rule 73 (constraints_item -> inv_block .)
+
+
+state 146
+
+    (74) constraints_item -> post_block .
+
+    RBRACE          reduce using rule 74 (constraints_item -> post_block .)
+    PRE             reduce using rule 74 (constraints_item -> post_block .)
+    INV             reduce using rule 74 (constraints_item -> post_block .)
+    POST            reduce using rule 74 (constraints_item -> post_block .)
+
+
+state 147
+
+    (75) pre_block -> PRE LBRACE tlcon_list . RBRACE
+    (80) tlcon_list -> tlcon_list . tlcon_stmt
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+    RBRACE          shift and go to state 186
+    NAME            shift and go to state 36
+
+    tlcon_stmt                     shift and go to state 47
+
+state 148
+
+    (76) inv_block -> INV LBRACE tlcon_list . RBRACE
+    (80) tlcon_list -> tlcon_list . tlcon_stmt
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+    RBRACE          shift and go to state 187
+    NAME            shift and go to state 36
+
+    tlcon_stmt                     shift and go to state 47
+
+state 149
+
+    (77) post_block -> POST LBRACE tlcon_list . RBRACE
+    (80) tlcon_list -> tlcon_list . tlcon_stmt
+    (81) tlcon_stmt -> . NAME EQ value SEMI
+    (82) tlcon_stmt -> . NAME IN con_list SEMI
+
+    RBRACE          shift and go to state 188
+    NAME            shift and go to state 36
+
+    tlcon_stmt                     shift and go to state 47
+
+state 150
+
+    (89) impacts_block -> IMPACTS LBRACE impact_group_list . RBRACE
+    (92) impact_group_list -> impact_group_list . impact_group
+    (93) impact_group -> . impact_when LBRACE impact_group_entries RBRACE
+    (94) impact_when -> . PRE
+    (95) impact_when -> . MAINT
+    (96) impact_when -> . POST
+
+    RBRACE          shift and go to state 189
+    PRE             shift and go to state 154
+    MAINT           shift and go to state 155
+    POST            shift and go to state 156
+
+    impact_group                   shift and go to state 190
+    impact_when                    shift and go to state 153
+
+state 151
+
+    (90) impact_group_list -> empty .
+
+    RBRACE          reduce using rule 90 (impact_group_list -> empty .)
+    PRE             reduce using rule 90 (impact_group_list -> empty .)
+    MAINT           reduce using rule 90 (impact_group_list -> empty .)
+    POST            reduce using rule 90 (impact_group_list -> empty .)
+
+
+state 152
+
+    (91) impact_group_list -> impact_group .
+
+    RBRACE          reduce using rule 91 (impact_group_list -> impact_group .)
+    PRE             reduce using rule 91 (impact_group_list -> impact_group .)
+    MAINT           reduce using rule 91 (impact_group_list -> impact_group .)
+    POST            reduce using rule 91 (impact_group_list -> impact_group .)
+
+
+state 153
+
+    (93) impact_group -> impact_when . LBRACE impact_group_entries RBRACE
+
+    LBRACE          shift and go to state 191
+
+
+state 154
+
+    (94) impact_when -> PRE .
+
+    LBRACE          reduce using rule 94 (impact_when -> PRE .)
+
+
+state 155
+
+    (95) impact_when -> MAINT .
+
+    LBRACE          reduce using rule 95 (impact_when -> MAINT .)
+
+
+state 156
+
+    (96) impact_when -> POST .
+
+    LBRACE          reduce using rule 96 (impact_when -> POST .)
+
+
+state 157
+
+    (127) tl_atom -> NAME . cmp_op NUMBER
+    (128) tl_atom -> NAME . EQ NAME
+    (129) tl_atom -> NAME . EQ TRUE
+    (130) tl_atom -> NAME . EQ FALSE
+    (131) cmp_op -> . LT
+    (132) cmp_op -> . LE
+    (133) cmp_op -> . EQ
+    (134) cmp_op -> . GE
+    (135) cmp_op -> . GT
+
+    EQ              shift and go to state 193
+    LT              shift and go to state 194
+    LE              shift and go to state 195
+    GE              shift and go to state 196
+    GT              shift and go to state 197
+
+    cmp_op                         shift and go to state 192
+
+state 158
+
+    (109) temporal_prop -> PROP NAME COLON tl_formula . SEMI
+
+    SEMI            shift and go to state 198
+
+
+state 159
+
+    (110) tl_formula -> tl_imp .
+
+    SEMI            reduce using rule 110 (tl_formula -> tl_imp .)
+    RPAREN          reduce using rule 110 (tl_formula -> tl_imp .)
+
+
+state 160
+
+    (111) tl_imp -> tl_or .
+    (112) tl_imp -> tl_or . IMPLIES tl_imp
+    (114) tl_or -> tl_or . OR tl_and
+
+    SEMI            reduce using rule 111 (tl_imp -> tl_or .)
+    RPAREN          reduce using rule 111 (tl_imp -> tl_or .)
+    IMPLIES         shift and go to state 199
+    OR              shift and go to state 200
+
+
+state 161
+
+    (113) tl_or -> tl_and .
+    (116) tl_and -> tl_and . AND tl_u
+
+    IMPLIES         reduce using rule 113 (tl_or -> tl_and .)
+    OR              reduce using rule 113 (tl_or -> tl_and .)
+    SEMI            reduce using rule 113 (tl_or -> tl_and .)
+    RPAREN          reduce using rule 113 (tl_or -> tl_and .)
+    AND             shift and go to state 201
+
+
+state 162
+
+    (115) tl_and -> tl_u .
+
+    AND             reduce using rule 115 (tl_and -> tl_u .)
+    IMPLIES         reduce using rule 115 (tl_and -> tl_u .)
+    OR              reduce using rule 115 (tl_and -> tl_u .)
+    SEMI            reduce using rule 115 (tl_and -> tl_u .)
+    RPAREN          reduce using rule 115 (tl_and -> tl_u .)
+
+
+state 163
+
+    (117) tl_u -> tl_unary .
+    (118) tl_u -> tl_unary . UNTIL tl_unary
+    (119) tl_u -> tl_unary . SINCE tl_unary
+
+    AND             reduce using rule 117 (tl_u -> tl_unary .)
+    IMPLIES         reduce using rule 117 (tl_u -> tl_unary .)
+    OR              reduce using rule 117 (tl_u -> tl_unary .)
+    SEMI            reduce using rule 117 (tl_u -> tl_unary .)
+    RPAREN          reduce using rule 117 (tl_u -> tl_unary .)
+    UNTIL           shift and go to state 202
+    SINCE           shift and go to state 203
+
+
+state 164
+
+    (120) tl_unary -> NOT . tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_unary                       shift and go to state 204
+    tl_atom                        shift and go to state 170
+
+state 165
+
+    (121) tl_unary -> ALWAYS . tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_unary                       shift and go to state 205
+    tl_atom                        shift and go to state 170
+
+state 166
+
+    (122) tl_unary -> EVENTUALLY . tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_unary                       shift and go to state 206
+    tl_atom                        shift and go to state 170
+
+state 167
+
+    (123) tl_unary -> SOFAR . tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_unary                       shift and go to state 207
+    tl_atom                        shift and go to state 170
+
+state 168
+
+    (124) tl_unary -> ONCE . tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_unary                       shift and go to state 208
+    tl_atom                        shift and go to state 170
+
+state 169
+
+    (125) tl_unary -> LPAREN . tl_formula RPAREN
+    (110) tl_formula -> . tl_imp
+    (111) tl_imp -> . tl_or
+    (112) tl_imp -> . tl_or IMPLIES tl_imp
+    (113) tl_or -> . tl_and
+    (114) tl_or -> . tl_or OR tl_and
+    (115) tl_and -> . tl_u
+    (116) tl_and -> . tl_and AND tl_u
+    (117) tl_u -> . tl_unary
+    (118) tl_u -> . tl_unary UNTIL tl_unary
+    (119) tl_u -> . tl_unary SINCE tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_formula                     shift and go to state 209
+    tl_imp                         shift and go to state 159
+    tl_or                          shift and go to state 160
+    tl_and                         shift and go to state 161
+    tl_u                           shift and go to state 162
+    tl_unary                       shift and go to state 163
+    tl_atom                        shift and go to state 170
+
+state 170
+
+    (126) tl_unary -> tl_atom .
+
+    UNTIL           reduce using rule 126 (tl_unary -> tl_atom .)
+    SINCE           reduce using rule 126 (tl_unary -> tl_atom .)
+    AND             reduce using rule 126 (tl_unary -> tl_atom .)
+    IMPLIES         reduce using rule 126 (tl_unary -> tl_atom .)
+    OR              reduce using rule 126 (tl_unary -> tl_atom .)
+    SEMI            reduce using rule 126 (tl_unary -> tl_atom .)
+    RPAREN          reduce using rule 126 (tl_unary -> tl_atom .)
+
+
+state 171
+
+    (18) timeline_kind -> STATE LPAREN state_list . RPAREN EQ NAME
+    (20) state_list -> state_list . COMMA NAME
+
+    RPAREN          shift and go to state 210
+    COMMA           shift and go to state 211
+
+
+state 172
+
+    (19) state_list -> NAME .
+
+    RPAREN          reduce using rule 19 (state_list -> NAME .)
+    COMMA           reduce using rule 19 (state_list -> NAME .)
+
+
+state 173
+
+    (34) init_bool_opt -> EQ TRUE .
+
+    SEMI            reduce using rule 34 (init_bool_opt -> EQ TRUE .)
+
+
+state 174
+
+    (35) init_bool_opt -> EQ FALSE .
+
+    SEMI            reduce using rule 35 (init_bool_opt -> EQ FALSE .)
+
+
+state 175
+
+    (36) timeline_kind -> claim_kw range_opt init_opt .
+
+    SEMI            reduce using rule 36 (timeline_kind -> claim_kw range_opt init_opt .)
+
+
+state 176
+
+    (31) init_opt -> empty .
+
+    SEMI            reduce using rule 31 (init_opt -> empty .)
+
+
+state 177
+
+    (32) init_opt -> EQ . NUMBER
+
+    NUMBER          shift and go to state 212
+
+
+state 178
+
+    (37) timeline_kind -> cumul_kw range_opt bounds_opt . init_opt
+    (31) init_opt -> . empty
+    (32) init_opt -> . EQ NUMBER
+    (1) empty -> .
+
+    EQ              shift and go to state 177
+    SEMI            reduce using rule 1 (empty -> .)
+
+    init_opt                       shift and go to state 213
+    empty                          shift and go to state 176
+
+state 179
+
+    (29) bounds_opt -> empty .
+
+    EQ              reduce using rule 29 (bounds_opt -> empty .)
+    SEMI            reduce using rule 29 (bounds_opt -> empty .)
+
+
+state 180
+
+    (30) bounds_opt -> BOUNDS . range
+    (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+    LBRACKET        shift and go to state 102
+
+    range                          shift and go to state 214
+
+state 181
+
+    (38) timeline_kind -> RATE range_opt bounds_opt . init_opt
+    (31) init_opt -> . empty
+    (32) init_opt -> . EQ NUMBER
+    (1) empty -> .
+
+    EQ              shift and go to state 177
+    SEMI            reduce using rule 1 (empty -> .)
+
+    init_opt                       shift and go to state 215
+    empty                          shift and go to state 176
+
+state 182
+
+    (26) range -> LBRACKET NUMBER COMMA . NUMBER RBRACKET
+
+    NUMBER          shift and go to state 216
+
+
+state 183
+
+    (68) name_list -> name_list COMMA NAME .
+
+    SEMI            reduce using rule 68 (name_list -> name_list COMMA NAME .)
+    COMMA           reduce using rule 68 (name_list -> name_list COMMA NAME .)
+
+
+state 184
+
+    (69) constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .
+
+    RBRACE          reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    ID_KW           reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    PRIORITY        reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    START_RANGE     reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    END_RANGE       reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    DURATION        reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    START_KW        reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    AFTER           reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    CONSTRAINTS     reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    PRE             reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    INV             reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    POST            reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+    IMPACTS         reduce using rule 69 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
+
+
+state 185
+
+    (71) constraints_items -> constraints_items constraints_item .
+
+    RBRACE          reduce using rule 71 (constraints_items -> constraints_items constraints_item .)
+    PRE             reduce using rule 71 (constraints_items -> constraints_items constraints_item .)
+    INV             reduce using rule 71 (constraints_items -> constraints_items constraints_item .)
+    POST            reduce using rule 71 (constraints_items -> constraints_items constraints_item .)
+
+
+state 186
+
+    (75) pre_block -> PRE LBRACE tlcon_list RBRACE .
+
+    RBRACE          reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    ID_KW           reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    PRIORITY        reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    START_RANGE     reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    END_RANGE       reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    DURATION        reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    START_KW        reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    AFTER           reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    CONSTRAINTS     reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    PRE             reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    INV             reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    POST            reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+    IMPACTS         reduce using rule 75 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
+
+
+state 187
+
+    (76) inv_block -> INV LBRACE tlcon_list RBRACE .
+
+    RBRACE          reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    ID_KW           reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    PRIORITY        reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    START_RANGE     reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    END_RANGE       reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    DURATION        reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    START_KW        reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    AFTER           reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    CONSTRAINTS     reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    PRE             reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    INV             reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    POST            reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+    IMPACTS         reduce using rule 76 (inv_block -> INV LBRACE tlcon_list RBRACE .)
+
+
+state 188
+
+    (77) post_block -> POST LBRACE tlcon_list RBRACE .
+
+    RBRACE          reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    ID_KW           reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    PRIORITY        reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    START_RANGE     reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    END_RANGE       reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    DURATION        reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    START_KW        reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    AFTER           reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    CONSTRAINTS     reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    PRE             reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    INV             reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    POST            reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+    IMPACTS         reduce using rule 77 (post_block -> POST LBRACE tlcon_list RBRACE .)
+
+
+state 189
+
+    (89) impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .
+
+    RBRACE          reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    ID_KW           reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    PRIORITY        reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    START_RANGE     reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    END_RANGE       reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    DURATION        reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    START_KW        reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    AFTER           reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    CONSTRAINTS     reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    PRE             reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    INV             reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    POST            reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+    IMPACTS         reduce using rule 89 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
+
+
+state 190
+
+    (92) impact_group_list -> impact_group_list impact_group .
+
+    RBRACE          reduce using rule 92 (impact_group_list -> impact_group_list impact_group .)
+    PRE             reduce using rule 92 (impact_group_list -> impact_group_list impact_group .)
+    MAINT           reduce using rule 92 (impact_group_list -> impact_group_list impact_group .)
+    POST            reduce using rule 92 (impact_group_list -> impact_group_list impact_group .)
+
+
+state 191
+
+    (93) impact_group -> impact_when LBRACE . impact_group_entries RBRACE
+    (97) impact_group_entries -> . impact_group_entry
+    (98) impact_group_entries -> . impact_group_entries impact_group_entry
+    (99) impact_group_entry -> . NAME impact_rhs SEMI
+
+    NAME            shift and go to state 219
+
+    impact_group_entries           shift and go to state 217
+    impact_group_entry             shift and go to state 218
+
+state 192
+
+    (127) tl_atom -> NAME cmp_op . NUMBER
+
+    NUMBER          shift and go to state 220
+
+
+state 193
+
+    (128) tl_atom -> NAME EQ . NAME
+    (129) tl_atom -> NAME EQ . TRUE
+    (130) tl_atom -> NAME EQ . FALSE
+    (133) cmp_op -> EQ .
+
+    NAME            shift and go to state 221
+    TRUE            shift and go to state 222
+    FALSE           shift and go to state 223
+    NUMBER          reduce using rule 133 (cmp_op -> EQ .)
+
+
+state 194
+
+    (131) cmp_op -> LT .
+
+    NUMBER          reduce using rule 131 (cmp_op -> LT .)
+
+
+state 195
+
+    (132) cmp_op -> LE .
+
+    NUMBER          reduce using rule 132 (cmp_op -> LE .)
+
+
+state 196
+
+    (134) cmp_op -> GE .
+
+    NUMBER          reduce using rule 134 (cmp_op -> GE .)
+
+
+state 197
+
+    (135) cmp_op -> GT .
+
+    NUMBER          reduce using rule 135 (cmp_op -> GT .)
+
+
+state 198
+
+    (109) temporal_prop -> PROP NAME COLON tl_formula SEMI .
+
+    RBRACE          reduce using rule 109 (temporal_prop -> PROP NAME COLON tl_formula SEMI .)
+    PROP            reduce using rule 109 (temporal_prop -> PROP NAME COLON tl_formula SEMI .)
+
+
+state 199
+
+    (112) tl_imp -> tl_or IMPLIES . tl_imp
+    (111) tl_imp -> . tl_or
+    (112) tl_imp -> . tl_or IMPLIES tl_imp
+    (113) tl_or -> . tl_and
+    (114) tl_or -> . tl_or OR tl_and
+    (115) tl_and -> . tl_u
+    (116) tl_and -> . tl_and AND tl_u
+    (117) tl_u -> . tl_unary
+    (118) tl_u -> . tl_unary UNTIL tl_unary
+    (119) tl_u -> . tl_unary SINCE tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_or                          shift and go to state 160
+    tl_imp                         shift and go to state 224
+    tl_and                         shift and go to state 161
+    tl_u                           shift and go to state 162
+    tl_unary                       shift and go to state 163
+    tl_atom                        shift and go to state 170
+
+state 200
+
+    (114) tl_or -> tl_or OR . tl_and
+    (115) tl_and -> . tl_u
+    (116) tl_and -> . tl_and AND tl_u
+    (117) tl_u -> . tl_unary
+    (118) tl_u -> . tl_unary UNTIL tl_unary
+    (119) tl_u -> . tl_unary SINCE tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_and                         shift and go to state 225
+    tl_u                           shift and go to state 162
+    tl_unary                       shift and go to state 163
+    tl_atom                        shift and go to state 170
+
+state 201
+
+    (116) tl_and -> tl_and AND . tl_u
+    (117) tl_u -> . tl_unary
+    (118) tl_u -> . tl_unary UNTIL tl_unary
+    (119) tl_u -> . tl_unary SINCE tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_u                           shift and go to state 226
+    tl_unary                       shift and go to state 163
+    tl_atom                        shift and go to state 170
+
+state 202
+
+    (118) tl_u -> tl_unary UNTIL . tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_unary                       shift and go to state 227
+    tl_atom                        shift and go to state 170
+
+state 203
+
+    (119) tl_u -> tl_unary SINCE . tl_unary
+    (120) tl_unary -> . NOT tl_unary
+    (121) tl_unary -> . ALWAYS tl_unary
+    (122) tl_unary -> . EVENTUALLY tl_unary
+    (123) tl_unary -> . SOFAR tl_unary
+    (124) tl_unary -> . ONCE tl_unary
+    (125) tl_unary -> . LPAREN tl_formula RPAREN
+    (126) tl_unary -> . tl_atom
+    (127) tl_atom -> . NAME cmp_op NUMBER
+    (128) tl_atom -> . NAME EQ NAME
+    (129) tl_atom -> . NAME EQ TRUE
+    (130) tl_atom -> . NAME EQ FALSE
+
+    NOT             shift and go to state 164
+    ALWAYS          shift and go to state 165
+    EVENTUALLY      shift and go to state 166
+    SOFAR           shift and go to state 167
+    ONCE            shift and go to state 168
+    LPAREN          shift and go to state 169
+    NAME            shift and go to state 157
+
+    tl_unary                       shift and go to state 228
+    tl_atom                        shift and go to state 170
+
+state 204
+
+    (120) tl_unary -> NOT tl_unary .
+
+    UNTIL           reduce using rule 120 (tl_unary -> NOT tl_unary .)
+    SINCE           reduce using rule 120 (tl_unary -> NOT tl_unary .)
+    AND             reduce using rule 120 (tl_unary -> NOT tl_unary .)
+    IMPLIES         reduce using rule 120 (tl_unary -> NOT tl_unary .)
+    OR              reduce using rule 120 (tl_unary -> NOT tl_unary .)
+    SEMI            reduce using rule 120 (tl_unary -> NOT tl_unary .)
+    RPAREN          reduce using rule 120 (tl_unary -> NOT tl_unary .)
+
+
+state 205
+
+    (121) tl_unary -> ALWAYS tl_unary .
+
+    UNTIL           reduce using rule 121 (tl_unary -> ALWAYS tl_unary .)
+    SINCE           reduce using rule 121 (tl_unary -> ALWAYS tl_unary .)
+    AND             reduce using rule 121 (tl_unary -> ALWAYS tl_unary .)
+    IMPLIES         reduce using rule 121 (tl_unary -> ALWAYS tl_unary .)
+    OR              reduce using rule 121 (tl_unary -> ALWAYS tl_unary .)
+    SEMI            reduce using rule 121 (tl_unary -> ALWAYS tl_unary .)
+    RPAREN          reduce using rule 121 (tl_unary -> ALWAYS tl_unary .)
+
+
+state 206
+
+    (122) tl_unary -> EVENTUALLY tl_unary .
+
+    UNTIL           reduce using rule 122 (tl_unary -> EVENTUALLY tl_unary .)
+    SINCE           reduce using rule 122 (tl_unary -> EVENTUALLY tl_unary .)
+    AND             reduce using rule 122 (tl_unary -> EVENTUALLY tl_unary .)
+    IMPLIES         reduce using rule 122 (tl_unary -> EVENTUALLY tl_unary .)
+    OR              reduce using rule 122 (tl_unary -> EVENTUALLY tl_unary .)
+    SEMI            reduce using rule 122 (tl_unary -> EVENTUALLY tl_unary .)
+    RPAREN          reduce using rule 122 (tl_unary -> EVENTUALLY tl_unary .)
+
+
+state 207
+
+    (123) tl_unary -> SOFAR tl_unary .
+
+    UNTIL           reduce using rule 123 (tl_unary -> SOFAR tl_unary .)
+    SINCE           reduce using rule 123 (tl_unary -> SOFAR tl_unary .)
+    AND             reduce using rule 123 (tl_unary -> SOFAR tl_unary .)
+    IMPLIES         reduce using rule 123 (tl_unary -> SOFAR tl_unary .)
+    OR              reduce using rule 123 (tl_unary -> SOFAR tl_unary .)
+    SEMI            reduce using rule 123 (tl_unary -> SOFAR tl_unary .)
+    RPAREN          reduce using rule 123 (tl_unary -> SOFAR tl_unary .)
+
+
+state 208
+
+    (124) tl_unary -> ONCE tl_unary .
+
+    UNTIL           reduce using rule 124 (tl_unary -> ONCE tl_unary .)
+    SINCE           reduce using rule 124 (tl_unary -> ONCE tl_unary .)
+    AND             reduce using rule 124 (tl_unary -> ONCE tl_unary .)
+    IMPLIES         reduce using rule 124 (tl_unary -> ONCE tl_unary .)
+    OR              reduce using rule 124 (tl_unary -> ONCE tl_unary .)
+    SEMI            reduce using rule 124 (tl_unary -> ONCE tl_unary .)
+    RPAREN          reduce using rule 124 (tl_unary -> ONCE tl_unary .)
+
+
+state 209
+
+    (125) tl_unary -> LPAREN tl_formula . RPAREN
+
+    RPAREN          shift and go to state 229
+
+
+state 210
+
+    (18) timeline_kind -> STATE LPAREN state_list RPAREN . EQ NAME
+
+    EQ              shift and go to state 230
+
+
+state 211
+
+    (20) state_list -> state_list COMMA . NAME
+
+    NAME            shift and go to state 231
+
+
+state 212
+
+    (32) init_opt -> EQ NUMBER .
+
+    SEMI            reduce using rule 32 (init_opt -> EQ NUMBER .)
+
+
+state 213
+
+    (37) timeline_kind -> cumul_kw range_opt bounds_opt init_opt .
+
+    SEMI            reduce using rule 37 (timeline_kind -> cumul_kw range_opt bounds_opt init_opt .)
+
+
+state 214
+
+    (30) bounds_opt -> BOUNDS range .
+
+    EQ              reduce using rule 30 (bounds_opt -> BOUNDS range .)
+    SEMI            reduce using rule 30 (bounds_opt -> BOUNDS range .)
+
+
+state 215
+
+    (38) timeline_kind -> RATE range_opt bounds_opt init_opt .
+
+    SEMI            reduce using rule 38 (timeline_kind -> RATE range_opt bounds_opt init_opt .)
+
+
+state 216
+
+    (26) range -> LBRACKET NUMBER COMMA NUMBER . RBRACKET
+
+    RBRACKET        shift and go to state 232
+
+
+state 217
+
+    (93) impact_group -> impact_when LBRACE impact_group_entries . RBRACE
+    (98) impact_group_entries -> impact_group_entries . impact_group_entry
+    (99) impact_group_entry -> . NAME impact_rhs SEMI
+
+    RBRACE          shift and go to state 233
+    NAME            shift and go to state 219
+
+    impact_group_entry             shift and go to state 234
+
+state 218
+
+    (97) impact_group_entries -> impact_group_entry .
+
+    RBRACE          reduce using rule 97 (impact_group_entries -> impact_group_entry .)
+    NAME            reduce using rule 97 (impact_group_entries -> impact_group_entry .)
+
+
+state 219
+
+    (99) impact_group_entry -> NAME . impact_rhs SEMI
+    (100) impact_rhs -> . EQ value
+    (101) impact_rhs -> . PLUS_EQ NUMBER
+    (102) impact_rhs -> . MINUS_EQ NUMBER
+    (103) impact_rhs -> . PLUS_RATE NUMBER
+    (104) impact_rhs -> . MINUS_RATE NUMBER
+
+    EQ              shift and go to state 236
+    PLUS_EQ         shift and go to state 237
+    MINUS_EQ        shift and go to state 238
+    PLUS_RATE       shift and go to state 239
+    MINUS_RATE      shift and go to state 240
+
+    impact_rhs                     shift and go to state 235
+
+state 220
+
+    (127) tl_atom -> NAME cmp_op NUMBER .
+
+    UNTIL           reduce using rule 127 (tl_atom -> NAME cmp_op NUMBER .)
+    SINCE           reduce using rule 127 (tl_atom -> NAME cmp_op NUMBER .)
+    AND             reduce using rule 127 (tl_atom -> NAME cmp_op NUMBER .)
+    IMPLIES         reduce using rule 127 (tl_atom -> NAME cmp_op NUMBER .)
+    OR              reduce using rule 127 (tl_atom -> NAME cmp_op NUMBER .)
+    SEMI            reduce using rule 127 (tl_atom -> NAME cmp_op NUMBER .)
+    RPAREN          reduce using rule 127 (tl_atom -> NAME cmp_op NUMBER .)
+
+
+state 221
+
+    (128) tl_atom -> NAME EQ NAME .
+
+    UNTIL           reduce using rule 128 (tl_atom -> NAME EQ NAME .)
+    SINCE           reduce using rule 128 (tl_atom -> NAME EQ NAME .)
+    AND             reduce using rule 128 (tl_atom -> NAME EQ NAME .)
+    IMPLIES         reduce using rule 128 (tl_atom -> NAME EQ NAME .)
+    OR              reduce using rule 128 (tl_atom -> NAME EQ NAME .)
+    SEMI            reduce using rule 128 (tl_atom -> NAME EQ NAME .)
+    RPAREN          reduce using rule 128 (tl_atom -> NAME EQ NAME .)
+
+
+state 222
+
+    (129) tl_atom -> NAME EQ TRUE .
+
+    UNTIL           reduce using rule 129 (tl_atom -> NAME EQ TRUE .)
+    SINCE           reduce using rule 129 (tl_atom -> NAME EQ TRUE .)
+    AND             reduce using rule 129 (tl_atom -> NAME EQ TRUE .)
+    IMPLIES         reduce using rule 129 (tl_atom -> NAME EQ TRUE .)
+    OR              reduce using rule 129 (tl_atom -> NAME EQ TRUE .)
+    SEMI            reduce using rule 129 (tl_atom -> NAME EQ TRUE .)
+    RPAREN          reduce using rule 129 (tl_atom -> NAME EQ TRUE .)
+
+
+state 223
+
+    (130) tl_atom -> NAME EQ FALSE .
+
+    UNTIL           reduce using rule 130 (tl_atom -> NAME EQ FALSE .)
+    SINCE           reduce using rule 130 (tl_atom -> NAME EQ FALSE .)
+    AND             reduce using rule 130 (tl_atom -> NAME EQ FALSE .)
+    IMPLIES         reduce using rule 130 (tl_atom -> NAME EQ FALSE .)
+    OR              reduce using rule 130 (tl_atom -> NAME EQ FALSE .)
+    SEMI            reduce using rule 130 (tl_atom -> NAME EQ FALSE .)
+    RPAREN          reduce using rule 130 (tl_atom -> NAME EQ FALSE .)
+
+
+state 224
+
+    (112) tl_imp -> tl_or IMPLIES tl_imp .
+
+    SEMI            reduce using rule 112 (tl_imp -> tl_or IMPLIES tl_imp .)
+    RPAREN          reduce using rule 112 (tl_imp -> tl_or IMPLIES tl_imp .)
+
+
+state 225
+
+    (114) tl_or -> tl_or OR tl_and .
+    (116) tl_and -> tl_and . AND tl_u
+
+    IMPLIES         reduce using rule 114 (tl_or -> tl_or OR tl_and .)
+    OR              reduce using rule 114 (tl_or -> tl_or OR tl_and .)
+    SEMI            reduce using rule 114 (tl_or -> tl_or OR tl_and .)
+    RPAREN          reduce using rule 114 (tl_or -> tl_or OR tl_and .)
+    AND             shift and go to state 201
+
+
+state 226
+
+    (116) tl_and -> tl_and AND tl_u .
+
+    AND             reduce using rule 116 (tl_and -> tl_and AND tl_u .)
+    IMPLIES         reduce using rule 116 (tl_and -> tl_and AND tl_u .)
+    OR              reduce using rule 116 (tl_and -> tl_and AND tl_u .)
+    SEMI            reduce using rule 116 (tl_and -> tl_and AND tl_u .)
+    RPAREN          reduce using rule 116 (tl_and -> tl_and AND tl_u .)
+
+
+state 227
+
+    (118) tl_u -> tl_unary UNTIL tl_unary .
+
+    AND             reduce using rule 118 (tl_u -> tl_unary UNTIL tl_unary .)
+    IMPLIES         reduce using rule 118 (tl_u -> tl_unary UNTIL tl_unary .)
+    OR              reduce using rule 118 (tl_u -> tl_unary UNTIL tl_unary .)
+    SEMI            reduce using rule 118 (tl_u -> tl_unary UNTIL tl_unary .)
+    RPAREN          reduce using rule 118 (tl_u -> tl_unary UNTIL tl_unary .)
+
+
+state 228
+
+    (119) tl_u -> tl_unary SINCE tl_unary .
+
+    AND             reduce using rule 119 (tl_u -> tl_unary SINCE tl_unary .)
+    IMPLIES         reduce using rule 119 (tl_u -> tl_unary SINCE tl_unary .)
+    OR              reduce using rule 119 (tl_u -> tl_unary SINCE tl_unary .)
+    SEMI            reduce using rule 119 (tl_u -> tl_unary SINCE tl_unary .)
+    RPAREN          reduce using rule 119 (tl_u -> tl_unary SINCE tl_unary .)
+
+
+state 229
+
+    (125) tl_unary -> LPAREN tl_formula RPAREN .
+
+    UNTIL           reduce using rule 125 (tl_unary -> LPAREN tl_formula RPAREN .)
+    SINCE           reduce using rule 125 (tl_unary -> LPAREN tl_formula RPAREN .)
+    AND             reduce using rule 125 (tl_unary -> LPAREN tl_formula RPAREN .)
+    IMPLIES         reduce using rule 125 (tl_unary -> LPAREN tl_formula RPAREN .)
+    OR              reduce using rule 125 (tl_unary -> LPAREN tl_formula RPAREN .)
+    SEMI            reduce using rule 125 (tl_unary -> LPAREN tl_formula RPAREN .)
+    RPAREN          reduce using rule 125 (tl_unary -> LPAREN tl_formula RPAREN .)
+
+
+state 230
+
+    (18) timeline_kind -> STATE LPAREN state_list RPAREN EQ . NAME
+
+    NAME            shift and go to state 241
+
+
+state 231
+
+    (20) state_list -> state_list COMMA NAME .
+
+    RPAREN          reduce using rule 20 (state_list -> state_list COMMA NAME .)
+    COMMA           reduce using rule 20 (state_list -> state_list COMMA NAME .)
+
+
+state 232
+
+    (26) range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .
+
+    SEMI            reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    STRING          reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    NUMBER          reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    TRUE            reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    FALSE           reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    NAME            reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    LBRACKET        reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    EQ              reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+    BOUNDS          reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
+
+
+state 233
+
+    (93) impact_group -> impact_when LBRACE impact_group_entries RBRACE .
+
+    RBRACE          reduce using rule 93 (impact_group -> impact_when LBRACE impact_group_entries RBRACE .)
+    PRE             reduce using rule 93 (impact_group -> impact_when LBRACE impact_group_entries RBRACE .)
+    MAINT           reduce using rule 93 (impact_group -> impact_when LBRACE impact_group_entries RBRACE .)
+    POST            reduce using rule 93 (impact_group -> impact_when LBRACE impact_group_entries RBRACE .)
+
+
+state 234
+
+    (98) impact_group_entries -> impact_group_entries impact_group_entry .
+
+    RBRACE          reduce using rule 98 (impact_group_entries -> impact_group_entries impact_group_entry .)
+    NAME            reduce using rule 98 (impact_group_entries -> impact_group_entries impact_group_entry .)
+
+
+state 235
+
+    (99) impact_group_entry -> NAME impact_rhs . SEMI
+
+    SEMI            shift and go to state 242
+
+
+state 236
+
+    (100) impact_rhs -> EQ . value
+    (136) value -> . STRING
+    (137) value -> . NUMBER
+    (138) value -> . TRUE
+    (139) value -> . FALSE
+    (140) value -> . NAME
+
+    STRING          shift and go to state 94
+    NUMBER          shift and go to state 95
+    TRUE            shift and go to state 96
+    FALSE           shift and go to state 97
+    NAME            shift and go to state 92
+
+    value                          shift and go to state 243
+
+state 237
+
+    (101) impact_rhs -> PLUS_EQ . NUMBER
+
+    NUMBER          shift and go to state 244
+
+
+state 238
+
+    (102) impact_rhs -> MINUS_EQ . NUMBER
+
+    NUMBER          shift and go to state 245
+
+
+state 239
+
+    (103) impact_rhs -> PLUS_RATE . NUMBER
+
+    NUMBER          shift and go to state 246
+
+
+state 240
+
+    (104) impact_rhs -> MINUS_RATE . NUMBER
+
+    NUMBER          shift and go to state 247
+
+
+state 241
+
+    (18) timeline_kind -> STATE LPAREN state_list RPAREN EQ NAME .
+
+    SEMI            reduce using rule 18 (timeline_kind -> STATE LPAREN state_list RPAREN EQ NAME .)
+
+
+state 242
+
+    (99) impact_group_entry -> NAME impact_rhs SEMI .
+
+    RBRACE          reduce using rule 99 (impact_group_entry -> NAME impact_rhs SEMI .)
+    NAME            reduce using rule 99 (impact_group_entry -> NAME impact_rhs SEMI .)
+
+
+state 243
+
+    (100) impact_rhs -> EQ value .
+
+    SEMI            reduce using rule 100 (impact_rhs -> EQ value .)
+
+
+state 244
+
+    (101) impact_rhs -> PLUS_EQ NUMBER .
+
+    SEMI            reduce using rule 101 (impact_rhs -> PLUS_EQ NUMBER .)
+
+
+state 245
+
+    (102) impact_rhs -> MINUS_EQ NUMBER .
+
+    SEMI            reduce using rule 102 (impact_rhs -> MINUS_EQ NUMBER .)
+
+
+state 246
+
+    (103) impact_rhs -> PLUS_RATE NUMBER .
+
+    SEMI            reduce using rule 103 (impact_rhs -> PLUS_RATE NUMBER .)
+
+
+state 247
+
+    (104) impact_rhs -> MINUS_RATE NUMBER .
+
+    SEMI            reduce using rule 104 (impact_rhs -> MINUS_RATE NUMBER .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for NAME in state 23 resolved as shift
+WARNING: shift/reduce conflict for NAME in state 24 resolved as shift
+WARNING: shift/reduce conflict for ID_KW in state 37 resolved as shift
+WARNING: shift/reduce conflict for PRIORITY in state 37 resolved as shift
+WARNING: shift/reduce conflict for START_RANGE in state 37 resolved as shift
+WARNING: shift/reduce conflict for END_RANGE in state 37 resolved as shift
+WARNING: shift/reduce conflict for DURATION in state 37 resolved as shift
+WARNING: shift/reduce conflict for START_KW in state 37 resolved as shift
+WARNING: shift/reduce conflict for AFTER in state 37 resolved as shift
+WARNING: shift/reduce conflict for CONSTRAINTS in state 37 resolved as shift
+WARNING: shift/reduce conflict for PRE in state 37 resolved as shift
+WARNING: shift/reduce conflict for INV in state 37 resolved as shift
+WARNING: shift/reduce conflict for POST in state 37 resolved as shift
+WARNING: shift/reduce conflict for IMPACTS in state 37 resolved as shift
+WARNING: shift/reduce conflict for RBRACE in state 50 resolved as shift
+WARNING: shift/reduce conflict for ID_KW in state 50 resolved as shift
+WARNING: shift/reduce conflict for PRIORITY in state 50 resolved as shift
+WARNING: shift/reduce conflict for START_RANGE in state 50 resolved as shift
+WARNING: shift/reduce conflict for END_RANGE in state 50 resolved as shift
+WARNING: shift/reduce conflict for DURATION in state 50 resolved as shift
+WARNING: shift/reduce conflict for START_KW in state 50 resolved as shift
+WARNING: shift/reduce conflict for AFTER in state 50 resolved as shift
+WARNING: shift/reduce conflict for CONSTRAINTS in state 50 resolved as shift
+WARNING: shift/reduce conflict for PRE in state 50 resolved as shift
+WARNING: shift/reduce conflict for INV in state 50 resolved as shift
+WARNING: shift/reduce conflict for POST in state 50 resolved as shift
+WARNING: shift/reduce conflict for IMPACTS in state 50 resolved as shift
+WARNING: shift/reduce conflict for NAME in state 115 resolved as shift
+WARNING: shift/reduce conflict for NAME in state 116 resolved as shift
+WARNING: shift/reduce conflict for NAME in state 117 resolved as shift
+WARNING: shift/reduce conflict for PRE in state 118 resolved as shift
+WARNING: shift/reduce conflict for MAINT in state 118 resolved as shift
+WARNING: shift/reduce conflict for POST in state 118 resolved as shift
+WARNING: reduce/reduce conflict in state 70 resolved using rule (task_start_opt -> empty)
+WARNING: rejected rule (task_impacts -> empty) in state 70
+WARNING: Rule (task_impacts -> empty) is never reduced

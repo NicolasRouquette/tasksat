@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>TaskNet Time-Series Viewer (scaled)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
+  <style>
+    .mono { font-variant-numeric: tabular-nums; }
+    .card { @apply rounded-xl border border-neutral-200 bg-white; }
+    .w-scroll { overflow-x: auto; overflow-y: hidden; }
+    .wide-row { min-width: 900px; } /* base min width; actual inner widths can exceed */
+  </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900">
+  <div class="max-w-7xl mx-auto p-5 space-y-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div>
+        <h1 class="text-xl font-semibold">TaskNet Time-Series Viewer</h1>
+        <div id="meta" class="text-sm text-neutral-500">Load a schedule.json to begin</div>
+      </div>
+      <div class="flex gap-2">
+        <label class="inline-flex items-center px-3 py-2 rounded-lg bg-neutral-900 text-white cursor-pointer hover:bg-neutral-800">
+          Open JSON…
+          <input id="file" type="file" accept=".json,application/json" class="hidden">
+        </label>
+        <button id="pasteBtn" class="px-3 py-2 rounded-lg bg-neutral-200 hover:bg-neutral-300">Paste JSON</button>
+      </div>
+    </div>
+
+    <!-- Paste panel -->
+    <div id="pastePanel" class="hidden card p-3">
+      <textarea id="pasteBox" class="w-full h-40 p-2 rounded border border-neutral-200 font-mono text-sm" placeholder='{"tasknetId":"...", "endTime":300, "steps":[...]}'></textarea>
+      <div class="mt-2 flex gap-2">
+        <button id="loadPaste" class="px-3 py-2 rounded-lg bg-neutral-900 text-white hover:bg-neutral-800">Load</button>
+        <button id="closePaste" class="px-3 py-2 rounded-lg bg-neutral-200 hover:bg-neutral-300">Close</button>
+      </div>
+    </div>
+
+    <!-- Viewport controls -->
+    <div class="card p-3 flex items-center gap-4">
+      <div class="text-sm text-neutral-600">Time zoom</div>
+      <input id="zoom" type="range" min="10" max="400" value="100" class="w-60">
+      <div id="zoomVal" class="text-sm mono w-16">100%</div>
+      <button id="resetZoom" class="px-3 py-1.5 rounded bg-neutral-200 hover:bg-neutral-300 text-sm">Reset</button>
+    </div>
+
+    <!-- Gantt -->
+    <div class="card p-3">
+      <div class="text-sm font-medium mb-2">Tasks</div>
+      <div id="ganttWrap" class="w-scroll">
+        <div id="ganttRows" class="space-y-2 wide-row"></div>
+      </div>
+      <div id="timeLabel" class="mt-3 text-xs text-neutral-500 mono"></div>
+    </div>
+
+    <!-- Charts -->
+    <div id="charts" class="space-y-6"></div>
+
+    <!-- Categorical lanes -->
+    <div class="card p-3">
+      <div class="text-sm font-medium mb-2">Categorical timelines</div>
+      <div id="catsWrap" class="w-scroll">
+        <div id="catsBody" class="flex flex-col gap-3 wide-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- helpers ----------
+    const by = k => (a,b) => (a[k]??0)-(b[k]??0);
+    const isNum = v => typeof v === 'number' && Number.isFinite(v);
+    const fmt = v => isNum(v) ? v.toFixed(6) : String(v);
+    const unionKeys = (a={},b={}) => [...new Set([...Object.keys(a),...Object.keys(b)])];
+
+    // Build stepwise data using stateAfter at boundaries
+    function buildSeries(steps, endTime, id) {
+      if (!steps.length) return [];
+      const out = [];
+      let cur = steps[0].stateBefore?.[id];
+      out.push({x: steps[0].k, y: cur});
+      for (let i=0;i<steps.length;i++){
+        const k = steps[i].k;
+        const nextK = (i+1<steps.length) ? steps[i+1].k : endTime;
+        const vA = steps[i].stateAfter?.[id];
+        if (vA !== undefined) cur = vA;
+        out.push({x:k,y:cur},{x:nextK,y:cur});
+      }
+      const res=[];
+      for(const p of out){ const last=res[res.length-1]; if(!last||last.x!==p.x||last.y!==p.y) res.push(p); }
+      return res;
+    }
+
+    function deriveTaskIntervals(data){
+      if (Array.isArray(data.tasks)) return data.tasks.map(t=>({name:t.name??t.id??'?',start:t.start,end:t.end}));
+      const map=new Map();
+      for (const s of (data.steps||[])) {
+        for (const n of (s.starts||[])) if(!map.has(n)) map.set(n,{name:n,start:s.k,end:null});
+        for (const n of (s.ends||[])) { const cur=map.get(n)||{name:n,start:null,end:null}; cur.end=s.k; map.set(n,cur); }
+      }
+      return [...map.values()].sort(by('start'));
+    }
+
+    function numericIds(steps){
+      const S=new Set();
+      for (const s of steps){ for (const id of unionKeys(s.stateBefore,s.stateAfter)){ const vb=s.stateBefore?.[id]; const va=s.stateAfter?.[id]; if (isNum(vb)||isNum(va)) S.add(id); } }
+      return [...S].sort();
+    }
+    function categoricalIds(steps){
+      const S=new Set();
+      for (const s of steps){ for (const id of unionKeys(s.stateBefore,s.stateAfter)){ const vb=s.stateBefore?.[id]; const va=s.stateAfter?.[id]; if (!(isNum(vb)||isNum(va))) S.add(id); } }
+      return [...S].sort();
+    }
+
+    // ---------- state ----------
+    let DATA=null;
+    let CHARTS=[]; // Chart.js instances
+    let seriesCache={}; // id -> [{x,y}...]
+    let view = { min:0, max:0, zoomPct:100 }; // time window
+
+    // ---------- rendering ----------
+    function renderMeta(){
+      const endTime = DATA?.endTime ?? 0;
+      document.getElementById('meta').textContent =
+        DATA ? `TaskNet: ${DATA.tasknetId ?? '—'} · endTime: ${endTime} · valid: ${String(!!DATA.valid)}`
+             : 'Load a schedule.json to begin';
+    }
+
+    function currentWidth(){
+      // scale base width by zoom percentage; allow wide scroll area
+      const endTime = Math.max(1, DATA?.endTime ?? 1);
+      const pxPerUnitBase = 4;         // tune: 4px per time unit at 100%
+      const w = Math.max(900, Math.round(endTime * pxPerUnitBase * (view.zoomPct/100)));
+      return w;
+    }
+
+    function renderGantt(){
+      const box = document.getElementById('ganttRows');
+      box.innerHTML='';
+      if(!DATA) return;
+      const endTime = Math.max(1, DATA.endTime ?? 1);
+      const width = currentWidth();
+      box.style.width = width+'px';
+
+      const tasks = deriveTaskIntervals(DATA);
+      tasks.forEach(t=>{
+        const start=Math.max(0,t.start??0), end=Math.max(start,t.end??start);
+        const left = Math.round(width * (start/endTime));
+        const w    = Math.max(1, Math.round(width * ((end-start)/endTime)));
+        const row = document.createElement('div');
+        row.innerHTML = `
+          <div class="text-xs text-neutral-600 mb-1">${t.name} (${start},${end})</div>
+          <div class="relative h-3 rounded bg-neutral-100 overflow-hidden">
+            <div class="absolute top-0 bottom-0 bg-blue-500/70" style="left:${left}px;width:${w}px"></div>
+          </div>`;
+        box.appendChild(row);
+      });
+      document.getElementById('timeLabel').textContent = `time 0 … ${endTime}`;
+    }
+
+    function renderCharts(){
+      const wrap=document.getElementById('charts');
+      wrap.innerHTML='';
+      CHARTS.forEach(c=>c.destroy()); CHARTS.length=0;
+      if(!DATA) return;
+
+      const steps=(DATA.steps||[]).slice().sort(by('k'));
+      const endTime=DATA.endTime ?? (steps.at(-1)?.k ?? 0);
+      view.min=0; view.max=endTime;
+
+      const ids=numericIds(steps);
+      seriesCache={};
+      ids.forEach(id=>{ seriesCache[id]=buildSeries(steps,endTime,id).filter(p=>isNum(p.y)); });
+
+      ids.forEach(id=>{
+        const card=document.createElement('div'); card.className='card p-3';
+        const title=document.createElement('div'); title.className='text-sm font-medium mb-2'; title.textContent=id;
+        const canvas=document.createElement('canvas');
+        card.appendChild(title); card.appendChild(canvas); wrap.appendChild(card);
+
+        // make canvas follow wide width so it scrolls horizontally
+        const w=currentWidth();
+        canvas.style.width=w+'px'; canvas.style.height='280px'; // fixed readable height
+
+        const chart=new Chart(canvas.getContext('2d'), {
+          type:'line',
+          data:{ datasets:[{ label:id, data:seriesCache[id], parsing:false, stepped:'after', pointRadius:0, borderWidth:2 }] },
+          options:{
+            responsive:false,
+            maintainAspectRatio:false,
+            scales:{
+              x:{ type:'linear', min:view.min, max:view.max, ticks:{ maxTicksLimit:10 }, grid:{ display:false }, title:{ display:true, text:'time' } },
+              y:{ ticks:{ maxTicksLimit:6 }, grid:{ color:'rgba(0,0,0,0.06)' } }
+            },
+            plugins:{
+              legend:{ display:false },
+              tooltip:{ callbacks:{ label:(ctx)=>` ${ctx.raw.x} → ${ctx.raw.y}` } },
+              decimation:{ enabled:true, algorithm:'lttb', samples:1000 }
+            }
+          }
+        });
+        CHARTS.push(chart);
+      });
+    }
+
+    function renderCategoricals(){
+      const body=document.getElementById('catsBody');
+      body.innerHTML='';
+      if(!DATA) return;
+
+      const steps=(DATA.steps||[]).slice().sort(by('k'));
+      const endTime=DATA.endTime ?? (steps.at(-1)?.k ?? 0);
+      const ids=categoricalIds(steps);
+
+      const width=currentWidth();
+      body.style.width = width+'px';
+
+      ids.forEach(id=>{
+        const card=document.createElement('div'); card.className='card p-3';
+        const title=document.createElement('div'); title.className='text-sm font-medium mb-2'; title.textContent=id;
+        const lane=document.createElement('div'); lane.className='relative h-7 rounded bg-neutral-100 overflow-hidden';
+
+        for(let i=0;i<steps.length;i++){
+          const k=steps[i].k, nextK=(i+1<steps.length)?steps[i+1].k:endTime;
+          const v=steps[i].stateAfter?.[id] ?? steps[i].stateBefore?.[id];
+          const left=Math.round(width*(k/Math.max(1,endTime)));
+          const w=Math.max(1, Math.round(width*((nextK-k)/Math.max(1,endTime))));
+          const seg=document.createElement('div');
+          seg.className='absolute top-0 bottom-0 flex items-center justify-center text-[11px] mono';
+          seg.style.left=left+'px'; seg.style.width=w+'px'; seg.style.background='rgba(59,130,246,0.12)';
+          seg.title = `${id} @ [${k}, ${nextK}): ${v}`;
+          // only show text if wide enough
+          if (w >= 60) seg.textContent = String(v);
+          lane.appendChild(seg);
+        }
+
+        card.appendChild(title); card.appendChild(lane); body.appendChild(card);
+      });
+    }
+
+    function applyZoom(){
+      document.getElementById('zoomVal').textContent = `${view.zoomPct}%`;
+      // update widths for gantt & lanes
+      renderGantt();
+      renderCategoricals();
+      // update chart x-range & canvas widths
+      const endTime = Math.max(1, DATA?.endTime ?? 1);
+      const width = currentWidth();
+      CHARTS.forEach(ch => {
+        ch.canvas.style.width = width+'px';
+        ch.options.scales.x.min = 0;
+        ch.options.scales.x.max = endTime;
+        ch.update('none');
+      });
+    }
+
+    function renderAll(){
+      renderMeta();
+      renderGantt();
+      renderCharts();
+      renderCategoricals();
+    }
+
+    // ---------- events ----------
+    document.getElementById('file').addEventListener('change', async (e)=>{
+      const f=e.target.files?.[0]; if(!f) return;
+      try { DATA=JSON.parse(await f.text()); view.zoomPct=100; renderAll(); }
+      catch(err){ alert('Invalid JSON: '+err.message); }
+    });
+    document.getElementById('pasteBtn').addEventListener('click',()=>document.getElementById('pastePanel').classList.toggle('hidden'));
+    document.getElementById('closePaste').addEventListener('click',()=>document.getElementById('pastePanel').classList.add('hidden'));
+    document.getElementById('loadPaste').addEventListener('click',()=>{
+      try{ DATA=JSON.parse(document.getElementById('pasteBox').value); view.zoomPct=100; document.getElementById('pastePanel').classList.add('hidden'); renderAll(); }
+      catch(err){ alert('Invalid JSON: '+err.message); }
+    });
+    document.getElementById('zoom').addEventListener('input', (e)=>{ view.zoomPct = Number(e.target.value); applyZoom(); });
+    document.getElementById('resetZoom').addEventListener('click', ()=>{ view.zoomPct=100; document.getElementById('zoom').value=100; applyZoom(); });
+  </script>
+</body>
+</html>

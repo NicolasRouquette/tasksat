@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>TaskNet Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+    *::-webkit-scrollbar { height: 8px; width: 8px; }
+    *::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+
+    .badge { display:inline-flex; align-items:center; border-radius:9999px; padding:2px 8px; font-size:12px; font-weight:500; }
+    .badge-green { background:#dcfce7; color:#166534; }
+    .badge-red   { background:#fee2e2; color:#991b1b; }
+    .badge-gray  { background:#e5e7eb; color:#111827; }
+    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900">
+  <div id="app" class="max-w-7xl mx-auto p-5"></div>
+
+  <!-- React 18 UMD -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <script>
+  const { useState, useMemo } = React;
+
+  // ----------------- formatting helpers -----------------
+function fmtVal(v) {
+  if (v === null || typeof v === 'undefined') return '—';
+  if (typeof v === 'number') return v.toFixed(6);
+  if (typeof v === 'boolean') return v ? 'true' : 'false';
+  return String(v);
+}
+
+
+  const fmt = fmtVal;
+
+  // Expected-set item pretty printer for expect entries
+  function expItemToString(e) {
+    if (!e || typeof e !== 'object') return String(e ?? '(?)');
+    switch (e.kind) {
+      case 'val':
+        return fmtVal(e.value);
+      case 'i_rng':
+      case 'r_rng': {
+        const lo = ('low' in e) ? e.low : e.min;
+        const hi = ('high' in e) ? e.high : e.max;
+        return `[${fmtVal(lo)}, ${fmtVal(hi)}]`;
+      }
+      default:
+        // tolerate other shapes (legacy)
+        if ('value' in e) return fmtVal(e.value);
+        return '(?)';
+    }
+  }
+
+  // Normalize a structured clause: {holds, details:[{id, actual, expect:[...], holds}], active?}
+  function normalizeClauseFromStructured(clause) {
+    if (!clause || typeof clause !== 'object') {
+      return { holds: null, details: [] };
+    }
+    const details = Array.isArray(clause.details)
+      ? clause.details.map(d => ({
+          id: d.id ?? d.timeline ?? '',
+          actual: fmtVal(d.actual),
+          expected: Array.isArray(d.expect) ? d.expect.map(expItemToString).join(' OR ') : '(?)',
+          holds: !!d.holds,
+        }))
+      : [];
+    return { holds: ('holds' in clause ? clause.holds : null), details };
+  }
+
+  // Legacy fallback normalization (handles older viewer code)
+  function normalizeClauseFallback(pip, key) {
+    // possible booleans like pip.pre === true/false
+    let holds = null;
+    if (typeof pip[key] === 'boolean') holds = pip[key];
+    else if (typeof pip[key + 'Holds'] === 'boolean') holds = pip[key + 'Holds'];
+    else if (typeof pip[key + 'Ok'] === 'boolean') holds = pip[key + 'Ok'];
+
+    const raw = pip[key + 'Details'];
+    const details = Array.isArray(raw) ? raw.map(d => {
+      // try both "expect" and "expected"
+      const ex = Array.isArray(d.expect) ? d.expect
+               : Array.isArray(d.expected) ? d.expected
+               : null;
+      const expected = ex ? ex.map(expItemToString).join(' OR ') : '(?)';
+      return {
+        id: d.id ?? d.timeline ?? '',
+        actual: fmtVal(d.actual),
+        expected,
+        holds: !!d.holds
+      };
+    }) : [];
+
+    return { holds, details };
+  }
+
+  function normalizePIP(pip) {
+    // pip: {task, pre:{...}, inv:{...}, post:{...}} as in your JSON snippet
+    const hasStructured =
+      pip && typeof pip === 'object' &&
+      (typeof pip.pre  === 'object' ||
+       typeof pip.inv  === 'object' ||
+       typeof pip.post === 'object');
+
+    const pre  = hasStructured ? normalizeClauseFromStructured(pip.pre)  : normalizeClauseFallback(pip, 'pre');
+    const inv  = hasStructured ? normalizeClauseFromStructured(pip.inv)  : normalizeClauseFallback(pip, 'inv');
+    const post = hasStructured ? normalizeClauseFromStructured(pip.post) : normalizeClauseFallback(pip, 'post');
+
+    return { task: pip.task ?? pip.name ?? '—', pre, inv, post };
+  }
+
+  // ----------------- small UI atoms -----------------
+  function Badge({ ok, label }) {
+    if (ok === null || typeof ok === 'undefined')
+      return React.createElement('span', { className: 'badge badge-gray' }, label ?? 'n/a');
+    return React.createElement(
+      'span',
+      { className: 'badge ' + (ok ? 'badge-green' : 'badge-red') },
+      (ok ? '✓ ' : '✗ ') + (label ?? (ok ? 'true' : 'false'))
+    );
+  }
+
+  function Section({ title, children }) {
+    return React.createElement(
+      'div',
+      { className: 'mb-5' },
+      React.createElement('div', { className: 'text-sm uppercase tracking-wide text-neutral-500 mb-2' }, title),
+      children
+    );
+  }
+
+  // ----------------- main viewer -----------------
+  function TaskNetViewer() {
+    const [data, setData] = useState(null);
+    const [selectedK, setSelectedK] = useState(null);
+    const [pasteOpen, setPasteOpen] = useState(false);
+    const [pasteText, setPasteText] = useState('');
+
+    const steps = data?.steps ?? [];
+    const ks = steps.map(s => s.k);
+    const endTime = data?.endTime ?? (ks.length ? Math.max(...ks) : 0);
+
+    // Task intervals
+    const taskIntervals = useMemo(() => {
+      if (Array.isArray(data?.tasks)) {
+        return data.tasks.map(t => ({ name: t.name ?? t.id ?? '?', start: t.start, end: t.end }));
+      }
+      const map = new Map();
+      for (const s of steps) {
+        for (const n of (s.starts || [])) {
+          if (!map.has(n)) map.set(n, { name: n, start: s.k, end: null });
+        }
+        for (const n of (s.ends || [])) {
+          const cur = map.get(n) || { name: n, start: null, end: null };
+          cur.end = s.k;
+          map.set(n, cur);
+        }
+      }
+      return Array.from(map.values()).sort((a,b) => (a.start ?? 0) - (b.start ?? 0));
+    }, [data]);
+
+    // file / paste
+    const onFile = async (e) => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      const txt = await f.text();
+      try {
+        const json = JSON.parse(txt);
+        setData(json);
+        setSelectedK((json.steps && json.steps[0]?.k) ?? null);
+      } catch (err) {
+        alert('Invalid JSON: ' + err.message);
+      }
+    };
+    const onPaste = () => {
+      try {
+        const json = JSON.parse(pasteText);
+        setData(json);
+        setSelectedK((json.steps && json.steps[0]?.k) ?? null);
+        setPasteOpen(false);
+      } catch (err) {
+        alert('Invalid JSON: ' + err.message);
+      }
+    };
+
+    const current = steps.find(s => s.k === selectedK) || null;
+
+    // ----------------- UI blocks -----------------
+    function Header() {
+      return React.createElement(
+        'div',
+        { className: 'flex items-center justify-between mb-4' },
+        React.createElement('div', null,
+          React.createElement('h1', { className: 'text-xl font-semibold' }, 'TaskNet Viewer'),
+          React.createElement('div', { className: 'text-sm text-neutral-500' },
+            data
+              ? `TaskNet: ${data.tasknetId ?? '—'} · endTime: ${endTime} · valid: ${String(!!data.valid)}`
+              : 'Load a schedule.json to begin'
+          )
+        ),
+        React.createElement('div', { className: 'flex items-center gap-2' },
+          React.createElement('label', { className: 'inline-flex items-center px-3 py-2 rounded-lg bg-neutral-900 text-white cursor-pointer hover:bg-neutral-800' },
+            'Open JSON…',
+            React.createElement('input', { type: 'file', accept: '.json,application/json', className: 'hidden', onChange: onFile })
+          ),
+          React.createElement('button', { className: 'px-3 py-2 rounded-lg bg-neutral-200 hover:bg-neutral-300', onClick: () => setPasteOpen(v => !v) }, 'Paste JSON')
+        )
+      );
+    }
+
+    function PastePanel() {
+      if (!pasteOpen) return null;
+      return React.createElement(
+        'div',
+        { className: 'mb-4 p-3 rounded-xl border border-neutral-200 bg-white' },
+        React.createElement('textarea', {
+          className: 'w-full h-40 p-2 rounded border border-neutral-200 font-mono text-sm',
+          placeholder: '{ "tasknetId": "...", "steps": [ ... ] }',
+          value: pasteText,
+          onChange: (e) => setPasteText(e.target.value)
+        }),
+        React.createElement('div', { className: 'mt-2 flex gap-2' },
+          React.createElement('button', { className: 'px-3 py-2 rounded-lg bg-neutral-900 text-white hover:bg-neutral-800', onClick: onPaste }, 'Load'),
+          React.createElement('button', { className: 'px-3 py-2 rounded-lg bg-neutral-200 hover:bg-neutral-300', onClick: () => setPasteOpen(false) }, 'Close')
+        )
+      );
+    }
+
+    function Gantt() {
+      if (!data) return null;
+      const total = Math.max(1, endTime);
+      return React.createElement(
+        'div',
+        { className: 'p-3 rounded-xl border border-neutral-200 bg-white' },
+        React.createElement('div', { className: 'text-sm font-medium mb-2' }, 'Tasks'),
+        React.createElement('div', { className: 'space-y-2' },
+          taskIntervals.map(t => {
+            const start = Math.max(0, t.start ?? 0);
+            const end = Math.max(start, t.end ?? start);
+            const leftPct = (100 * start / total);
+            const widthPct = (100 * (end - start) / total);
+            return React.createElement(
+              'div', { key: t.name },
+              React.createElement('div', { className: 'text-xs text-neutral-600 mb-1' }, `${t.name} (${start},${end})`),
+              React.createElement('div', { className: 'relative h-3 rounded bg-neutral-100 overflow-hidden' },
+                React.createElement('div', { className: 'absolute top-0 bottom-0 bg-blue-500/70', style: { left: leftPct + '%', width: widthPct + '%' } })
+              )
+            );
+          })
+        ),
+        React.createElement('div', { className: 'mt-3 text-xs text-neutral-500 mono' }, `time 0 … ${endTime}`)
+      );
+    }
+
+    function StepList() {
+      if (!data) return null;
+      return React.createElement(
+        'div',
+        { className: 'p-3 rounded-xl border border-neutral-200 bg-white h-[480px] overflow-auto' },
+        React.createElement('div', { className: 'text-sm font-medium mb-2' }, 'Boundary steps'),
+        React.createElement('div', { className: 'space-y-1' },
+          steps.map(s =>
+            React.createElement('button', {
+              key: s.k,
+              className: 'w-full text-left px-3 py-2 rounded-lg ' + (selectedK === s.k ? 'bg-blue-50 border border-blue-200' : 'hover:bg-neutral-100'),
+              onClick: () => setSelectedK(s.k)
+            },
+            React.createElement('div', { className: 'flex items-center justify-between' },
+              React.createElement('div', null, `k=${s.k}`),
+              React.createElement('div', { className: 'text-xs space-x-1' },
+                (s.starts||[]).map(n => React.createElement('span', { key:'s'+n, className:'badge badge-green' }, 'start ' + n)),
+                (s.ends||[]).map(n => React.createElement('span', { key:'e'+n, className:'badge badge-red' }, 'end ' + n))
+              )
+            ))
+          )
+        )
+      );
+    }
+
+    function StateTable({ title, obj }) {
+      const entries = Object.entries(obj || {});
+      return React.createElement(
+        Section,
+        { title },
+        React.createElement('div', { className: 'rounded-xl border border-neutral-200 overflow-hidden bg-white' },
+          React.createElement('table', { className: 'w-full text-sm' },
+            React.createElement('tbody', null,
+              entries.map(([k,v]) =>
+                React.createElement('tr', { key:k, className:'border-b last:border-0' },
+                  React.createElement('td', { className:'px-3 py-1.5 text-neutral-500 w-48' }, k),
+                  React.createElement('td', { className:'px-3 py-1.5 mono' }, fmtVal(v))
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+    function ChangesTable({ changes }) {
+      const rows = (changes || []).map(c => {
+        let v = c.value;
+        if (typeof v === 'object' && v !== null) v = JSON.stringify(v);
+        return { id: c.id, kind: c.kind, value: v };
+      });
+      return React.createElement(
+        Section, { title: 'Changes' },
+        React.createElement('div', { className:'rounded-xl border border-neutral-200 overflow-hidden bg-white' },
+          React.createElement('table', { className:'w-full text-sm' },
+            React.createElement('thead', null,
+              React.createElement('tr', { className:'bg-neutral-50 border-b' },
+                React.createElement('th', { className:'px-3 py-1.5 text-left w-48' }, 'timeline'),
+                React.createElement('th', { className:'px-3 py-1.5 text-left w-32' }, 'kind'),
+                React.createElement('th', { className:'px-3 py-1.5 text-left' }, 'value')
+              )
+            ),
+            React.createElement('tbody', null,
+              rows.map((r,i) =>
+                React.createElement('tr', { key:i, className:'border-b last:border-0' },
+                  React.createElement('td', { className:'px-3 py-1.5 text-neutral-600' }, r.id),
+                  React.createElement('td', { className:'px-3 py-1.5' }, r.kind),
+                  React.createElement('td', { className:'px-3 py-1.5 mono' }, r.value ?? '—')
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+function DiffsTable({ diffs }) {
+  // unwrap various JSON shapes for “value”
+  function readVal(x) {
+    if (x === null || typeof x === 'undefined') return undefined;
+    if (typeof x !== 'object') return x;
+
+    // common wrappers
+    if ('value' in x) return x.value;
+    // tolerant to possible Lean-style encodings you might try later:
+    if ('real' in x) return x.real;
+    if ('int'  in x) return x.int;
+    if ('bool' in x) return !!x.bool;
+    if ('str'  in x) return x.str;
+
+    return x; // last resort: let fmtVal stringify it
+  }
+
+  const rows = (diffs || []).map(d => {
+    const id = d.id ?? d.timeline ?? '';
+    const before = readVal(d.before ?? d.old  ?? d.prev ?? d.from);
+    const after  = readVal(d.after  ?? d.new  ?? d.next ?? d.to);
+    return { id, before, after };
+  });
+
+  return React.createElement(
+    Section, { title: 'DIFFS' },
+    React.createElement('div', { className:'rounded-xl border border-neutral-200 overflow-hidden bg-white' },
+      React.createElement('table', { className:'w-full text-sm' },
+        React.createElement('thead', null,
+          React.createElement('tr', { className:'bg-neutral-50 border-b' },
+            React.createElement('th', { className:'px-3 py-1.5 text-left w-48' }, 'timeline'),
+            React.createElement('th', { className:'px-3 py-1.5 text-left' }, 'before'),
+            React.createElement('th', { className:'px-3 py-1.5 text-left' }, 'after')
+          )
+        ),
+        React.createElement('tbody', null,
+          rows.map((r,i) =>
+            React.createElement('tr', { key:i, className:'border-b last:border-0' },
+              React.createElement('td', { className:'px-3 py-1.5 text-neutral-600' }, r.id),
+              React.createElement('td', { className:'px-3 py-1.5 mono' }, fmtVal(r.before)),
+              React.createElement('td', { className:'px-3 py-1.5 mono' }, fmtVal(r.after))
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+
+    // PRE / INV / POST block
+    function PIP({ pip }) {
+      if (!pip) return null;
+      const norm = normalizePIP(pip);
+
+      const blk = (label, clause) => {
+        const head = React.createElement('div', { className:'flex items-center gap-2 mb-1' },
+          React.createElement('div', { className:'w-14 text-xs uppercase text-neutral-500' }, label),
+          React.createElement(Badge, { ok: (clause.holds ?? null), label: (clause.holds===null?'n/a':String(clause.holds)) })
+        );
+
+        const det = (clause.details || []).map((d,i) =>
+          React.createElement('div', { key:i, className:'flex items-center gap-2 ml-6 text-sm' },
+            React.createElement(Badge, { ok: !!d.holds }),
+            React.createElement('span', { className:'mono' }, `${d.id}: ${d.actual} ∈ ${d.expected}`)
+          )
+        );
+
+        return React.createElement('div', { className:'mb-3' }, head, det);
+      };
+
+      return React.createElement(
+        'div',
+        { className:'rounded-xl border border-neutral-200 bg-white p-3 mb-3' },
+        React.createElement('div', { className:'font-medium mb-2' }, norm.task),
+        blk('PRE',  norm.pre),
+        blk('INV',  norm.inv),
+        blk('POST', norm.post)
+      );
+    }
+
+    function PIPList({ list }) {
+      const items = Array.isArray(list) ? list : [];
+      return React.createElement(
+        Section, { title: 'PRE / INV / POST' },
+        React.createElement('div', null,
+          items.map((p,i) => React.createElement(PIP, { key:i, pip:p }))
+        )
+      );
+    }
+
+    function MainPanel() {
+      if (!data || !current) {
+        return React.createElement('div', { className:'text-neutral-500' }, 'Open or paste a JSON export to begin.');
+      }
+      const headerBadges = [
+        ...(current.starts||[]).map(n => React.createElement('span', { key:'s'+n, className:'badge badge-green' }, 'start ' + n)),
+        ...(current.ends||[]).map(n => React.createElement('span', { key:'e'+n, className:'badge badge-red' }, 'end ' + n)),
+      ];
+
+      // PRE/INV/POST list may be at current.preInvPost (your JSON)
+      const pipList = current.preInvPost || current.pip || [];
+
+      return React.createElement(
+        'div',
+        null,
+        React.createElement('div', { className:'mb-3 flex items-center justify-between' },
+          React.createElement('div', { className:'text-lg font-semibold' }, `k = ${current.k}`),
+          React.createElement('div', { className:'space-x-1' }, headerBadges)
+        ),
+        React.createElement('div', { className:'grid grid-cols-1 lg:grid-cols-2 gap-4' },
+          React.createElement(StateTable, { title:'State before', obj: current.stateBefore }),
+          React.createElement(StateTable, { title:'State after',  obj: current.stateAfter  }),
+          React.createElement(ChangesTable, { changes: current.changes }),
+          React.createElement(DiffsTable, { diffs: current.diffs })
+        ),
+        React.createElement(PIPList, { list: pipList })
+      );
+    }
+
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(Header, null),
+      React.createElement(PastePanel, null),
+      React.createElement('div', { className:'grid grid-cols-1 lg:grid-cols-3 gap-4' },
+        React.createElement('div', { className:'lg:col-span-1 space-y-4' },
+          React.createElement(Gantt, null),
+          React.createElement(StepList, null)
+        ),
+        React.createElement('div', { className:'lg:col-span-2' },
+          React.createElement(MainPanel, null)
+        )
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(TaskNetViewer));
+  </script>
+</body>
+</html>

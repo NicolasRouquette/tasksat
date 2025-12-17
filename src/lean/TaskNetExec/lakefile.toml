@@ -1,0 +1,10 @@
+name = "TaskNet"
+version = "0.1.0"
+defaultTargets = ["tasknet"]
+
+[[lean_lib]]
+name = "TaskNet"
+
+[[lean_exe]]
+name = "tasknet"
+root = "Main"

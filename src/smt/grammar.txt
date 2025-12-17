@@ -1,0 +1,261 @@
+start :
+   tasknet
+
+tasknet :
+   TASKNET NAME LBRACE tasknet_body_items RBRACE
+
+tasknet_body_items :
+   tasknet_body_item
+ | tasknet_body_items tasknet_body_item
+
+tasknet_body_item :
+   end_decl
+ | timelines_block
+ | initial_block
+ | task_def
+ | constraints_tl_block
+ | properties_block
+
+end_decl :
+   END EQ NUMBER SEMI
+
+timelines_block :
+   TIMELINES LBRACE timeline_decl_list RBRACE
+
+timeline_decl_list :
+   empty
+ | timeline_decl_list timeline_decl
+ | timeline_decl
+
+timeline_decl :
+   NAME COLON timeline_kind SEMI
+
+timeline_kind :
+   STATE LPAREN state_list RPAREN EQ NAME
+ | ATOMIC init_bool_opt
+ | claim_kw range_opt init_opt
+ | cumul_kw range_opt bounds_opt init_opt
+ | RATE range_opt bounds_opt init_opt
+
+state_list :
+   NAME
+ | state_list COMMA NAME
+
+claim_kw :
+   CLAIM
+ | CLAIMABLE
+
+cumul_kw :
+   CUMUL
+ | CUMULATIVE
+
+range :
+   LBRACKET NUMBER COMMA NUMBER RBRACKET
+
+range_opt :
+   empty
+ | range
+
+bounds_opt :
+   empty
+ | BOUNDS range
+
+init_opt :
+   empty
+ | EQ NUMBER
+
+init_bool_opt :
+   empty
+ | EQ TRUE
+ | EQ FALSE
+
+initial_block :
+   INITIAL LBRACE tlcon_list RBRACE
+
+task_list :
+   empty
+ | task_list task_def
+ | task_def
+
+task_def :
+   TASK NAME LBRACE task_body_items RBRACE
+
+task_body_items :
+   task_body_item
+ | task_body_items task_body_item
+
+task_body_item :
+   task_id
+ | task_priority
+ | task_start_range
+ | task_end_range
+ | task_duration
+ | task_start_opt
+ | task_after
+ | constraints_block
+ | pre_block
+ | inv_block
+ | post_block
+ | task_impacts
+
+task_id :
+   ID_KW NUMBER SEMI
+
+task_priority :
+   PRIORITY NUMBER SEMI
+
+task_start_range :
+   START_RANGE range SEMI
+
+task_end_range :
+   END_RANGE range SEMI
+
+task_duration :
+   DURATION NUMBER SEMI
+
+task_start_opt :
+   START_KW NUMBER SEMI
+ | empty
+
+task_after :
+   AFTER name_list SEMI
+
+name_list :
+   empty
+ | NAME
+ | name_list COMMA NAME
+
+constraints_block :
+   CONSTRAINTS LBRACE constraints_items RBRACE
+
+constraints_items :
+   constraints_item
+ | constraints_items constraints_item
+
+constraints_item :
+   pre_block
+ | inv_block
+ | post_block
+
+pre_block :
+   PRE LBRACE tlcon_list RBRACE
+
+inv_block :
+   INV LBRACE tlcon_list RBRACE
+
+post_block :
+   POST LBRACE tlcon_list RBRACE
+
+tlcon_list :
+   empty
+ | tlcon_stmt
+ | tlcon_list tlcon_stmt
+
+tlcon_stmt :
+   NAME EQ value SEMI
+ | NAME IN con_list SEMI
+
+con_list :
+   con_item
+ | con_list con_item
+
+con_item :
+   value
+ | range
+
+task_impacts :
+   impacts_block
+ | empty
+
+impacts_block :
+   IMPACTS LBRACE impact_group_list RBRACE
+
+impact_group_list :
+   empty
+ | impact_group
+ | impact_group_list impact_group
+
+impact_group :
+   impact_when LBRACE impact_group_entries RBRACE
+
+impact_when :
+   PRE
+ | MAINT
+ | POST
+
+impact_group_entries :
+   impact_group_entry
+ | impact_group_entries impact_group_entry
+
+impact_group_entry :
+   NAME impact_rhs SEMI
+
+impact_rhs :
+   EQ value
+ | PLUS_EQ NUMBER
+ | MINUS_EQ NUMBER
+ | PLUS_RATE NUMBER
+ | MINUS_RATE NUMBER
+
+constraints_tl_block :
+   CONSTRAINTS LBRACE temporal_prop_list RBRACE
+
+properties_block :
+   PROPERTIES LBRACE temporal_prop_list RBRACE
+
+temporal_prop_list :
+   temporal_prop
+ | temporal_prop_list temporal_prop
+
+temporal_prop :
+   PROP NAME COLON tl_formula SEMI
+
+tl_formula :
+   tl_imp
+
+tl_imp :
+   tl_or
+ | tl_or IMPLIES tl_imp
+
+tl_or :
+   tl_and
+ | tl_or OR tl_and
+
+tl_and :
+   tl_u
+ | tl_and AND tl_u
+
+tl_u :
+   tl_unary
+ | tl_unary UNTIL tl_unary
+ | tl_unary SINCE tl_unary
+
+tl_unary :
+   NOT tl_unary
+ | ALWAYS tl_unary
+ | EVENTUALLY tl_unary
+ | SOFAR tl_unary
+ | ONCE tl_unary
+ | LPAREN tl_formula RPAREN
+ | tl_atom
+
+tl_atom :
+   NAME cmp_op NUMBER
+ | NAME EQ NAME
+ | NAME EQ TRUE
+ | NAME EQ FALSE
+
+cmp_op :
+   LT
+ | LE
+ | EQ
+ | GE
+ | GT
+
+value :
+   STRING
+ | NUMBER
+ | TRUE
+ | FALSE
+ | NAME
+
