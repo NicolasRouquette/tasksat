@@ -1,0 +1,77 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "TaskNet",
+  "scopeName": "source.tasknet",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.tasknet",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.tasknet",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.tasknet", "match": "\\\\." }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.tasknet", "match": "\\b-?\\d+(?:\\.\\d+)?\\b" }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.tasknet",
+          "match": "\\b(tasknet|timelines|task|end|initial|constraints|properties|prop|pre|inv|post|maint|impacts|after|start_range|end_range|duration|start|priority|id|bounds|in)\\b"
+        },
+	  
+        {
+          "name": "keyword.control.tasknet",
+          "match": "\\b(always|eventually|once|sofar|until|since|not|and|or)\\b"
+        },
+	{
+          "name": "keyword.operator.word.tasknet",
+          "match": "\\b(always|eventually|once|sofar|until|since|not|and|or)\\b"
+        },
+
+        {
+          "name": "constant.language.boolean.tasknet",
+          "match": "\\b(true|false)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.tasknet",
+          "match": "\\b(state|atomic|claim|claimable|cumul|cumulative|rate)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.tasknet", "match": "->|>=|<=|=|>|<|\\+=|-=?|\\+~|-~" },
+        { "name": "punctuation.separator.tasknet", "match": "[,:;]" },
+        { "name": "punctuation.section.brackets.tasknet", "match": "[\\[\\]{}()]" }
+      ]
+    }
+  }
+}

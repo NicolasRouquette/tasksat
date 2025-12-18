@@ -1,0 +1,26 @@
+{
+  "name": "tasknet",
+  "displayName": "TaskNet",
+  "description": "TaskNet supports programming of MEXEC tasknets.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "publisher": "tasknet",
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "tasknet",
+      "aliases": ["TaskNet", "tasknet"],
+      "extensions": [".tn"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "tasknet",
+      "scopeName": "source.tasknet",
+      "path": "./syntaxes/tasknet.tmLanguage.json"
+    }]
+  }
+}
