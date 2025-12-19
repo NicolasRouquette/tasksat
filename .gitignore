@@ -175,3 +175,7 @@ cython_debug/
 
 # Other
 .DS_Store
+
+# Directories
+
+jpl/
