@@ -1,3 +1,5 @@
+# Same as tasknet1.tn but with start and end ranges loosned up.
+
 tasknet HeatDriveCommunicate {
   end = 300;
 
@@ -131,10 +133,6 @@ tasknet HeatDriveCommunicate {
         memory        += -100.0;
       }
     }
-  }
-
-  constraints {
-    prop c1: always (driving = on -> eventually communicating = on);
   }
 
   properties {

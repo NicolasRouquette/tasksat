@@ -1,4 +1,4 @@
-tasknet ContainedInWorking {
+tasknet ContainedInTest {
   end = 200;
 
   timelines {
@@ -10,18 +10,14 @@ tasknet ContainedInWorking {
     id 1;
     priority 1;
     duration 100;
-
-    pre {
-      power = off;
-    }
-
-    post {
-      power = on;
-    }
+    start 20;
 
     impacts {
       pre {
         power = on;
+      }
+      post {
+        power = off;
       }
     }
   }
@@ -30,19 +26,23 @@ tasknet ContainedInWorking {
     id 2;
     priority 1;
     duration 40;
+    start 50;
     containedin power_session;
 
     pre {
-      sensor = off;
+      #power = on;
     }
 
-    post {
-      sensor = on;
+    inv {
+      #power = on;
     }
 
     impacts {
       pre {
         sensor = on;
+      }
+      post {
+        sensor = off;
       }
     }
   }
