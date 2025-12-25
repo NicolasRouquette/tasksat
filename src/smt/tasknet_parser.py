@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 from pprint import pprint
 
 import ply.lex as lex
 import ply.yacc as yacc
 
 from tasknet_ast import *
+from tasknet_ast import TaskKind
 
 
 # ============================================================
@@ -17,6 +18,8 @@ reserved = {
     "timelines":   "TIMELINES",
     "initial":     "INITIAL",
     "task":        "TASK",
+    "taskdef":     "TASKDEF",
+    "optional":    "OPTIONAL",
     "end":         "END",
     "id":          "ID_KW",
     "priority":    "PRIORITY",
@@ -173,7 +176,7 @@ def p_tasknet(p):
 
     end_time: int | None = None
     timelines: List[Timeline] = []
-    tasks: List[TaskDef] = []
+    tasks: List[Task] = []
     init_cons: List[TlCon] = [] 
     constraints_tl: List[TemporalProperty] = []
     properties: List[TemporalProperty] = []
@@ -464,61 +467,115 @@ def p_task_list_single(p):
     p[0] = [p[1]]
 
 
-def p_task_def(p):
-    "task_def : TASK NAME LBRACE task_body_items RBRACE"
-    name = p[2]
-    items = p[4]
+def p_task_def_taskdef(p):
+    "task_def : TASKDEF NAME LBRACE task_body_items RBRACE"
+    p[0] = _build_task(p[2], p[4], kind=TaskKind.DEFINITION, definition=None)
 
-    BIG = 10**9
-    ident = 0
-    priority = 0
-    startrng = IntRange(0, BIG)
-    endrng = IntRange(0, BIG)
-    dur = 0
-    start = 0
-    after: List[str] = []
-    containedin: List[str] = []
-    pre: List[TlCon] = []
-    inv: List[TlCon] = []
-    post: List[TlCon] = []
-    impacts: List[Impact] = []
+def p_task_def_task(p):
+    "task_def : optional_opt TASK NAME extends_opt LBRACE task_body_items RBRACE"
+    is_optional = p[1]  # True if OPTIONAL was present
+    name = p[3]
+    extends = p[4]  # None or definition name
+    items = p[6]
 
-    for kind, value in items:
-        if kind == "id":
+    kind = TaskKind.OPTIONAL if is_optional else TaskKind.INSTANCE
+    p[0] = _build_task(name, items, kind=kind, definition=extends)
+
+def p_optional_opt_none(p):
+    "optional_opt : empty"
+    p[0] = False
+
+def p_optional_opt_some(p):
+    "optional_opt : OPTIONAL"
+    p[0] = True
+
+def p_extends_opt_none(p):
+    "extends_opt : empty"
+    p[0] = None
+
+def p_extends_opt_some(p):
+    "extends_opt : COLON NAME"
+    p[0] = p[2]
+
+def _build_task(name: str, items: List, kind: TaskKind, definition: Optional[str]) -> Task:
+    """Helper function to build a Task from parsed items"""
+    ident = None
+    priority = None
+    startrng = None
+    endrng = None
+    dur = None
+    start = None
+    after = None
+    containedin = None
+    pre = None
+    inv = None
+    post = None
+    impacts = None
+
+    # Extract values from items
+    after_list: List[str] = []
+    containedin_list: List[str] = []
+    pre_list: List[TlCon] = []
+    inv_list: List[TlCon] = []
+    post_list: List[TlCon] = []
+    impacts_list: List[Impact] = []
+
+    for item_kind, value in items:
+        if item_kind == "id":
             ident = value
-        elif kind == "priority":
+        elif item_kind == "priority":
             priority = value
-        elif kind == "start_range":
+        elif item_kind == "start_range":
             startrng = value
-        elif kind == "end_range":
+        elif item_kind == "end_range":
             endrng = value
-        elif kind == "duration":
+        elif item_kind == "duration":
             dur = value
-        elif kind == "start":
+        elif item_kind == "start":
             start = value
-        elif kind == "after":
-            after = value
-        elif kind == "containedin":
-            containedin = value
-        elif kind == "constraints":
+        elif item_kind == "after":
+            after_list = value
+        elif item_kind == "containedin":
+            containedin_list = value
+        elif item_kind == "constraints":
             pre_c, inv_c, post_c = value
-            pre.extend(pre_c)
-            inv.extend(inv_c)
-            post.extend(post_c)
-        elif kind == "pre":
-            pre.extend(value)
-        elif kind == "inv":
-            inv.extend(value)
-        elif kind == "post":
-            post.extend(value)
-        elif kind == "impacts":
-            impacts.extend(value)
+            pre_list.extend(pre_c)
+            inv_list.extend(inv_c)
+            post_list.extend(post_c)
+        elif item_kind == "pre":
+            pre_list.extend(value)
+        elif item_kind == "inv":
+            inv_list.extend(value)
+        elif item_kind == "post":
+            post_list.extend(value)
+        elif item_kind == "impacts":
+            impacts_list.extend(value)
         else:
-            raise ValueError(f"Unknown task_body_item kind: {kind!r}")
+            raise ValueError(f"Unknown task_body_item kind: {item_kind!r}")
 
-    p[0] = TaskDef(
+    # Set optional fields if they have values
+    if after_list:
+        after = after_list
+    if containedin_list:
+        containedin = containedin_list
+    if pre_list:
+        pre = pre_list
+    if inv_list:
+        inv = inv_list
+    if post_list:
+        post = post_list
+    if impacts_list:
+        impacts = impacts_list
+
+    # Set default ident if not specified
+    if ident is None:
+        ident = 0
+
+    return Task(
         id=name,
         ident=ident,
+        kind=kind,
+        definition=definition,
         priority=priority,
         startrng=startrng,
         endrng=endrng,

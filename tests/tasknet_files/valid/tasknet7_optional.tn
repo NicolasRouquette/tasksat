@@ -1,0 +1,91 @@
+tasknet ComprehensiveTest {
+  end = 300;
+
+  timelines {
+    cpu   : state(idle, busy) = idle;
+    power : rate [0.0, 100.0] bounds [0.0, 100.0] = 100.0;
+  }
+
+  # Task definition: a computation task template
+  taskdef Computation {
+    priority 1;
+    duration 20;
+
+    pre {
+      power in [10.0, 100.0];
+    }
+
+    inv {
+      cpu = busy;
+      power in [5.0, 100.0];
+    }
+
+    post {
+      power in [5.0, 100.0];
+    }
+
+    impacts {
+      pre {
+        cpu = busy;
+      }
+      maint {
+        power +~ -0.5;
+      }
+      post {
+        cpu = idle;
+      }
+    }
+  }
+
+  # Required task using definition
+  task C1 : Computation {
+    id 1;
+    start_range [0, 50];
+    end_range [20, 70];
+  }
+
+  # Another required task using definition, with override
+  task C2 : Computation {
+    id 2;
+    priority 2;  # Override priority
+    start_range [100, 150];
+    end_range [120, 170];
+    after C1;
+  }
+
+  # Optional task - will be included only if needed
+  optional task C3 : Computation {
+    id 3;
+    start_range [200, 250];
+    end_range [220, 270];
+  }
+
+  # Standalone optional task (old syntax works with optional too)
+  optional task C4 {
+    id 4;
+    priority 1;
+    start_range [250, 280];
+    end_range [270, 300];
+    duration 20;
+
+    inv {
+      cpu = busy;
+    }
+
+    impacts {
+      pre {
+        cpu = busy;
+      }
+      maint {
+        power +~ -0.5;
+      }
+      post {
+        cpu = idle;
+      }
+    }
+  }
+
+  properties {
+    prop p1: always (power >= 0.0);
+  }
+}

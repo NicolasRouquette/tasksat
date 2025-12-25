@@ -1,6 +1,7 @@
 """Shared test utilities and fixtures for TaskNet tests"""
 
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -34,7 +35,7 @@ def verify(tasknet_file, valid=True, check=True):
     tasknet_path = f"{directory}/{tasknet_file}"
 
     result = subprocess.run(
-        ['python', VERIFIER_SCRIPT, tasknet_path],
+        [sys.executable, VERIFIER_SCRIPT, tasknet_path],
         capture_output=True,
         text=True,
         cwd=PROJECT_ROOT

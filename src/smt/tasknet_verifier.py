@@ -17,5 +17,5 @@ def main(path: str):
 if __name__ == "__main__":
     import sys
     main(sys.argv[1])
-    #main("/Users/khavelun/Desktop/development/pycharmworkspace/reqsim/verification/tasknetworks/smt/version9/tasknet2.tn")
+
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Union, Literal, Tuple
 from abc import ABC
+from enum import Enum
 
 TaskNetName  = str
 TaskName     = str
@@ -128,21 +129,35 @@ class TlCon:
 
 # ----- Tasks -----
 
+class TaskKind(Enum):
+    """Type of task: definition (template), instance (required), or optional (minimized)"""
+    DEFINITION = "definition"
+    INSTANCE = "instance"
+    OPTIONAL = "optional"
+
 @dataclass
-class TaskDef:
+class Task:
+    """Unified task representation supporting definitions, instances, and optional tasks.
+
+    - kind=DEFINITION: Template task, not scheduled, can be referenced by instances
+    - kind=INSTANCE: Required task that must be scheduled
+    - kind=OPTIONAL: Task included only if needed, minimized by optimizer
+    """
     id: TaskName
     ident: TaskId
-    priority: int
-    startrng: IntRange
-    endrng: IntRange
-    dur: int
-    start: int
-    after: List[str]
-    containedin: List[str]
-    pre: List[TlCon]
-    inv: List[TlCon]
-    post: List[TlCon]
-    impacts: List[Impact]
+    kind: TaskKind
+    definition: Optional[TaskName] = None  # Reference to definition task (for instances/optional)
+    priority: Optional[int] = None
+    startrng: Optional[IntRange] = None
+    endrng: Optional[IntRange] = None
+    dur: Optional[int] = None
+    start: Optional[int] = None
+    after: Optional[List[str]] = None
+    containedin: Optional[List[str]] = None
+    pre: Optional[List[TlCon]] = None
+    inv: Optional[List[TlCon]] = None
+    post: Optional[List[TlCon]] = None
+    impacts: Optional[List[Impact]] = None
 
 # ----- Temporal-logic formulas -----
 
@@ -221,7 +236,7 @@ class TemporalProperty:
 class TaskNet:
     id: TaskNetName
     timelines: List[Timeline]
-    tasks: List[TaskDef]
+    tasks: List[Task]
     endTime: int
     initial_constraints: List[TlCon] = field(default_factory=list)
     constraints: List[TemporalProperty] = field(default_factory=list)

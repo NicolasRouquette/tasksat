@@ -78,7 +78,16 @@ task_list :
  | task_def
 
 task_def :
-   TASK NAME LBRACE task_body_items RBRACE
+   TASKDEF NAME LBRACE task_body_items RBRACE
+ | optional_opt TASK NAME extends_opt LBRACE task_body_items RBRACE
+
+optional_opt :
+   empty
+ | OPTIONAL
+
+extends_opt :
+   empty
+ | COLON NAME
 
 task_body_items :
    task_body_item

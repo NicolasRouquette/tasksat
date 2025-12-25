@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import List, Optional, Dict, Union, Literal, Tuple
 
 from z3 import (
-    Solver, Int, Real, Bool,
+    Solver, Optimize, Int, Real, Bool,
     And, Or, Not, If,
-    sat,
+    sat, Sum,
 )
 
 from tasknet_ast import *
+from tasknet_ast import TaskKind
 
 
 class TaskNetSMT:
@@ -18,7 +19,23 @@ class TaskNetSMT:
 
     def __init__(self, tn: TaskNet):
         self.tn = self.normalize_tasknet(tn)
-        self.solver = Solver()
+        self.tn = self.resolve_task_definitions(self.tn)
+
+        # === Task categorization ===
+        self.required_tasks = [t for t in self.tn.tasks if t.kind == TaskKind.INSTANCE]
+        self.optional_tasks = [t for t in self.tn.tasks if t.kind == TaskKind.OPTIONAL]
+        self.all_scheduled_tasks = self.required_tasks + self.optional_tasks
+
+        # === Optional task inclusion variables ===
+        self.optional_included: Dict[str, object] = {}
+        for t in self.optional_tasks:
+            self.optional_included[t.id] = Bool(f"included_{t.id}")
+
+        # Use Optimize if we have optional tasks, otherwise use Solver
+        if self.optional_tasks:
+            self.solver = Optimize()
+        else:
+            self.solver = Solver()
 
         # === Schedule variables ===
         self.start_vars: Dict[str, object] = {}
@@ -29,7 +46,7 @@ class TaskNetSMT:
 
         # === Zone boundaries ===
         # At most 2*|tasks| + 2 unique boundaries: 0, endTime, all start/end's
-        self.zone_count = 2 * len(tn.tasks) + 2
+        self.zone_count = 2 * len(self.all_scheduled_tasks) + 2
         self.zones = [Int(f"z_{i}") for i in range(self.zone_count)]
         self._encode_zones()
 
@@ -50,10 +67,68 @@ class TaskNetSMT:
         self._encode_pre_inv_post_zones()
 
     # -------------------
+    # Resolving task definitions
+    # -------------------
+
+    def resolve_task_definitions(self, tn: TaskNet) -> TaskNet:
+        """
+        Resolve task instances that reference definitions by merging properties.
+        Instance properties override definition properties.
+        Remove definition tasks from the task list (they're not scheduled).
+        """
+        # Build a map of definitions
+        definitions: Dict[str, Task] = {}
+        for t in tn.tasks:
+            if t.kind == TaskKind.DEFINITION:
+                definitions[t.id] = t
+
+        # Resolve instances and optional tasks that reference definitions
+        resolved_tasks = []
+        for t in tn.tasks:
+            if t.kind == TaskKind.DEFINITION:
+                # Skip definitions - they're not scheduled
+                continue
+
+            if t.definition is not None:
+                # Merge with definition
+                if t.definition not in definitions:
+                    raise ValueError(f"Task {t.id} references undefined definition {t.definition}")
+
+                defn = definitions[t.definition]
+                resolved_tasks.append(self._merge_task_with_definition(t, defn))
+            else:
+                resolved_tasks.append(t)
+
+        tn.tasks = resolved_tasks
+        return tn
+
+    def _merge_task_with_definition(self, instance: Task, definition: Task) -> Task:
+        """
+        Merge instance with definition. Instance properties take precedence.
+        """
+        return Task(
+            id=instance.id,
+            ident=instance.ident if instance.ident is not None else definition.ident,
+            kind=instance.kind,
+            definition=None,  # Already resolved
+            priority=instance.priority if instance.priority is not None else definition.priority,
+            startrng=instance.startrng if instance.startrng is not None else definition.startrng,
+            endrng=instance.endrng if instance.endrng is not None else definition.endrng,
+            dur=instance.dur if instance.dur is not None else definition.dur,
+            start=instance.start if instance.start is not None else definition.start,
+            after=instance.after if instance.after is not None else definition.after,
+            containedin=instance.containedin if instance.containedin is not None else definition.containedin,
+            pre=instance.pre if instance.pre is not None else definition.pre,
+            inv=instance.inv if instance.inv is not None else definition.inv,
+            post=instance.post if instance.post is not None else definition.post,
+            impacts=instance.impacts if instance.impacts is not None else definition.impacts,
+        )
+
+    # -------------------
     # Normalizing tasknet
     # -------------------
 
-    
+
     def normalize_tasknet(self, tn: TaskNet) -> TaskNet:
         MAX_INT  = 10**9
         MIN_REAL = -1e9
@@ -96,7 +171,7 @@ class TaskNetSMT:
     # ------------------------------
 
     def _mk_schedule_vars(self):
-        for t in self.tn.tasks:
+        for t in self.all_scheduled_tasks:
             s = Int(f"start_{t.id}")
             e = Int(f"end_{t.id}")
             self.start_vars[t.id] = s
@@ -104,43 +179,57 @@ class TaskNetSMT:
 
     def _encode_start_end_times_ok(self):
         n = self.tn.endTime
-        tasks = self.tn.tasks
+        tasks = self.all_scheduled_tasks
 
         # Basic constraints for each task
         for t in tasks:
             s = self.start_vars[t.id]
             e = self.end_vars[t.id]
 
+            # Helper to conditionally add constraint for optional tasks
+            def add_constraint(*args):
+                if t.kind == TaskKind.OPTIONAL:
+                    # Only apply constraint if task is included
+                    self.solver.add(If(self.optional_included[t.id], And(*args), True))
+                else:
+                    # Required task - always apply constraint
+                    self.solver.add(*args)
+
             # Start/end within global horizon and ordered
-            self.solver.add(s >= 0, s <= e, e <= n)
+            add_constraint(s >= 0, s <= e, e <= n)
 
             # start,end within given ranges
-            self.solver.add(s >= t.startrng.low, s <= t.startrng.high)
-            self.solver.add(e >= t.endrng.low,   e <= t.endrng.high)
+            if t.startrng is not None:
+                add_constraint(s >= t.startrng.low, s <= t.startrng.high)
+            if t.endrng is not None:
+                add_constraint(e >= t.endrng.low, e <= t.endrng.high)
 
             # duration
-            self.solver.add(e - s == t.dur)
+            if t.dur is not None:
+                add_constraint(e - s == t.dur)
 
             # after dependencies
-            for bid in t.after:
-                if bid not in self.end_vars:
-                    # ill-formed TaskNet — forbid
-                    self.solver.add(False)
-                else:
-                    self.solver.add(self.end_vars[bid] <= s)
+            if t.after is not None:
+                for bid in t.after:
+                    if bid not in self.end_vars:
+                        # ill-formed TaskNet — forbid
+                        self.solver.add(False)
+                    else:
+                        add_constraint(self.end_vars[bid] <= s)
 
             # containedin dependencies
-            for pid in t.containedin:
-                if pid not in self.start_vars or pid not in self.end_vars:
-                    # ill-formed TaskNet — forbid
-                    self.solver.add(False)
-                else:
-                    # parent task must be active during this task's execution
-                    # parent_start <= this_start AND this_end <= parent_end
-                    self.solver.add(self.start_vars[pid] <= s)
-                    self.solver.add(e <= self.end_vars[pid])
+            if t.containedin is not None:
+                for pid in t.containedin:
+                    if pid not in self.start_vars or pid not in self.end_vars:
+                        # ill-formed TaskNet — forbid
+                        self.solver.add(False)
+                    else:
+                        # parent task must be active during this task's execution
+                        # parent_start <= this_start AND this_end <= parent_end
+                        add_constraint(self.start_vars[pid] <= s, e <= self.end_vars[pid])
 
         # --- All task boundaries are pairwise distinct ---
+        # Only for included tasks
         for i in range(len(tasks)):
             ti = tasks[i]
             si = self.start_vars[ti.id]
@@ -150,23 +239,38 @@ class TaskNetSMT:
                 sj = self.start_vars[tj.id]
                 ej = self.end_vars[tj.id]
 
-                # no start/start, end/end, start/end, end/start coincidences
-                self.solver.add(si != sj)
-                self.solver.add(ei != ej)
-                self.solver.add(si != ej)
-                self.solver.add(ei != sj)
+                # Determine if both tasks are included
+                both_included = True
+                if ti.kind == TaskKind.OPTIONAL:
+                    both_included = And(both_included, self.optional_included[ti.id])
+                if tj.kind == TaskKind.OPTIONAL:
+                    both_included = And(both_included, self.optional_included[tj.id])
+
+                # Only enforce distinctness if both are included
+                if ti.kind == TaskKind.OPTIONAL or tj.kind == TaskKind.OPTIONAL:
+                    self.solver.add(If(both_included,
+                        And(si != sj, ei != ej, si != ej, ei != sj),
+                        True))
+                else:
+                    # Both required - always distinct
+                    self.solver.add(si != sj)
+                    self.solver.add(ei != ej)
+                    self.solver.add(si != ej)
+                    self.solver.add(ei != sj)
 
     def _encode_no_simultaneous_assignments(self):
         """
         No two tasks may assign the same timeline at the same time.
         (Only for ImpactAssign; numeric impacts can overlap.)
         """
-        tasks = self.tn.tasks
+        tasks = self.all_scheduled_tasks
         assign_points: List[Tuple[TaskName, TimeLineName, object]] = []
 
         for t in tasks:
             s = self.start_vars[t.id]
             e = self.end_vars[t.id]
+            if t.impacts is None:
+                continue
             for imp in t.impacts:
                 if isinstance(imp.how, ImpactAssign):
                     if imp.when == "pre":
@@ -204,7 +308,7 @@ class TaskNetSMT:
         n = self.tn.endTime
         z = self.zones
         last = self.zone_count - 1
-        tasks = self.tn.tasks
+        tasks = self.all_scheduled_tasks
 
         # First / last
         self.solver.add(z[0] == 0)
@@ -319,9 +423,11 @@ class TaskNetSMT:
         dt = zi1 - zi  
 
         terms = []
-        for t in self.tn.tasks:
+        for t in self.all_scheduled_tasks:
             s = self.start_vars[t.id]
             e = self.end_vars[t.id]
+            if t.impacts is None:
+                continue
             for imp in t.impacts:
                 if imp.id != tl_id:
                     continue
@@ -391,9 +497,11 @@ class TaskNetSMT:
                     expr = cur
                     zi = self.zones[i]
                     # Apply assigns at boundaries (pre/post)
-                    for t in self.tn.tasks:
+                    for t in self.all_scheduled_tasks:
                         s = self.start_vars[t.id]
                         e = self.end_vars[t.id]
+                        if t.impacts is None:
+                            continue
                         for imp in t.impacts:
                             if imp.id != tl.id:
                                 continue
@@ -421,9 +529,11 @@ class TaskNetSMT:
                     cur = vars_z[i]
                     expr = cur
                     zi = self.zones[i]
-                    for t in self.tn.tasks:
+                    for t in self.all_scheduled_tasks:
                         s = self.start_vars[t.id]
                         e = self.end_vars[t.id]
+                        if t.impacts is None:
+                            continue
                         for imp in t.impacts:
                             if imp.id != tl.id:
                                 continue
@@ -594,14 +704,14 @@ class TaskNetSMT:
         Z = self.zone_count
         z = self.zones
 
-        for t in self.tn.tasks:
+        for t in self.all_scheduled_tasks:
             s = self.start_vars[t.id]
             e = self.end_vars[t.id]
 
             for j in range(Z):
-                pre_formula  = self._conds_holds_zone(t.pre, j)
-                inv_formula  = self._conds_holds_zone(t.inv, j)
-                post_formula = self._conds_holds_zone(t.post, j)
+                pre_formula  = self._conds_holds_zone(t.pre, j) if t.pre else True
+                inv_formula  = self._conds_holds_zone(t.inv, j) if t.inv else True
+                post_formula = self._conds_holds_zone(t.post, j) if t.post else True
 
                 zj = z[j]
 
@@ -625,6 +735,13 @@ class TaskNetSMT:
     # ------------------------------
 
     def solve(self):
+        # Add optimization objective if we have optional tasks
+        if self.optional_tasks:
+            # Minimize the number of included optional tasks
+            # Convert Bool to Int (1 if True, 0 if False) for sum
+            objective = Sum([If(self.optional_included[t.id], 1, 0) for t in self.optional_tasks])
+            self.solver.minimize(objective)
+
         res = self.solver.check()
         if res != sat:
             print("TaskNet constraints (schedule + zone trace):", res)
@@ -633,7 +750,7 @@ class TaskNetSMT:
 
     def extract_schedule(self, model):
         sched: Dict[str, Tuple[int, int]] = {}
-        for t in self.tn.tasks:
+        for t in self.all_scheduled_tasks:
             s_val = model[self.start_vars[t.id]]
             e_val = model[self.end_vars[t.id]]
             sched[t.id] = (int(s_val.as_long()), int(e_val.as_long()))
@@ -643,7 +760,13 @@ class TaskNetSMT:
         # 1) Schedule
         print(f"Schedule for TaskNet `{self.tn.id}`:")
         sched = self.extract_schedule(model)
-        for t in self.tn.tasks:
+        for t in self.all_scheduled_tasks:
+            # Check if optional task is included
+            if t.kind == TaskKind.OPTIONAL:
+                included = model[self.optional_included[t.id]]
+                if not included:
+                    print(f"  {t.id:14s}: [OPTIONAL - NOT INCLUDED]")
+                    continue
             s, e = sched[t.id]
             print(f"  {t.id:14s}: start = {s:4d}, end = {e:4d}")
 
@@ -664,7 +787,12 @@ class TaskNetSMT:
             # Use LEFT boundary t0 to decide activity:
             # task active in zone j iff start_t ≤ t0 < end_t
             active: List[str] = []
-            for t in self.tn.tasks:
+            for t in self.all_scheduled_tasks:
+                # Skip optional tasks that aren't included
+                if t.kind == TaskKind.OPTIONAL:
+                    included = model[self.optional_included[t.id]]
+                    if not included:
+                        continue
                 s, e = sched[t.id]
                 if s <= t0 < e:
                     active.append(t.id)

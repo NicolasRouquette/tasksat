@@ -1,0 +1,36 @@
+tasknet SimpleOptional {
+  end = 200;
+
+  timelines {
+    power : state(off, on) = off;
+  }
+
+  # Task definition
+  taskdef BasicTask {
+    priority 1;
+    duration 20;
+
+    impacts {
+      pre {
+        power = on;
+      }
+      post {
+        power = off;
+      }
+    }
+  }
+
+  # Required instance
+  task T1 : BasicTask {
+    id 1;
+    start_range [0, 50];
+    end_range [20, 70];
+  }
+
+  # Optional instance
+  optional task T2 : BasicTask {
+    id 2;
+    start_range [100, 150];
+    end_range [120, 170];
+  }
+}

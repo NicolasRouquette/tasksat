@@ -60,3 +60,30 @@ class TestVerifier:
             "sensor_reading: start =    3, end =   43",
             "No temporal properties attached to this TaskNet."
         )
+
+    def test_tasknet6_simple_optional(self):
+        """Test simple optional task that is not included in schedule"""
+        verify_out('tasknet6_optional.tn')(
+            "*** NEW SCHEDULE***",
+            "T1            : start =    1, end =   21",
+            "T2            : [OPTIONAL - NOT INCLUDED]",
+            "No temporal properties attached to this TaskNet."
+        )
+
+    def test_tasknet7_comprehensive_optional(self):
+        """Test comprehensive example with task definitions and optional tasks"""
+        verify_out('tasknet7_optional.tn')(
+            "*** NEW SCHEDULE***",
+            "C1            : start =   26, end =   46",
+            "C2            : start =  127, end =  147",
+            "C3            : [OPTIONAL - NOT INCLUDED]",
+            "C4            : [OPTIONAL - NOT INCLUDED]",
+            "PROPERTY 'p1' HOLDS"
+        )
+
+    def test_tasknet8_with_definitions_unsat(self):
+        """Test overconstrained example with definitions - should be UNSAT"""
+        verify_out('tasknet8_defs.tn')(
+            "UNSAT",
+            "No valid schedule found"
+        )

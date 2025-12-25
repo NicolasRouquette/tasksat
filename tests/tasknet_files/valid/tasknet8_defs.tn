@@ -1,0 +1,96 @@
+tasknet MaintenanceSchedule {
+  end = 500;
+
+  timelines {
+    power        : state(low, high) = low;
+    temperature  : rate [0.0, 100.0] bounds [0.0, 100.0] = 50.0;
+    battery      : rate [0.0, 100.0] bounds [0.0, 100.0] = 100.0;
+  }
+
+  # Define a reusable maintenance task template
+  taskdef Maintenance {
+    priority 1;
+    duration 30;
+
+    pre {
+      battery in [20.0, 100.0];
+    }
+
+    inv {
+      power = high;
+      battery in [10.0, 100.0];
+    }
+
+    post {
+      temperature in [20.0, 80.0];
+    }
+
+    impacts {
+      pre {
+        power = high;
+      }
+      maint {
+        temperature +~ -0.5;
+        battery     +~ -0.1;
+      }
+      post {
+        power = low;
+      }
+    }
+  }
+
+  # Required maintenance instance M1 at the start
+  task M1 : Maintenance {
+    id 1;
+    start_range [0, 50];
+    end_range   [30, 80];
+    start 10;
+  }
+
+  # Required maintenance instance M2 later
+  task M2 : Maintenance {
+    id 2;
+    start_range [200, 250];
+    end_range   [230, 280];
+    after M1;
+  }
+
+  # Optional maintenance M3 - only if needed
+  optional task M3 : Maintenance {
+    id 3;
+    start_range [400, 450];
+    end_range   [430, 480];
+  }
+
+  # Standalone required task (old syntax still works)
+  task Charging {
+    id 4;
+    priority 2;
+    start_range [100, 150];
+    end_range   [150, 200];
+    duration 50;
+
+    pre {
+      battery in [0.0, 50.0];
+    }
+
+    inv {
+      power = high;
+    }
+
+    post {
+      battery in [80.0, 100.0];
+    }
+
+    impacts {
+      maint {
+        battery +~ 1.5;
+      }
+    }
+  }
+
+  properties {
+    prop p1: always (battery >= 5.0);
+    prop p2: always (temperature <= 90.0);
+  }
+}
