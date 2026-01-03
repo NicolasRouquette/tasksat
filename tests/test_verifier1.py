@@ -97,14 +97,33 @@ class TestVerifier:
             "No temporal properties attached to this TaskNet."
         )
 
-    def test_tasknet10_verify_mode(self):
-        """Test verify mode - finds any valid schedule (not necessarily optimal)"""
+    def test_tasknet10_optimize_mode(self):
+        """Test with optional tasks and temporal properties"""
         verify_out('tasknet10_verify.tn')(
             "*** NEW SCHEDULE***",
             "T1            : start =   57, end =   87",
             "T2            : start =   26, end =   56",
             "T3            : [OPTIONAL - NOT INCLUDED]",
-            "PROPERTY 'p1' VIOLATED!"
+            "PROPERTY 'p1' VIOLATED!",
+            "Counterexample:",
+            "T1            : start =   34, end =   64",
+            "T2            : start =    3, end =   33",
+            "T3            : start =    1, end =    2"            
         )
     
+    def test_tasknet10_satisfy_mode(self):
+        """Test with optional tasks and temporal properties"""
+        verify_out('tasknet10_verify.tn', mode='satisfy')(
+            "*** NEW SCHEDULE***",
+            "T1            : start =   57, end =   87",
+            "T2            : start =   26, end =   56",
+            "T3            : [OPTIONAL - NOT INCLUDED]",
+            "PROPERTY 'p1' VIOLATED!",
+            "Counterexample:",
+            "T1            : start =    3, end =   33",
+            "T2            : start =    2, end =   32",
+            "T3            : start =    1, end =    4"
+        )
+
+   
         

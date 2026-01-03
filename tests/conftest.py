@@ -16,7 +16,7 @@ VALID_TASKNET_DIR = 'tests/tasknet_files/valid'
 INVALID_TASKNET_DIR = 'tests/tasknet_files/invalid'
 
 
-def verify(tasknet_file, valid=True, check=True, mode='plan'):
+def verify(tasknet_file, valid=True, check=True, mode='optimize'):
     """
     Run the TaskNet verifier on a given file.
 
@@ -24,7 +24,7 @@ def verify(tasknet_file, valid=True, check=True, mode='plan'):
         tasknet_file: Name of the .tn file (e.g., 'tasknet1.tn')
         valid: If True, looks in valid/ directory, otherwise invalid/
         check: If True, raises AssertionError if verifier exits with non-zero code
-        mode: 'plan' for optimization mode or 'verify' for satisfiability mode
+        mode: 'optimize' for optimization mode (Optimize solver) or 'satisfy' for satisfiability mode (Solver)
 
     Returns:
         str: The stdout output from the verifier
@@ -64,13 +64,13 @@ def contains_all(output, expected_strings):
         assert expected in output, f"Expected string not found: {expected}"
 
 
-def verify_out(tasknet_file, mode='plan'):
+def verify_out(tasknet_file, mode='optimize'):
     """
     Curried function: verify a tasknet file and check expected output strings.
 
     Args:
         tasknet_file: Name of the .tn file (e.g., 'tasknet1.tn')
-        mode: 'plan' for optimization mode or 'verify' for satisfiability mode
+        mode: 'optimize' for optimization mode (Optimize solver) or 'satisfy' for satisfiability mode (Solver)
 
     Returns:
         Function that takes expected_strings as *args and asserts they're all in output

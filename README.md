@@ -50,6 +50,20 @@ The verifier will either:
 - **SAT**: Find and display a valid schedule satisfying all constraints
 - **UNSAT**: Report that no valid schedule exists
 
+#### Solver Modes
+
+The verifier supports two modes via the `--mode` flag:
+
+- **optimize** (default): Uses Z3's `Optimize` solver to minimize the number of optional tasks included
+  ```bash
+  python src/smt/tasknet_verifier.py path/to/your_tasknet.tn --mode optimize
+  ```
+
+- **satisfy**: Uses Z3's `Solver` to find any valid schedule without optimization. This mode is faster and provides unsat core debugging when no solution exists
+  ```bash
+  python src/smt/tasknet_verifier.py path/to/your_tasknet.tn --mode satisfy
+  ```
+
 ### Example
 
 See [tasknet1.tn](src/smt/tasknet1.tn) for a complete example demonstrating:

@@ -4,10 +4,10 @@ from pprint import pprint
 from tasknet_parser import parse_tasknet_file
 from tasknet_smt import TaskNetSMT, TaskNetTL
 
-def main(path: str, mode: str = 'plan'):
+def main(path: str, mode: str = 'optimize'):
     print('\n\n\n\n\n\n\n*** NEW SCHEDULE***\n')
     tn = parse_tasknet_file(path)
-    use_optimization = (mode == 'plan')
+    use_optimization = (mode == 'optimize')
     enc = TaskNetTL(tn, error_trace=True, use_optimization=use_optimization)
     m = enc.solve()
     if m is None:
@@ -19,8 +19,8 @@ def main(path: str, mode: str = 'plan'):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='TaskNet Scheduler and Verifier')
     parser.add_argument('tasknet_file', help='Path to .tn file')
-    parser.add_argument('--mode', choices=['plan', 'verify'], default='plan',
-                        help='Mode: plan (optimize schedule) or verify (any valid schedule)')
+    parser.add_argument('--mode', choices=['optimize', 'satisfy'], default='optimize',
+                        help='Mode: optimize (use Optimize solver) or satisfy (use Solver for any valid schedule)')
     args = parser.parse_args()
     main(args.tasknet_file, args.mode)
 
