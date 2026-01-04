@@ -40,7 +40,7 @@
       "patterns": [
         {
           "name": "keyword.control.tasknet",
-          "match": "\\b(tasknet|timelines|task|end|initial|constraints|properties|prop|pre|inv|post|maint|impacts|after|containedin|start_range|end_range|duration|start|priority|id|bounds|in)\\b"
+          "match": "\\b(tasknet|timelines|taskdef|task|optional|end|initial|constraints|properties|prop|pre|inv|post|maint|impacts|after|containedin|start_range|end_range|duration|start|priority|id|bounds|in)\\b"
         },
 	  
         {
@@ -61,7 +61,7 @@
     "types": {
       "patterns": [
         {
-          "name": "storage.type.tasknet",
+          "name": "keyword.control.tasknet",
           "match": "\\b(state|atomic|claim|claimable|cumul|cumulative|rate)\\b"
         }
       ]
