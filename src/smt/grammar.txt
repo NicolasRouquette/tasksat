@@ -95,6 +95,7 @@ task_body_item :
  | task_priority
  | task_start_range
  | task_end_range
+ | task_duration_range
  | task_duration
  | task_start_opt
  | task_after
@@ -116,6 +117,9 @@ task_start_range :
 
 task_end_range :
    END_RANGE range SEMI
+
+task_duration_range :
+   DURATION_RANGE range SEMI
 
 task_duration :
    DURATION NUMBER SEMI

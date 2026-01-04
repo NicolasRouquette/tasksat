@@ -3,6 +3,7 @@ TODO
 
 1. Check "other" document
 2. Documentation
+3. Static wellformedness check
 
 MID TERM
 
