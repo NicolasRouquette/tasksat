@@ -1,13 +1,8 @@
 
 TODO
 
-1. Various extensions: 
-   - priorities
-   - start time preferences
-2. Task definitions versus instances (optional tasks versus mandatory tasks)
-3. Scalability still remains to be tested.
-4. Compared to PyTasknet
-5. We need to try out a real tasknet 
+1. Check "other" document
+2. Documentation
 
 MID TERM
 
@@ -21,14 +16,6 @@ LONGER TERM
 4. Greg said that maybe one exactly wants to know what MEXEC does.
 5. In the Python API one can "program" generation of tasknets, as we do with the Python API for Z3.
 6. Compared PyTasknet API with Python API to Z3
-
-
-
-
-
-
-
-
 
 
 ---

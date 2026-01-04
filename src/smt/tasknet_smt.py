@@ -116,6 +116,7 @@ class TaskNetSMT:
             priority=instance.priority if instance.priority is not None else definition.priority,
             startrng=instance.startrng if instance.startrng is not None else definition.startrng,
             endrng=instance.endrng if instance.endrng is not None else definition.endrng,
+            durrng=instance.durrng if instance.durrng is not None else definition.durrng,
             dur=instance.dur if instance.dur is not None else definition.dur,
             start=instance.start if instance.start is not None else definition.start,
             after=instance.after if instance.after is not None else definition.after,
@@ -206,9 +207,14 @@ class TaskNetSMT:
             if t.endrng is not None:
                 add_constraint(e >= t.endrng.low, e <= t.endrng.high)
 
-            # duration
-            if t.dur is not None:
-                add_constraint(e - s == t.dur)
+            # duration range constraint
+            if t.durrng is not None:
+                add_constraint(e - s >= t.durrng.low, e - s <= t.durrng.high)
+
+            # duration (now treated as preferred duration, not a hard constraint)
+            # This will be handled in the optimization objective instead
+            # if t.dur is not None:
+            #     add_constraint(e - s == t.dur)
 
             # after dependencies
             if t.after is not None:
@@ -801,7 +807,7 @@ class TaskNetSMT:
 
             # 3. Tertiary objective: minimize deviation from preferred start times
             # Cost = sum of |actual_start - preferred_start| for tasks with preferred starts
-            deviation_terms = []
+            start_deviation_terms = []
             for t in self.all_scheduled_tasks:
                 if t.start is not None:
                     s = self.start_vars[t.id]
@@ -810,14 +816,36 @@ class TaskNetSMT:
 
                     if t.kind == TaskKind.OPTIONAL:
                         # For optional tasks, only count deviation if included
-                        deviation_terms.append(If(self.optional_included[t.id], diff, 0))
+                        start_deviation_terms.append(If(self.optional_included[t.id], diff, 0))
                     else:
                         # For required tasks, always count deviation
-                        deviation_terms.append(diff)
+                        start_deviation_terms.append(diff)
 
-            if deviation_terms:
-                objective_deviation = Sum(deviation_terms)
-                self.solver.minimize(objective_deviation)
+            if start_deviation_terms:
+                objective_start_deviation = Sum(start_deviation_terms)
+                self.solver.minimize(objective_start_deviation)
+
+            # 4. Quaternary objective: minimize deviation from preferred durations
+            # Cost = sum of |actual_duration - preferred_duration| for tasks with preferred durations
+            duration_deviation_terms = []
+            for t in self.all_scheduled_tasks:
+                if t.dur is not None:
+                    s = self.start_vars[t.id]
+                    e = self.end_vars[t.id]
+                    actual_dur = e - s
+                    # Absolute difference: max(actual_dur - dur, dur - actual_dur)
+                    diff = If(actual_dur >= t.dur, actual_dur - t.dur, t.dur - actual_dur)
+
+                    if t.kind == TaskKind.OPTIONAL:
+                        # For optional tasks, only count deviation if included
+                        duration_deviation_terms.append(If(self.optional_included[t.id], diff, 0))
+                    else:
+                        # For required tasks, always count deviation
+                        duration_deviation_terms.append(diff)
+
+            if duration_deviation_terms:
+                objective_duration_deviation = Sum(duration_deviation_terms)
+                self.solver.minimize(objective_duration_deviation)
 
         res = self.solver.check()
         if res != sat:

@@ -14,21 +14,22 @@ from tasknet_ast import TaskKind
 # ============================================================
 
 reserved = {
-    "tasknet":     "TASKNET",
-    "timelines":   "TIMELINES",
-    "initial":     "INITIAL",
-    "task":        "TASK",
-    "taskdef":     "TASKDEF",
-    "optional":    "OPTIONAL",
-    "end":         "END",
-    "id":          "ID_KW",
-    "priority":    "PRIORITY",
-    "start_range": "START_RANGE",
-    "end_range":   "END_RANGE",
-    "duration":    "DURATION",
-    "start":       "START_KW",
-    "after":       "AFTER",
-    "containedin": "CONTAINEDIN",
+    "tasknet":        "TASKNET",
+    "timelines":      "TIMELINES",
+    "initial":        "INITIAL",
+    "task":           "TASK",
+    "taskdef":        "TASKDEF",
+    "optional":       "OPTIONAL",
+    "end":            "END",
+    "id":             "ID_KW",
+    "priority":       "PRIORITY",
+    "start_range":    "START_RANGE",
+    "end_range":      "END_RANGE",
+    "duration_range": "DURATION_RANGE",
+    "duration":       "DURATION",
+    "start":          "START_KW",
+    "after":          "AFTER",
+    "containedin":    "CONTAINEDIN",
     # task-local constraints + impacts
     "constraints": "CONSTRAINTS",
     "impacts":     "IMPACTS",
@@ -496,6 +497,7 @@ def _build_task(name: str, items: List, kind: TaskKind, definition: Optional[str
     priority = None
     startrng = None
     endrng = None
+    durrng = None
     dur = None
     start = None
     after = None
@@ -522,6 +524,8 @@ def _build_task(name: str, items: List, kind: TaskKind, definition: Optional[str
             startrng = value
         elif item_kind == "end_range":
             endrng = value
+        elif item_kind == "duration_range":
+            durrng = value
         elif item_kind == "duration":
             dur = value
         elif item_kind == "start":
@@ -572,6 +576,7 @@ def _build_task(name: str, items: List, kind: TaskKind, definition: Optional[str
         priority=priority,
         startrng=startrng,
         endrng=endrng,
+        durrng=durrng,
         dur=dur,
         start=start,
         after=after,
@@ -616,6 +621,11 @@ def p_task_body_item_start_range(p):
 def p_task_body_item_end_range(p):
     "task_body_item : task_end_range"
     p[0] = ("end_range", p[1])
+
+
+def p_task_body_item_duration_range(p):
+    "task_body_item : task_duration_range"
+    p[0] = ("duration_range", p[1])
 
 
 def p_task_body_item_duration(p):
@@ -684,6 +694,12 @@ def p_task_start_range(p):
 
 def p_task_end_range(p):
     "task_end_range : END_RANGE range SEMI"
+    lo, hi = p[2]
+    p[0] = IntRange(int(lo), int(hi))
+
+
+def p_task_duration_range(p):
+    "task_duration_range : DURATION_RANGE range SEMI"
     lo, hi = p[2]
     p[0] = IntRange(int(lo), int(hi))
 

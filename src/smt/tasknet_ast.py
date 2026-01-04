@@ -150,6 +150,7 @@ class Task:
     priority: Optional[int] = None
     startrng: Optional[IntRange] = None
     endrng: Optional[IntRange] = None
+    durrng: Optional[IntRange] = None
     dur: Optional[int] = None
     start: Optional[int] = None
     after: Optional[List[str]] = None
