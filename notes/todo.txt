@@ -3,7 +3,6 @@ TODO
 
 1. Check "other" document
 2. Documentation
-3. Static wellformedness check
 
 MID TERM
 
@@ -17,14 +16,3 @@ LONGER TERM
 4. Greg said that maybe one exactly wants to know what MEXEC does.
 5. In the Python API one can "program" generation of tasknets, as we do with the Python API for Z3.
 6. Compared PyTasknet API with Python API to Z3
-
-
----
-
-  task_route_segment_attempt_def.add_task_constraint(
-        tn.TaskConstraint(
-            condition_type=tn.TaskConstraintConditionType.CONTAINED,
-            task_definition=task_maintainheat_attempt_def,
-            key=f"route_segment_attempt{attempt_index}_contains_maintainheat_attempt"
-        )
-    )
