@@ -258,6 +258,7 @@ tl_atom :
  | NAME EQ NAME
  | NAME EQ TRUE
  | NAME EQ FALSE
+ | ACTIVE LPAREN NAME RPAREN
 
 cmp_op :
    LT

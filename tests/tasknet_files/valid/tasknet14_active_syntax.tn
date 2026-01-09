@@ -1,0 +1,54 @@
+# Test active(T) syntax sugar
+# Demonstrates the new active(taskname) predicate syntax
+
+tasknet ActiveSyntaxTest {
+  end = 100;
+
+  timelines {
+    A : atomic = false;
+  }
+
+  task T1 {
+    id 1;
+    duration 20;
+    start 10;
+
+    impacts {
+      pre {
+        A = true;
+      }
+      post {
+        A = false;
+      }
+    }
+  }
+
+  task T2 {
+    id 2;
+    duration 15;
+    start 50;
+    after T1;
+
+    impacts {
+      pre {
+        A = true;
+      }
+      post {
+        A = false;
+      }
+    }
+  }
+
+  properties {
+    # Using active(T) syntax - much cleaner than __T1_active = true
+    prop p1: always (active(T1) -> A = true);
+    prop p2: always (active(T2) -> A = true);
+
+    # T1 and T2 never overlap
+    prop p3: always (active(T1) -> not active(T2));
+
+    # Both tasks eventually become active
+    prop p4: eventually active(T1);
+    prop p5: eventually active(T2);
+  }
+}

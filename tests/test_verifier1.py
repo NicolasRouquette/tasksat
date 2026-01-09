@@ -138,10 +138,34 @@ class TestVerifier:
         )
 
     def test_tasknet12_assign_numeric(self):
-        """Test with priorities and preferred start times"""
+        """Test assignment of numeric values"""
         verify_out('tasknet12_assign_numeric.tn')(
             "*** NEW SCHEDULE***",
             "heating       : start =    1, end =    2",
             "driving       : start =    3, end =    4",
             "PROPERTY 'p1' HOLDS"
+        )
+
+    def test_tasknet13_task_active(self):
+        """Test __T_active syntax"""
+        verify_out('tasknet13_task_active.tn')(
+            "*** NEW SCHEDULE***",
+            "T1            : start =    1, end =    2",
+            "T2            : start =    3, end =    4",
+            "PROPERTY 'p1' HOLDS",
+            "PROPERTY 'p2' HOLDS",
+            "PROPERTY 'p3' HOLDS",
+            "PROPERTY 'p4' HOLDS"
+        )
+        
+    def test_tasknet14_active_syntax(self):
+        """Test active(T) syntax"""
+        verify_out('tasknet14_active_syntax.tn')(
+            "*** NEW SCHEDULE***",
+            "T1            : start =    1, end =    2",
+            "T2            : start =    3, end =    4",
+            "PROPERTY 'p1' HOLDS",
+            "PROPERTY 'p2' HOLDS",
+            "PROPERTY 'p3' HOLDS",
+            "PROPERTY 'p4' HOLDS"
         )

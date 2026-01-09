@@ -2,12 +2,16 @@
 import argparse
 from pprint import pprint
 from tasknet_parser import parse_tasknet_file
+from tasknet_transforms import apply_transforms
 from tasknet_smt import TaskNetSMT, TaskNetTL
 from tasknet_wellformedness import check_wellformedness
 
 def main(path: str, mode: str = 'optimize'):
     print('\n\n\n\n\n\n\n*** NEW SCHEDULE***\n')
     tn = parse_tasknet_file(path)
+
+    # Apply AST transformations (desugar derived constructs)
+    tn = apply_transforms(tn)
 
     # Check well-formedness before solving
     if not check_wellformedness(tn):

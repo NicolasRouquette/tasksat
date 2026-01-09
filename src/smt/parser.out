@@ -145,19 +145,21 @@ Rule 135   tl_atom -> NAME cmp_op NUMBER
 Rule 136   tl_atom -> NAME EQ NAME
 Rule 137   tl_atom -> NAME EQ TRUE
 Rule 138   tl_atom -> NAME EQ FALSE
-Rule 139   cmp_op -> LT
-Rule 140   cmp_op -> LE
-Rule 141   cmp_op -> EQ
-Rule 142   cmp_op -> GE
-Rule 143   cmp_op -> GT
-Rule 144   value -> STRING
-Rule 145   value -> NUMBER
-Rule 146   value -> TRUE
-Rule 147   value -> FALSE
-Rule 148   value -> NAME
+Rule 139   tl_atom -> ACTIVE LPAREN NAME RPAREN
+Rule 140   cmp_op -> LT
+Rule 141   cmp_op -> LE
+Rule 142   cmp_op -> EQ
+Rule 143   cmp_op -> GE
+Rule 144   cmp_op -> GT
+Rule 145   value -> STRING
+Rule 146   value -> NUMBER
+Rule 147   value -> TRUE
+Rule 148   value -> FALSE
+Rule 149   value -> NAME
 
 Terminals, with rules where they appear
 
+ACTIVE               : 139
 AFTER                : 72
 ALWAYS               : 129
 AND                  : 124
@@ -176,11 +178,11 @@ DURATION             : 69
 DURATION_RANGE       : 68
 END                  : 12
 END_RANGE            : 67
-EQ                   : 12 18 32 34 35 89 108 136 137 138 141
+EQ                   : 12 18 32 34 35 89 108 136 137 138 142
 EVENTUALLY           : 130
-FALSE                : 35 138 147
-GE                   : 142
-GT                   : 143
+FALSE                : 35 138 148
+GE                   : 143
+GT                   : 144
 ID_KW                : 64
 IMPACTS              : 97
 IMPLIES              : 120
@@ -189,15 +191,15 @@ INITIAL              : 39
 INV                  : 84
 LBRACE               : 3 13 39 40 41 77 83 84 85 97 101 113 114
 LBRACKET             : 26
-LE                   : 140
-LPAREN               : 18 133
-LT                   : 139
+LE                   : 141
+LPAREN               : 18 133 139
+LT                   : 140
 MAINT                : 103
 MINUS_EQ             : 110
 MINUS_RATE           : 112
-NAME                 : 3 17 18 19 20 40 41 42 46 75 76 89 90 107 117 135 136 136 137 138 148
+NAME                 : 3 17 18 19 20 40 41 42 46 75 76 89 90 107 117 135 136 136 137 138 139 149
 NOT                  : 128
-NUMBER               : 12 26 26 32 64 65 69 70 109 110 111 112 135 145
+NUMBER               : 12 26 26 32 64 65 69 70 109 110 111 112 135 146
 ONCE                 : 132
 OPTIONAL             : 44
 OR                   : 122
@@ -211,19 +213,19 @@ PROPERTIES           : 114
 RATE                 : 38
 RBRACE               : 3 13 39 40 41 77 83 84 85 97 101 113 114
 RBRACKET             : 26
-RPAREN               : 18 133
+RPAREN               : 18 133 139
 SEMI                 : 12 17 42 64 65 66 67 68 69 70 72 73 89 90 107 117
 SINCE                : 127
 SOFAR                : 131
 START_KW             : 70
 START_RANGE          : 66
 STATE                : 18
-STRING               : 144
+STRING               : 145
 TASK                 : 41 42
 TASKDEF              : 40
 TASKNET              : 3
 TIMELINES            : 13
-TRUE                 : 34 137 146
+TRUE                 : 34 137 147
 UNTIL                : 126
 error                : 
 
@@ -1018,11 +1020,11 @@ state 52
 state 53
 
     (89) tlcon_stmt -> NAME EQ . value SEMI
-    (144) value -> . STRING
-    (145) value -> . NUMBER
-    (146) value -> . TRUE
-    (147) value -> . FALSE
-    (148) value -> . NAME
+    (145) value -> . STRING
+    (146) value -> . NUMBER
+    (147) value -> . TRUE
+    (148) value -> . FALSE
+    (149) value -> . NAME
 
     STRING          shift and go to state 106
     NUMBER          shift and go to state 107
@@ -1039,11 +1041,11 @@ state 54
     (92) con_list -> . con_list con_item
     (93) con_item -> . value
     (94) con_item -> . range
-    (144) value -> . STRING
-    (145) value -> . NUMBER
-    (146) value -> . TRUE
-    (147) value -> . FALSE
-    (148) value -> . NAME
+    (145) value -> . STRING
+    (146) value -> . NUMBER
+    (147) value -> . TRUE
+    (148) value -> . FALSE
+    (149) value -> . NAME
     (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
 
     STRING          shift and go to state 106
@@ -1887,15 +1889,15 @@ state 103
 
 state 104
 
-    (148) value -> NAME .
+    (149) value -> NAME .
 
-    SEMI            reduce using rule 148 (value -> NAME .)
-    STRING          reduce using rule 148 (value -> NAME .)
-    NUMBER          reduce using rule 148 (value -> NAME .)
-    TRUE            reduce using rule 148 (value -> NAME .)
-    FALSE           reduce using rule 148 (value -> NAME .)
-    NAME            reduce using rule 148 (value -> NAME .)
-    LBRACKET        reduce using rule 148 (value -> NAME .)
+    SEMI            reduce using rule 149 (value -> NAME .)
+    STRING          reduce using rule 149 (value -> NAME .)
+    NUMBER          reduce using rule 149 (value -> NAME .)
+    TRUE            reduce using rule 149 (value -> NAME .)
+    FALSE           reduce using rule 149 (value -> NAME .)
+    NAME            reduce using rule 149 (value -> NAME .)
+    LBRACKET        reduce using rule 149 (value -> NAME .)
 
 
 state 105
@@ -1907,54 +1909,54 @@ state 105
 
 state 106
 
-    (144) value -> STRING .
+    (145) value -> STRING .
 
-    SEMI            reduce using rule 144 (value -> STRING .)
-    STRING          reduce using rule 144 (value -> STRING .)
-    NUMBER          reduce using rule 144 (value -> STRING .)
-    TRUE            reduce using rule 144 (value -> STRING .)
-    FALSE           reduce using rule 144 (value -> STRING .)
-    NAME            reduce using rule 144 (value -> STRING .)
-    LBRACKET        reduce using rule 144 (value -> STRING .)
+    SEMI            reduce using rule 145 (value -> STRING .)
+    STRING          reduce using rule 145 (value -> STRING .)
+    NUMBER          reduce using rule 145 (value -> STRING .)
+    TRUE            reduce using rule 145 (value -> STRING .)
+    FALSE           reduce using rule 145 (value -> STRING .)
+    NAME            reduce using rule 145 (value -> STRING .)
+    LBRACKET        reduce using rule 145 (value -> STRING .)
 
 
 state 107
 
-    (145) value -> NUMBER .
+    (146) value -> NUMBER .
 
-    SEMI            reduce using rule 145 (value -> NUMBER .)
-    STRING          reduce using rule 145 (value -> NUMBER .)
-    NUMBER          reduce using rule 145 (value -> NUMBER .)
-    TRUE            reduce using rule 145 (value -> NUMBER .)
-    FALSE           reduce using rule 145 (value -> NUMBER .)
-    NAME            reduce using rule 145 (value -> NUMBER .)
-    LBRACKET        reduce using rule 145 (value -> NUMBER .)
+    SEMI            reduce using rule 146 (value -> NUMBER .)
+    STRING          reduce using rule 146 (value -> NUMBER .)
+    NUMBER          reduce using rule 146 (value -> NUMBER .)
+    TRUE            reduce using rule 146 (value -> NUMBER .)
+    FALSE           reduce using rule 146 (value -> NUMBER .)
+    NAME            reduce using rule 146 (value -> NUMBER .)
+    LBRACKET        reduce using rule 146 (value -> NUMBER .)
 
 
 state 108
 
-    (146) value -> TRUE .
+    (147) value -> TRUE .
 
-    SEMI            reduce using rule 146 (value -> TRUE .)
-    STRING          reduce using rule 146 (value -> TRUE .)
-    NUMBER          reduce using rule 146 (value -> TRUE .)
-    TRUE            reduce using rule 146 (value -> TRUE .)
-    FALSE           reduce using rule 146 (value -> TRUE .)
-    NAME            reduce using rule 146 (value -> TRUE .)
-    LBRACKET        reduce using rule 146 (value -> TRUE .)
+    SEMI            reduce using rule 147 (value -> TRUE .)
+    STRING          reduce using rule 147 (value -> TRUE .)
+    NUMBER          reduce using rule 147 (value -> TRUE .)
+    TRUE            reduce using rule 147 (value -> TRUE .)
+    FALSE           reduce using rule 147 (value -> TRUE .)
+    NAME            reduce using rule 147 (value -> TRUE .)
+    LBRACKET        reduce using rule 147 (value -> TRUE .)
 
 
 state 109
 
-    (147) value -> FALSE .
+    (148) value -> FALSE .
 
-    SEMI            reduce using rule 147 (value -> FALSE .)
-    STRING          reduce using rule 147 (value -> FALSE .)
-    NUMBER          reduce using rule 147 (value -> FALSE .)
-    TRUE            reduce using rule 147 (value -> FALSE .)
-    FALSE           reduce using rule 147 (value -> FALSE .)
-    NAME            reduce using rule 147 (value -> FALSE .)
-    LBRACKET        reduce using rule 147 (value -> FALSE .)
+    SEMI            reduce using rule 148 (value -> FALSE .)
+    STRING          reduce using rule 148 (value -> FALSE .)
+    NUMBER          reduce using rule 148 (value -> FALSE .)
+    TRUE            reduce using rule 148 (value -> FALSE .)
+    FALSE           reduce using rule 148 (value -> FALSE .)
+    NAME            reduce using rule 148 (value -> FALSE .)
+    LBRACKET        reduce using rule 148 (value -> FALSE .)
 
 
 state 110
@@ -1963,11 +1965,11 @@ state 110
     (92) con_list -> con_list . con_item
     (93) con_item -> . value
     (94) con_item -> . range
-    (144) value -> . STRING
-    (145) value -> . NUMBER
-    (146) value -> . TRUE
-    (147) value -> . FALSE
-    (148) value -> . NAME
+    (145) value -> . STRING
+    (146) value -> . NUMBER
+    (147) value -> . TRUE
+    (148) value -> . FALSE
+    (149) value -> . NAME
     (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
 
     SEMI            shift and go to state 149
@@ -2461,6 +2463,7 @@ state 137
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -2469,6 +2472,7 @@ state 137
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
     tl_formula                     shift and go to state 179
     tl_imp                         shift and go to state 180
@@ -2492,9 +2496,9 @@ state 139
     (19) state_list -> . NAME
     (20) state_list -> . state_list COMMA NAME
 
-    NAME            shift and go to state 193
+    NAME            shift and go to state 194
 
-    state_list                     shift and go to state 192
+    state_list                     shift and go to state 193
 
 state 140
 
@@ -2515,8 +2519,8 @@ state 142
     (34) init_bool_opt -> EQ . TRUE
     (35) init_bool_opt -> EQ . FALSE
 
-    TRUE            shift and go to state 194
-    FALSE           shift and go to state 195
+    TRUE            shift and go to state 195
+    FALSE           shift and go to state 196
 
 
 state 143
@@ -2526,11 +2530,11 @@ state 143
     (32) init_opt -> . EQ NUMBER
     (1) empty -> .
 
-    EQ              shift and go to state 198
+    EQ              shift and go to state 199
     SEMI            reduce using rule 1 (empty -> .)
 
-    init_opt                       shift and go to state 196
-    empty                          shift and go to state 197
+    init_opt                       shift and go to state 197
+    empty                          shift and go to state 198
 
 state 144
 
@@ -2557,12 +2561,12 @@ state 146
     (30) bounds_opt -> . BOUNDS range
     (1) empty -> .
 
-    BOUNDS          shift and go to state 201
+    BOUNDS          shift and go to state 202
     EQ              reduce using rule 1 (empty -> .)
     SEMI            reduce using rule 1 (empty -> .)
 
-    bounds_opt                     shift and go to state 199
-    empty                          shift and go to state 200
+    bounds_opt                     shift and go to state 200
+    empty                          shift and go to state 201
 
 state 147
 
@@ -2571,12 +2575,12 @@ state 147
     (30) bounds_opt -> . BOUNDS range
     (1) empty -> .
 
-    BOUNDS          shift and go to state 201
+    BOUNDS          shift and go to state 202
     EQ              reduce using rule 1 (empty -> .)
     SEMI            reduce using rule 1 (empty -> .)
 
-    bounds_opt                     shift and go to state 202
-    empty                          shift and go to state 200
+    bounds_opt                     shift and go to state 203
+    empty                          shift and go to state 201
 
 state 148
 
@@ -2611,7 +2615,7 @@ state 151
 
     (26) range -> LBRACKET NUMBER . COMMA NUMBER RBRACKET
 
-    COMMA           shift and go to state 203
+    COMMA           shift and go to state 204
 
 
 state 152
@@ -2786,7 +2790,7 @@ state 160
 
     (76) name_list -> name_list COMMA . NAME
 
-    NAME            shift and go to state 204
+    NAME            shift and go to state 205
 
 
 state 161
@@ -2821,12 +2825,12 @@ state 162
     (84) inv_block -> . INV LBRACE tlcon_list RBRACE
     (85) post_block -> . POST LBRACE tlcon_list RBRACE
 
-    RBRACE          shift and go to state 205
+    RBRACE          shift and go to state 206
     PRE             shift and go to state 82
     INV             shift and go to state 83
     POST            shift and go to state 84
 
-    constraints_item               shift and go to state 206
+    constraints_item               shift and go to state 207
     pre_block                      shift and go to state 164
     inv_block                      shift and go to state 165
     post_block                     shift and go to state 166
@@ -2878,7 +2882,7 @@ state 167
     (89) tlcon_stmt -> . NAME EQ value SEMI
     (90) tlcon_stmt -> . NAME IN con_list SEMI
 
-    RBRACE          shift and go to state 207
+    RBRACE          shift and go to state 208
     NAME            shift and go to state 40
 
     tlcon_stmt                     shift and go to state 52
@@ -2890,7 +2894,7 @@ state 168
     (89) tlcon_stmt -> . NAME EQ value SEMI
     (90) tlcon_stmt -> . NAME IN con_list SEMI
 
-    RBRACE          shift and go to state 208
+    RBRACE          shift and go to state 209
     NAME            shift and go to state 40
 
     tlcon_stmt                     shift and go to state 52
@@ -2902,7 +2906,7 @@ state 169
     (89) tlcon_stmt -> . NAME EQ value SEMI
     (90) tlcon_stmt -> . NAME IN con_list SEMI
 
-    RBRACE          shift and go to state 209
+    RBRACE          shift and go to state 210
     NAME            shift and go to state 40
 
     tlcon_stmt                     shift and go to state 52
@@ -2916,12 +2920,12 @@ state 170
     (103) impact_when -> . MAINT
     (104) impact_when -> . POST
 
-    RBRACE          shift and go to state 210
+    RBRACE          shift and go to state 211
     PRE             shift and go to state 174
     MAINT           shift and go to state 175
     POST            shift and go to state 176
 
-    impact_group                   shift and go to state 211
+    impact_group                   shift and go to state 212
     impact_when                    shift and go to state 173
 
 state 171
@@ -2948,7 +2952,7 @@ state 173
 
     (101) impact_group -> impact_when . LBRACE impact_group_entries RBRACE
 
-    LBRACE          shift and go to state 212
+    LBRACE          shift and go to state 213
 
 
 state 174
@@ -3024,7 +3028,7 @@ state 177
   ! shift/reduce conflict for INV resolved as shift
   ! shift/reduce conflict for POST resolved as shift
   ! shift/reduce conflict for IMPACTS resolved as shift
-    RBRACE          shift and go to state 213
+    RBRACE          shift and go to state 214
     ID_KW           shift and go to state 72
     PRIORITY        shift and go to state 73
     START_RANGE     shift and go to state 74
@@ -3080,25 +3084,25 @@ state 178
     (136) tl_atom -> NAME . EQ NAME
     (137) tl_atom -> NAME . EQ TRUE
     (138) tl_atom -> NAME . EQ FALSE
-    (139) cmp_op -> . LT
-    (140) cmp_op -> . LE
-    (141) cmp_op -> . EQ
-    (142) cmp_op -> . GE
-    (143) cmp_op -> . GT
+    (140) cmp_op -> . LT
+    (141) cmp_op -> . LE
+    (142) cmp_op -> . EQ
+    (143) cmp_op -> . GE
+    (144) cmp_op -> . GT
 
-    EQ              shift and go to state 215
-    LT              shift and go to state 216
-    LE              shift and go to state 217
-    GE              shift and go to state 218
-    GT              shift and go to state 219
+    EQ              shift and go to state 216
+    LT              shift and go to state 217
+    LE              shift and go to state 218
+    GE              shift and go to state 219
+    GT              shift and go to state 220
 
-    cmp_op                         shift and go to state 214
+    cmp_op                         shift and go to state 215
 
 state 179
 
     (117) temporal_prop -> PROP NAME COLON tl_formula . SEMI
 
-    SEMI            shift and go to state 220
+    SEMI            shift and go to state 221
 
 
 state 180
@@ -3117,8 +3121,8 @@ state 181
 
     SEMI            reduce using rule 119 (tl_imp -> tl_or .)
     RPAREN          reduce using rule 119 (tl_imp -> tl_or .)
-    IMPLIES         shift and go to state 221
-    OR              shift and go to state 222
+    IMPLIES         shift and go to state 222
+    OR              shift and go to state 223
 
 
 state 182
@@ -3130,7 +3134,7 @@ state 182
     OR              reduce using rule 121 (tl_or -> tl_and .)
     SEMI            reduce using rule 121 (tl_or -> tl_and .)
     RPAREN          reduce using rule 121 (tl_or -> tl_and .)
-    AND             shift and go to state 223
+    AND             shift and go to state 224
 
 
 state 183
@@ -3155,8 +3159,8 @@ state 184
     OR              reduce using rule 125 (tl_u -> tl_unary .)
     SEMI            reduce using rule 125 (tl_u -> tl_unary .)
     RPAREN          reduce using rule 125 (tl_u -> tl_unary .)
-    UNTIL           shift and go to state 224
-    SINCE           shift and go to state 225
+    UNTIL           shift and go to state 225
+    SINCE           shift and go to state 226
 
 
 state 185
@@ -3173,6 +3177,7 @@ state 185
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3181,8 +3186,9 @@ state 185
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_unary                       shift and go to state 226
+    tl_unary                       shift and go to state 227
     tl_atom                        shift and go to state 191
 
 state 186
@@ -3199,6 +3205,7 @@ state 186
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3207,8 +3214,9 @@ state 186
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_unary                       shift and go to state 227
+    tl_unary                       shift and go to state 228
     tl_atom                        shift and go to state 191
 
 state 187
@@ -3225,6 +3233,7 @@ state 187
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3233,8 +3242,9 @@ state 187
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_unary                       shift and go to state 228
+    tl_unary                       shift and go to state 229
     tl_atom                        shift and go to state 191
 
 state 188
@@ -3251,6 +3261,7 @@ state 188
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3259,8 +3270,9 @@ state 188
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_unary                       shift and go to state 229
+    tl_unary                       shift and go to state 230
     tl_atom                        shift and go to state 191
 
 state 189
@@ -3277,6 +3289,7 @@ state 189
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3285,8 +3298,9 @@ state 189
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_unary                       shift and go to state 230
+    tl_unary                       shift and go to state 231
     tl_atom                        shift and go to state 191
 
 state 190
@@ -3313,6 +3327,7 @@ state 190
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3321,8 +3336,9 @@ state 190
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_formula                     shift and go to state 231
+    tl_formula                     shift and go to state 232
     tl_imp                         shift and go to state 180
     tl_or                          shift and go to state 181
     tl_and                         shift and go to state 182
@@ -3345,14 +3361,21 @@ state 191
 
 state 192
 
-    (18) timeline_kind -> STATE LPAREN state_list . RPAREN EQ NAME
-    (20) state_list -> state_list . COMMA NAME
+    (139) tl_atom -> ACTIVE . LPAREN NAME RPAREN
 
-    RPAREN          shift and go to state 232
-    COMMA           shift and go to state 233
+    LPAREN          shift and go to state 233
 
 
 state 193
+
+    (18) timeline_kind -> STATE LPAREN state_list . RPAREN EQ NAME
+    (20) state_list -> state_list . COMMA NAME
+
+    RPAREN          shift and go to state 234
+    COMMA           shift and go to state 235
+
+
+state 194
 
     (19) state_list -> NAME .
 
@@ -3360,55 +3383,55 @@ state 193
     COMMA           reduce using rule 19 (state_list -> NAME .)
 
 
-state 194
+state 195
 
     (34) init_bool_opt -> EQ TRUE .
 
     SEMI            reduce using rule 34 (init_bool_opt -> EQ TRUE .)
 
 
-state 195
+state 196
 
     (35) init_bool_opt -> EQ FALSE .
 
     SEMI            reduce using rule 35 (init_bool_opt -> EQ FALSE .)
 
 
-state 196
+state 197
 
     (36) timeline_kind -> claim_kw range_opt init_opt .
 
     SEMI            reduce using rule 36 (timeline_kind -> claim_kw range_opt init_opt .)
 
 
-state 197
+state 198
 
     (31) init_opt -> empty .
 
     SEMI            reduce using rule 31 (init_opt -> empty .)
 
 
-state 198
+state 199
 
     (32) init_opt -> EQ . NUMBER
 
-    NUMBER          shift and go to state 234
+    NUMBER          shift and go to state 236
 
 
-state 199
+state 200
 
     (37) timeline_kind -> cumul_kw range_opt bounds_opt . init_opt
     (31) init_opt -> . empty
     (32) init_opt -> . EQ NUMBER
     (1) empty -> .
 
-    EQ              shift and go to state 198
+    EQ              shift and go to state 199
     SEMI            reduce using rule 1 (empty -> .)
 
-    init_opt                       shift and go to state 235
-    empty                          shift and go to state 197
+    init_opt                       shift and go to state 237
+    empty                          shift and go to state 198
 
-state 200
+state 201
 
     (29) bounds_opt -> empty .
 
@@ -3416,36 +3439,36 @@ state 200
     SEMI            reduce using rule 29 (bounds_opt -> empty .)
 
 
-state 201
+state 202
 
     (30) bounds_opt -> BOUNDS . range
     (26) range -> . LBRACKET NUMBER COMMA NUMBER RBRACKET
 
     LBRACKET        shift and go to state 114
 
-    range                          shift and go to state 236
+    range                          shift and go to state 238
 
-state 202
+state 203
 
     (38) timeline_kind -> RATE range_opt bounds_opt . init_opt
     (31) init_opt -> . empty
     (32) init_opt -> . EQ NUMBER
     (1) empty -> .
 
-    EQ              shift and go to state 198
+    EQ              shift and go to state 199
     SEMI            reduce using rule 1 (empty -> .)
 
-    init_opt                       shift and go to state 237
-    empty                          shift and go to state 197
+    init_opt                       shift and go to state 239
+    empty                          shift and go to state 198
 
-state 203
+state 204
 
     (26) range -> LBRACKET NUMBER COMMA . NUMBER RBRACKET
 
-    NUMBER          shift and go to state 238
+    NUMBER          shift and go to state 240
 
 
-state 204
+state 205
 
     (76) name_list -> name_list COMMA NAME .
 
@@ -3453,7 +3476,7 @@ state 204
     COMMA           reduce using rule 76 (name_list -> name_list COMMA NAME .)
 
 
-state 205
+state 206
 
     (77) constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .
 
@@ -3474,7 +3497,7 @@ state 205
     IMPACTS         reduce using rule 77 (constraints_block -> CONSTRAINTS LBRACE constraints_items RBRACE .)
 
 
-state 206
+state 207
 
     (79) constraints_items -> constraints_items constraints_item .
 
@@ -3484,7 +3507,7 @@ state 206
     POST            reduce using rule 79 (constraints_items -> constraints_items constraints_item .)
 
 
-state 207
+state 208
 
     (83) pre_block -> PRE LBRACE tlcon_list RBRACE .
 
@@ -3505,7 +3528,7 @@ state 207
     IMPACTS         reduce using rule 83 (pre_block -> PRE LBRACE tlcon_list RBRACE .)
 
 
-state 208
+state 209
 
     (84) inv_block -> INV LBRACE tlcon_list RBRACE .
 
@@ -3526,7 +3549,7 @@ state 208
     IMPACTS         reduce using rule 84 (inv_block -> INV LBRACE tlcon_list RBRACE .)
 
 
-state 209
+state 210
 
     (85) post_block -> POST LBRACE tlcon_list RBRACE .
 
@@ -3547,7 +3570,7 @@ state 209
     IMPACTS         reduce using rule 85 (post_block -> POST LBRACE tlcon_list RBRACE .)
 
 
-state 210
+state 211
 
     (97) impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .
 
@@ -3568,7 +3591,7 @@ state 210
     IMPACTS         reduce using rule 97 (impacts_block -> IMPACTS LBRACE impact_group_list RBRACE .)
 
 
-state 211
+state 212
 
     (100) impact_group_list -> impact_group_list impact_group .
 
@@ -3578,19 +3601,19 @@ state 211
     POST            reduce using rule 100 (impact_group_list -> impact_group_list impact_group .)
 
 
-state 212
+state 213
 
     (101) impact_group -> impact_when LBRACE . impact_group_entries RBRACE
     (105) impact_group_entries -> . impact_group_entry
     (106) impact_group_entries -> . impact_group_entries impact_group_entry
     (107) impact_group_entry -> . NAME impact_rhs SEMI
 
-    NAME            shift and go to state 241
+    NAME            shift and go to state 243
 
-    impact_group_entries           shift and go to state 239
-    impact_group_entry             shift and go to state 240
+    impact_group_entries           shift and go to state 241
+    impact_group_entry             shift and go to state 242
 
-state 213
+state 214
 
     (41) task_def -> optional_opt TASK NAME extends_opt LBRACE task_body_items RBRACE .
 
@@ -3605,55 +3628,55 @@ state 213
     TASK            reduce using rule 41 (task_def -> optional_opt TASK NAME extends_opt LBRACE task_body_items RBRACE .)
 
 
-state 214
+state 215
 
     (135) tl_atom -> NAME cmp_op . NUMBER
 
-    NUMBER          shift and go to state 242
-
-
-state 215
-
-    (136) tl_atom -> NAME EQ . NAME
-    (137) tl_atom -> NAME EQ . TRUE
-    (138) tl_atom -> NAME EQ . FALSE
-    (141) cmp_op -> EQ .
-
-    NAME            shift and go to state 243
-    TRUE            shift and go to state 244
-    FALSE           shift and go to state 245
-    NUMBER          reduce using rule 141 (cmp_op -> EQ .)
+    NUMBER          shift and go to state 244
 
 
 state 216
 
-    (139) cmp_op -> LT .
+    (136) tl_atom -> NAME EQ . NAME
+    (137) tl_atom -> NAME EQ . TRUE
+    (138) tl_atom -> NAME EQ . FALSE
+    (142) cmp_op -> EQ .
 
-    NUMBER          reduce using rule 139 (cmp_op -> LT .)
+    NAME            shift and go to state 245
+    TRUE            shift and go to state 246
+    FALSE           shift and go to state 247
+    NUMBER          reduce using rule 142 (cmp_op -> EQ .)
 
 
 state 217
 
-    (140) cmp_op -> LE .
+    (140) cmp_op -> LT .
 
-    NUMBER          reduce using rule 140 (cmp_op -> LE .)
+    NUMBER          reduce using rule 140 (cmp_op -> LT .)
 
 
 state 218
 
-    (142) cmp_op -> GE .
+    (141) cmp_op -> LE .
 
-    NUMBER          reduce using rule 142 (cmp_op -> GE .)
+    NUMBER          reduce using rule 141 (cmp_op -> LE .)
 
 
 state 219
 
-    (143) cmp_op -> GT .
+    (143) cmp_op -> GE .
 
-    NUMBER          reduce using rule 143 (cmp_op -> GT .)
+    NUMBER          reduce using rule 143 (cmp_op -> GE .)
 
 
 state 220
+
+    (144) cmp_op -> GT .
+
+    NUMBER          reduce using rule 144 (cmp_op -> GT .)
+
+
+state 221
 
     (117) temporal_prop -> PROP NAME COLON tl_formula SEMI .
 
@@ -3661,7 +3684,7 @@ state 220
     PROP            reduce using rule 117 (temporal_prop -> PROP NAME COLON tl_formula SEMI .)
 
 
-state 221
+state 222
 
     (120) tl_imp -> tl_or IMPLIES . tl_imp
     (119) tl_imp -> . tl_or
@@ -3684,6 +3707,7 @@ state 221
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3692,15 +3716,16 @@ state 221
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
     tl_or                          shift and go to state 181
-    tl_imp                         shift and go to state 246
+    tl_imp                         shift and go to state 248
     tl_and                         shift and go to state 182
     tl_u                           shift and go to state 183
     tl_unary                       shift and go to state 184
     tl_atom                        shift and go to state 191
 
-state 222
+state 223
 
     (122) tl_or -> tl_or OR . tl_and
     (123) tl_and -> . tl_u
@@ -3719,6 +3744,7 @@ state 222
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3727,13 +3753,14 @@ state 222
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_and                         shift and go to state 247
+    tl_and                         shift and go to state 249
     tl_u                           shift and go to state 183
     tl_unary                       shift and go to state 184
     tl_atom                        shift and go to state 191
 
-state 223
+state 224
 
     (124) tl_and -> tl_and AND . tl_u
     (125) tl_u -> . tl_unary
@@ -3750,6 +3777,7 @@ state 223
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3758,12 +3786,13 @@ state 223
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_u                           shift and go to state 248
+    tl_u                           shift and go to state 250
     tl_unary                       shift and go to state 184
     tl_atom                        shift and go to state 191
 
-state 224
+state 225
 
     (126) tl_u -> tl_unary UNTIL . tl_unary
     (128) tl_unary -> . NOT tl_unary
@@ -3777,6 +3806,7 @@ state 224
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3785,11 +3815,12 @@ state 224
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_unary                       shift and go to state 249
+    tl_unary                       shift and go to state 251
     tl_atom                        shift and go to state 191
 
-state 225
+state 226
 
     (127) tl_u -> tl_unary SINCE . tl_unary
     (128) tl_unary -> . NOT tl_unary
@@ -3803,6 +3834,7 @@ state 225
     (136) tl_atom -> . NAME EQ NAME
     (137) tl_atom -> . NAME EQ TRUE
     (138) tl_atom -> . NAME EQ FALSE
+    (139) tl_atom -> . ACTIVE LPAREN NAME RPAREN
 
     NOT             shift and go to state 185
     ALWAYS          shift and go to state 186
@@ -3811,11 +3843,12 @@ state 225
     ONCE            shift and go to state 189
     LPAREN          shift and go to state 190
     NAME            shift and go to state 178
+    ACTIVE          shift and go to state 192
 
-    tl_unary                       shift and go to state 250
+    tl_unary                       shift and go to state 252
     tl_atom                        shift and go to state 191
 
-state 226
+state 227
 
     (128) tl_unary -> NOT tl_unary .
 
@@ -3828,7 +3861,7 @@ state 226
     RPAREN          reduce using rule 128 (tl_unary -> NOT tl_unary .)
 
 
-state 227
+state 228
 
     (129) tl_unary -> ALWAYS tl_unary .
 
@@ -3841,7 +3874,7 @@ state 227
     RPAREN          reduce using rule 129 (tl_unary -> ALWAYS tl_unary .)
 
 
-state 228
+state 229
 
     (130) tl_unary -> EVENTUALLY tl_unary .
 
@@ -3854,7 +3887,7 @@ state 228
     RPAREN          reduce using rule 130 (tl_unary -> EVENTUALLY tl_unary .)
 
 
-state 229
+state 230
 
     (131) tl_unary -> SOFAR tl_unary .
 
@@ -3867,7 +3900,7 @@ state 229
     RPAREN          reduce using rule 131 (tl_unary -> SOFAR tl_unary .)
 
 
-state 230
+state 231
 
     (132) tl_unary -> ONCE tl_unary .
 
@@ -3880,42 +3913,49 @@ state 230
     RPAREN          reduce using rule 132 (tl_unary -> ONCE tl_unary .)
 
 
-state 231
+state 232
 
     (133) tl_unary -> LPAREN tl_formula . RPAREN
 
-    RPAREN          shift and go to state 251
-
-
-state 232
-
-    (18) timeline_kind -> STATE LPAREN state_list RPAREN . EQ NAME
-
-    EQ              shift and go to state 252
+    RPAREN          shift and go to state 253
 
 
 state 233
 
-    (20) state_list -> state_list COMMA . NAME
+    (139) tl_atom -> ACTIVE LPAREN . NAME RPAREN
 
-    NAME            shift and go to state 253
+    NAME            shift and go to state 254
 
 
 state 234
+
+    (18) timeline_kind -> STATE LPAREN state_list RPAREN . EQ NAME
+
+    EQ              shift and go to state 255
+
+
+state 235
+
+    (20) state_list -> state_list COMMA . NAME
+
+    NAME            shift and go to state 256
+
+
+state 236
 
     (32) init_opt -> EQ NUMBER .
 
     SEMI            reduce using rule 32 (init_opt -> EQ NUMBER .)
 
 
-state 235
+state 237
 
     (37) timeline_kind -> cumul_kw range_opt bounds_opt init_opt .
 
     SEMI            reduce using rule 37 (timeline_kind -> cumul_kw range_opt bounds_opt init_opt .)
 
 
-state 236
+state 238
 
     (30) bounds_opt -> BOUNDS range .
 
@@ -3923,32 +3963,32 @@ state 236
     SEMI            reduce using rule 30 (bounds_opt -> BOUNDS range .)
 
 
-state 237
+state 239
 
     (38) timeline_kind -> RATE range_opt bounds_opt init_opt .
 
     SEMI            reduce using rule 38 (timeline_kind -> RATE range_opt bounds_opt init_opt .)
 
 
-state 238
+state 240
 
     (26) range -> LBRACKET NUMBER COMMA NUMBER . RBRACKET
 
-    RBRACKET        shift and go to state 254
+    RBRACKET        shift and go to state 257
 
 
-state 239
+state 241
 
     (101) impact_group -> impact_when LBRACE impact_group_entries . RBRACE
     (106) impact_group_entries -> impact_group_entries . impact_group_entry
     (107) impact_group_entry -> . NAME impact_rhs SEMI
 
-    RBRACE          shift and go to state 255
-    NAME            shift and go to state 241
+    RBRACE          shift and go to state 258
+    NAME            shift and go to state 243
 
-    impact_group_entry             shift and go to state 256
+    impact_group_entry             shift and go to state 259
 
-state 240
+state 242
 
     (105) impact_group_entries -> impact_group_entry .
 
@@ -3956,7 +3996,7 @@ state 240
     NAME            reduce using rule 105 (impact_group_entries -> impact_group_entry .)
 
 
-state 241
+state 243
 
     (107) impact_group_entry -> NAME . impact_rhs SEMI
     (108) impact_rhs -> . EQ value
@@ -3965,15 +4005,15 @@ state 241
     (111) impact_rhs -> . PLUS_RATE NUMBER
     (112) impact_rhs -> . MINUS_RATE NUMBER
 
-    EQ              shift and go to state 258
-    PLUS_EQ         shift and go to state 259
-    MINUS_EQ        shift and go to state 260
-    PLUS_RATE       shift and go to state 261
-    MINUS_RATE      shift and go to state 262
+    EQ              shift and go to state 261
+    PLUS_EQ         shift and go to state 262
+    MINUS_EQ        shift and go to state 263
+    PLUS_RATE       shift and go to state 264
+    MINUS_RATE      shift and go to state 265
 
-    impact_rhs                     shift and go to state 257
+    impact_rhs                     shift and go to state 260
 
-state 242
+state 244
 
     (135) tl_atom -> NAME cmp_op NUMBER .
 
@@ -3986,7 +4026,7 @@ state 242
     RPAREN          reduce using rule 135 (tl_atom -> NAME cmp_op NUMBER .)
 
 
-state 243
+state 245
 
     (136) tl_atom -> NAME EQ NAME .
 
@@ -3999,7 +4039,7 @@ state 243
     RPAREN          reduce using rule 136 (tl_atom -> NAME EQ NAME .)
 
 
-state 244
+state 246
 
     (137) tl_atom -> NAME EQ TRUE .
 
@@ -4012,7 +4052,7 @@ state 244
     RPAREN          reduce using rule 137 (tl_atom -> NAME EQ TRUE .)
 
 
-state 245
+state 247
 
     (138) tl_atom -> NAME EQ FALSE .
 
@@ -4025,7 +4065,7 @@ state 245
     RPAREN          reduce using rule 138 (tl_atom -> NAME EQ FALSE .)
 
 
-state 246
+state 248
 
     (120) tl_imp -> tl_or IMPLIES tl_imp .
 
@@ -4033,7 +4073,7 @@ state 246
     RPAREN          reduce using rule 120 (tl_imp -> tl_or IMPLIES tl_imp .)
 
 
-state 247
+state 249
 
     (122) tl_or -> tl_or OR tl_and .
     (124) tl_and -> tl_and . AND tl_u
@@ -4042,10 +4082,10 @@ state 247
     OR              reduce using rule 122 (tl_or -> tl_or OR tl_and .)
     SEMI            reduce using rule 122 (tl_or -> tl_or OR tl_and .)
     RPAREN          reduce using rule 122 (tl_or -> tl_or OR tl_and .)
-    AND             shift and go to state 223
+    AND             shift and go to state 224
 
 
-state 248
+state 250
 
     (124) tl_and -> tl_and AND tl_u .
 
@@ -4056,7 +4096,7 @@ state 248
     RPAREN          reduce using rule 124 (tl_and -> tl_and AND tl_u .)
 
 
-state 249
+state 251
 
     (126) tl_u -> tl_unary UNTIL tl_unary .
 
@@ -4067,7 +4107,7 @@ state 249
     RPAREN          reduce using rule 126 (tl_u -> tl_unary UNTIL tl_unary .)
 
 
-state 250
+state 252
 
     (127) tl_u -> tl_unary SINCE tl_unary .
 
@@ -4078,7 +4118,7 @@ state 250
     RPAREN          reduce using rule 127 (tl_u -> tl_unary SINCE tl_unary .)
 
 
-state 251
+state 253
 
     (133) tl_unary -> LPAREN tl_formula RPAREN .
 
@@ -4091,14 +4131,21 @@ state 251
     RPAREN          reduce using rule 133 (tl_unary -> LPAREN tl_formula RPAREN .)
 
 
-state 252
+state 254
+
+    (139) tl_atom -> ACTIVE LPAREN NAME . RPAREN
+
+    RPAREN          shift and go to state 266
+
+
+state 255
 
     (18) timeline_kind -> STATE LPAREN state_list RPAREN EQ . NAME
 
-    NAME            shift and go to state 263
+    NAME            shift and go to state 267
 
 
-state 253
+state 256
 
     (20) state_list -> state_list COMMA NAME .
 
@@ -4106,7 +4153,7 @@ state 253
     COMMA           reduce using rule 20 (state_list -> state_list COMMA NAME .)
 
 
-state 254
+state 257
 
     (26) range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .
 
@@ -4121,7 +4168,7 @@ state 254
     BOUNDS          reduce using rule 26 (range -> LBRACKET NUMBER COMMA NUMBER RBRACKET .)
 
 
-state 255
+state 258
 
     (101) impact_group -> impact_when LBRACE impact_group_entries RBRACE .
 
@@ -4131,7 +4178,7 @@ state 255
     POST            reduce using rule 101 (impact_group -> impact_when LBRACE impact_group_entries RBRACE .)
 
 
-state 256
+state 259
 
     (106) impact_group_entries -> impact_group_entries impact_group_entry .
 
@@ -4139,21 +4186,21 @@ state 256
     NAME            reduce using rule 106 (impact_group_entries -> impact_group_entries impact_group_entry .)
 
 
-state 257
+state 260
 
     (107) impact_group_entry -> NAME impact_rhs . SEMI
 
-    SEMI            shift and go to state 264
+    SEMI            shift and go to state 268
 
 
-state 258
+state 261
 
     (108) impact_rhs -> EQ . value
-    (144) value -> . STRING
-    (145) value -> . NUMBER
-    (146) value -> . TRUE
-    (147) value -> . FALSE
-    (148) value -> . NAME
+    (145) value -> . STRING
+    (146) value -> . NUMBER
+    (147) value -> . TRUE
+    (148) value -> . FALSE
+    (149) value -> . NAME
 
     STRING          shift and go to state 106
     NUMBER          shift and go to state 107
@@ -4161,44 +4208,57 @@ state 258
     FALSE           shift and go to state 109
     NAME            shift and go to state 104
 
-    value                          shift and go to state 265
-
-state 259
-
-    (109) impact_rhs -> PLUS_EQ . NUMBER
-
-    NUMBER          shift and go to state 266
-
-
-state 260
-
-    (110) impact_rhs -> MINUS_EQ . NUMBER
-
-    NUMBER          shift and go to state 267
-
-
-state 261
-
-    (111) impact_rhs -> PLUS_RATE . NUMBER
-
-    NUMBER          shift and go to state 268
-
+    value                          shift and go to state 269
 
 state 262
 
-    (112) impact_rhs -> MINUS_RATE . NUMBER
+    (109) impact_rhs -> PLUS_EQ . NUMBER
 
-    NUMBER          shift and go to state 269
+    NUMBER          shift and go to state 270
 
 
 state 263
+
+    (110) impact_rhs -> MINUS_EQ . NUMBER
+
+    NUMBER          shift and go to state 271
+
+
+state 264
+
+    (111) impact_rhs -> PLUS_RATE . NUMBER
+
+    NUMBER          shift and go to state 272
+
+
+state 265
+
+    (112) impact_rhs -> MINUS_RATE . NUMBER
+
+    NUMBER          shift and go to state 273
+
+
+state 266
+
+    (139) tl_atom -> ACTIVE LPAREN NAME RPAREN .
+
+    UNTIL           reduce using rule 139 (tl_atom -> ACTIVE LPAREN NAME RPAREN .)
+    SINCE           reduce using rule 139 (tl_atom -> ACTIVE LPAREN NAME RPAREN .)
+    AND             reduce using rule 139 (tl_atom -> ACTIVE LPAREN NAME RPAREN .)
+    IMPLIES         reduce using rule 139 (tl_atom -> ACTIVE LPAREN NAME RPAREN .)
+    OR              reduce using rule 139 (tl_atom -> ACTIVE LPAREN NAME RPAREN .)
+    SEMI            reduce using rule 139 (tl_atom -> ACTIVE LPAREN NAME RPAREN .)
+    RPAREN          reduce using rule 139 (tl_atom -> ACTIVE LPAREN NAME RPAREN .)
+
+
+state 267
 
     (18) timeline_kind -> STATE LPAREN state_list RPAREN EQ NAME .
 
     SEMI            reduce using rule 18 (timeline_kind -> STATE LPAREN state_list RPAREN EQ NAME .)
 
 
-state 264
+state 268
 
     (107) impact_group_entry -> NAME impact_rhs SEMI .
 
@@ -4206,35 +4266,35 @@ state 264
     NAME            reduce using rule 107 (impact_group_entry -> NAME impact_rhs SEMI .)
 
 
-state 265
+state 269
 
     (108) impact_rhs -> EQ value .
 
     SEMI            reduce using rule 108 (impact_rhs -> EQ value .)
 
 
-state 266
+state 270
 
     (109) impact_rhs -> PLUS_EQ NUMBER .
 
     SEMI            reduce using rule 109 (impact_rhs -> PLUS_EQ NUMBER .)
 
 
-state 267
+state 271
 
     (110) impact_rhs -> MINUS_EQ NUMBER .
 
     SEMI            reduce using rule 110 (impact_rhs -> MINUS_EQ NUMBER .)
 
 
-state 268
+state 272
 
     (111) impact_rhs -> PLUS_RATE NUMBER .
 
     SEMI            reduce using rule 111 (impact_rhs -> PLUS_RATE NUMBER .)
 
 
-state 269
+state 273
 
     (112) impact_rhs -> MINUS_RATE NUMBER .
 

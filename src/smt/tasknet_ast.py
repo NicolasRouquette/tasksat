@@ -182,6 +182,11 @@ class TLBoolIs(Formula):
     value: bool
 
 @dataclass
+class TLTaskActive(Formula):
+    """Syntactic sugar for task activity: active(T) desugars to __T_active = true"""
+    task: TaskName
+
+@dataclass
 class TLAnd(Formula):
     left: Formula
     right: Formula

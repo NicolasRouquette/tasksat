@@ -1,0 +1,58 @@
+# Test automatic task state timeline generation
+# Demonstrates the __taskname_active automatic timeline feature
+
+tasknet TaskActiveTest {
+  end = 100;
+
+  timelines {
+    A : atomic = false;
+  }
+
+  task T1 {
+    id 1;
+    duration 20;
+    start 10;
+
+    impacts {
+      pre {
+        A = true;
+      }
+      post {
+        A = false;
+      }
+    }
+  }
+
+  task T2 {
+    id 2;
+    duration 15;
+    start 50;
+    after T1;  # T2 must start after T1 ends
+
+    impacts {
+      pre {
+        A = true;
+      }
+      post {
+        A = false;
+      }
+    }
+  }
+
+  properties {
+    # While T1 is active, A must be true
+    prop p1: always (__T1_active = true -> A = true);
+
+    # While T2 is active, A must be true
+    prop p2: always (__T2_active = true -> A = true);
+
+    # T1 and T2 never overlap (enforced by 'after' dependency)
+    prop p3: always (__T1_active = true -> __T2_active = false);
+
+    # T1 eventually becomes active
+    prop p4: eventually __T1_active = true;
+
+    # T2 eventually becomes active
+    prop p5: eventually __T2_active = true;
+  }
+}

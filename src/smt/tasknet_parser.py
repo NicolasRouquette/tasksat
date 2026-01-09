@@ -63,6 +63,8 @@ reserved = {
     "not":         "NOT",
     "and":         "AND",
     "or":          "OR",
+    # task predicates
+    "active":      "ACTIVE",
 }
 
 tokens = [
@@ -1105,6 +1107,12 @@ def p_tl_atom_bool_false(p):
     "tl_atom : NAME EQ FALSE"
     tl_name = p[1]
     p[0] = TLBoolIs(tl=tl_name, value=False)
+
+
+def p_tl_atom_active(p):
+    "tl_atom : ACTIVE LPAREN NAME RPAREN"
+    task_name = p[3]
+    p[0] = TLTaskActive(task=task_name)
 
 
 def p_cmp_op_lt(p):
