@@ -1,9 +1,8 @@
 
 TODO
 
--> Check on task activeness, start and end
+-> Allow state timelines to have numbers as values as well. Try.
 - It should also be possible to change a rate (not just assign).
-- Allow state timelines to have numbers as values as well. Try.
 - Check scalability
 - Documentation
 
