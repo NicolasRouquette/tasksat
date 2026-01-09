@@ -1,8 +1,7 @@
 
 TODO
 
--> Allow state timelines to have numbers as values as well. Try.
-- It should also be possible to change a rate (not just assign).
+-> It should also be possible to change a rate (not just assign).
 - Check scalability
 - Documentation
 

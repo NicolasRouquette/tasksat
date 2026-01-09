@@ -151,18 +151,27 @@ class WellFormednessChecker:
     def _check_impact_timeline_compatibility(self, task_id: str, imp: Impact, tl: Timeline):
         """Check that an impact is compatible with its timeline type."""
 
-        # StateTimeline: only ImpactAssign with StrVal
+        # StateTimeline: only ImpactAssign with StrVal, IntVal, or RealVal
         if isinstance(tl, StateTimeline):
             if isinstance(imp.how, ImpactAssign):
-                if not isinstance(imp.how.v, StrVal):
+                # Convert value to string for comparison
+                if isinstance(imp.how.v, StrVal):
+                    value_str = imp.how.v.v
+                elif isinstance(imp.how.v, IntVal):
+                    value_str = str(imp.how.v.v)
+                elif isinstance(imp.how.v, RealVal):
+                    value_str = str(int(imp.how.v.v)) if imp.how.v.v.is_integer() else str(imp.how.v.v)
+                else:
                     self._error(
                         "Impact Type",
-                        f"Task '{task_id}' assigns non-string value to state timeline '{imp.id}'"
+                        f"Task '{task_id}' assigns invalid value type to state timeline '{imp.id}'"
                     )
-                elif imp.how.v.v not in tl.states:
+                    value_str = None
+
+                if value_str is not None and value_str not in tl.states:
                     self._error(
                         "Impact Type",
-                        f"Task '{task_id}' assigns invalid state '{imp.how.v.v}' to timeline '{imp.id}'. "
+                        f"Task '{task_id}' assigns invalid state '{value_str}' to timeline '{imp.id}'. "
                         f"Valid states: {tl.states}"
                     )
                 # Check timing: only pre/post allowed
@@ -296,18 +305,27 @@ class WellFormednessChecker:
         for con in tlcon.cons:
             if isinstance(con, ConVal):
                 v = con.v
-                # StateTimeline: expect StrVal
+                # StateTimeline: expect StrVal, IntVal, or RealVal
                 if isinstance(tl, StateTimeline):
-                    if not isinstance(v, StrVal):
+                    # Convert value to string for comparison
+                    if isinstance(v, StrVal):
+                        value_str = v.v
+                    elif isinstance(v, IntVal):
+                        value_str = str(v.v)
+                    elif isinstance(v, RealVal):
+                        value_str = str(int(v.v)) if v.v.is_integer() else str(v.v)
+                    else:
                         self._error(
                             "Condition Type",
                             f"{context} {cond_type} condition on state timeline '{tlcon.id}' "
-                            f"uses non-string value"
+                            f"uses invalid value type"
                         )
-                    elif v.v not in tl.states:
+                        value_str = None
+
+                    if value_str is not None and value_str not in tl.states:
                         self._error(
                             "Condition Type",
-                            f"{context} {cond_type} condition references invalid state '{v.v}' "
+                            f"{context} {cond_type} condition references invalid state '{value_str}' "
                             f"on timeline '{tlcon.id}'. Valid states: {tl.states}"
                         )
 

@@ -527,10 +527,17 @@ class TaskNetSMT:
                             if not isinstance(imp.how, ImpactAssign):
                                 continue
                             v = imp.how.v
-                            if not isinstance(v, StrVal):
+                            # Convert value to string for state lookup
+                            if isinstance(v, StrVal):
+                                value_str = v.v
+                            elif isinstance(v, IntVal):
+                                value_str = str(v.v)
+                            elif isinstance(v, RealVal):
+                                value_str = str(int(v.v)) if v.v.is_integer() else str(v.v)
+                            else:
                                 self.solver.add(False)
                                 continue
-                            idx = s2i[v.v]
+                            idx = s2i[value_str]
                             # We apply assignments at the boundary *after* checking pre,
                             # i.e. they affect the transition to zone i+1.
                             if imp.when == "pre":
@@ -698,17 +705,31 @@ class TaskNetSMT:
                 return expr == v.v
 
             if isinstance(v, IntVal):
-                # Treat as equality on real-valued numeric TL
-                if kind != "real":
+                # Check if it's a state timeline with numeric states
+                if kind == "state":
+                    _, s2i, _, _ = self.state_tl_zone[tl_id]
+                    idx = s2i[str(v.v)]
+                    return expr == idx
+                # Otherwise treat as equality on real-valued numeric TL
+                elif kind == "real":
+                    return expr == v.v
+                else:
                     self.solver.add(False)
                     return False
-                return expr == v.v
 
             if isinstance(v, RealVal):
-                if kind != "real":
+                # Check if it's a state timeline with numeric states
+                if kind == "state":
+                    _, s2i, _, _ = self.state_tl_zone[tl_id]
+                    value_str = str(int(v.v)) if v.v.is_integer() else str(v.v)
+                    idx = s2i[value_str]
+                    return expr == idx
+                # Otherwise treat as equality on real-valued numeric TL
+                elif kind == "real":
+                    return expr == v.v
+                else:
                     self.solver.add(False)
                     return False
-                return expr == v.v
 
         elif isinstance(con, ConRealRange):
             if kind != "real":

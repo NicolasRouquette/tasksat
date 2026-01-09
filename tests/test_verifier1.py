@@ -159,7 +159,7 @@ class TestVerifier:
         )
         
     def test_tasknet14_active_syntax(self):
-        """Test active(T) syntax"""
+        """Test state timeline with numeric states"""
         verify_out('tasknet14_active_syntax.tn')(
             "*** NEW SCHEDULE***",
             "T1            : start =    1, end =    2",
@@ -168,4 +168,13 @@ class TestVerifier:
             "PROPERTY 'p2' HOLDS",
             "PROPERTY 'p3' HOLDS",
             "PROPERTY 'p4' HOLDS"
+        )
+
+    def test_tasknet15_numeric_states(self):
+        """Test active(T) syntax"""
+        verify_out('tasknet15_numeric_states.tn')(
+            "*** NEW SCHEDULE***",
+            "heating       : start =    1, end =    2",
+            "driving       : start =    3, end =    4",
+            "PROPERTY 'p1' HOLDS"
         )

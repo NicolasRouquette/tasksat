@@ -287,21 +287,39 @@ def p_timeline_decl(p):
     p[0] = tl
 
 
-def p_timeline_kind_state(p):
+def p_timeline_kind_state_name(p):
     "timeline_kind : STATE LPAREN state_list RPAREN EQ NAME"
     states = p[3]
     initial = p[6]
     p[0] = StateTimeline(id=None, states=states, initial=initial)
 
 
-def p_state_list_single(p):
+def p_timeline_kind_state_number(p):
+    "timeline_kind : STATE LPAREN state_list RPAREN EQ NUMBER"
+    states = p[3]
+    initial = str(int(p[6])) if float(p[6]).is_integer() else str(p[6])
+    p[0] = StateTimeline(id=None, states=states, initial=initial)
+
+
+def p_state_list_single_name(p):
     "state_list : NAME"
     p[0] = [p[1]]
 
 
-def p_state_list_many(p):
+def p_state_list_single_number(p):
+    "state_list : NUMBER"
+    p[0] = [str(int(p[1])) if float(p[1]).is_integer() else str(p[1])]
+
+
+def p_state_list_many_name(p):
     "state_list : state_list COMMA NAME"
     p[0] = p[1] + [p[3]]
+
+
+def p_state_list_many_number(p):
+    "state_list : state_list COMMA NUMBER"
+    num_str = str(int(p[3])) if float(p[3]).is_integer() else str(p[3])
+    p[0] = p[1] + [num_str]
 
 def p_timeline_kind_atomic(p):
     "timeline_kind : ATOMIC init_bool_opt"
@@ -1090,11 +1108,18 @@ def p_tl_atom_num_cmp(p):
     p[0] = TLNumCmp(tl=tl_name, op=op, bound=bound)
 
 
-def p_tl_atom_state_eq(p):
+def p_tl_atom_state_eq_name(p):
     "tl_atom : NAME EQ NAME"
     tl_name = p[1]
     value_name = p[3]
     p[0] = TLStateIs(tl=tl_name, value=value_name)
+
+
+def p_tl_atom_state_eq_number(p):
+    "tl_atom : NAME EQ NUMBER"
+    tl_name = p[1]
+    value_str = str(int(p[3])) if float(p[3]).is_integer() else str(p[3])
+    p[0] = TLStateIs(tl=tl_name, value=value_str)
 
 
 def p_tl_atom_bool_true(p):
