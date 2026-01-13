@@ -56,32 +56,13 @@ TaskSAT allows you to:
 └─────────────────┘
 ```
 
-## Documentation Structure
+## Documentation
 
-This documentation is organized into the following sections:
+- **[Getting Started](doc/getting-started.md)** - Quick installation and your first TaskNet in minutes
+- **[Tutorial](doc/tutorial.md)** - In-depth walkthrough of concepts, patterns, and best practices
+- **[Language Reference](doc/language-reference.md)** - Complete DSL syntax reference
+- **[Examples](doc/examples.md)** - Annotated examples and common patterns
+- **[Performance & Scaling](doc/performance.md)** - Stress test results and complexity guidelines
+- **[Architecture](doc/architecture.md)** - Implementation details and SMT encoding
 
-### [Getting Started](doc/getting-started.md)
-Quick installation and your first TaskNet in minutes.
-
-### [Tutorial](doc/tutorial.md)
-In-depth walkthrough of concepts, patterns, and best practices.
-
-### [Language Reference](doc/language-reference.md)
-Complete DSL syntax including timeline types, task definitions, constraints, and temporal operators.
-
-### [Examples](doc/examples.md)
-Annotated examples demonstrating common patterns and real-world applications.
-
-### [Performance & Scaling](doc/performance.md)
-Stress test results, scaling characteristics, and guidelines for problem complexity.
-
-### [Architecture](doc/architecture.md)
-Implementation details: SMT encoding, zone-based discretization, and extending the system.
-
-## Getting Help
-
-- Start with [doc/getting-started.md](doc/getting-started.md) for quick setup
-- Read [doc/tutorial.md](doc/tutorial.md) for detailed concept explanations
-- Reference [doc/language-reference.md](doc/language-reference.md) for complete syntax
-- Browse [doc/examples.md](doc/examples.md) for pattern examples
-- Report issues at: https://github.com/[your-repo]/taskvet/issues
+Report issues at: https://github.com/[your-repo]/taskvet/issues
