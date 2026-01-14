@@ -28,9 +28,64 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Verify installation:
+## Verify installation:
 
-We shall now verify the installation. Execute the following command:
+We shall now verify the installation. The file 
+[tests/tasknet_files/examples/my_robot.tn](../tests/tasknet_files/examples/my_robot.tn)
+contains the following tasknet:
+
+```tasknet
+tasknet MyRobot {
+  end = 100;
+
+  timelines {
+    battery : rate [10.0, 100.0] bounds [0.0, 100.0] = 50.0;
+    location : state(home, target) = home;
+  }
+
+  task charge {
+    id 1;
+    duration 20;
+
+    pre {
+      location = home;
+      battery in [0.0, 60.0];
+    }
+
+    impacts {
+      maint {
+        battery +~ 2.0;  // Charge at 2 units per time
+      }
+    }
+  }
+
+  task drive {
+    id 2;
+    duration 30;
+
+    pre {
+      battery in [30.0, 100.0];  // Need enough power
+    }
+
+    impacts {
+      pre {
+        location = target;
+      }
+      maint {
+        battery +~ -1.0;  // Drain 1 unit per time
+      }
+    }
+  }
+
+  property {
+    prop target_reached: eventually location = target;
+  }
+}
+```
+
+It specifies a tasknet of a robot with two timelins (global variables that tasks can update) and two tasks, a battery charging task and a driving task.
+
+Execute the following command:
 
 ```bash
 python src/smt/tasknet_verifier.py tests/tasknet_files/examples/my_robot.tn
@@ -104,75 +159,6 @@ cd vscode-dsl
 code --install-extension tasknet-0.0.1.vsix --force
 ```
 
-## My Robot
-
-The example we executed above was the one shown below in the file
-[tests/tasknet_files/examples/my_robot.tn](../tests/tasknet_files/examples/my_robot.tn).
-
-```tasknet
-tasknet MyRobot {
-  end = 100;
-
-  timelines {
-    battery : rate [10.0, 100.0] bounds [0.0, 100.0] = 50.0;
-    location : state(home, target) = home;
-  }
-
-  task charge {
-    id 1;
-    duration 20;
-
-    pre {
-      location = home;
-      battery in [0.0, 60.0];
-    }
-
-    impacts {
-      maint {
-        battery +~ 2.0;  // Charge at 2 units per time
-      }
-    }
-  }
-
-  task drive {
-    id 2;
-    duration 30;
-
-    pre {
-      battery in [30.0, 100.0];  // Need enough power
-    }
-
-    impacts {
-      pre {
-        location = target;
-      }
-      maint {
-        battery +~ -1.0;  // Drain 1 unit per time
-      }
-    }
-  }
-
-  property {
-    prop target_reached: eventually location = target;
-  }
-}
-```
-
-## Solver Modes
-
-TaskSAT has two verification modes:
-
-### Satisfy Mode (Fast)
-```bash
-python src/smt/tasknet_verifier.py my_robot.tn --mode satisfy
-```
-Finds **any** valid schedule quickly. Use for feasibility checks and debugging.
-
-### Optimize Mode (Default)
-```bash
-python src/smt/tasknet_verifier.py my_robot.tn --mode optimize
-```
-Finds the **best** schedule (minimizes optional tasks). Slower but optimal.
 
 
 

@@ -452,3 +452,20 @@ tasknet Name {
 - `always φ`, `eventually φ`, `once φ`, `sofar φ`
 - `φ until ψ`, `φ since ψ`
 - `active(task)` (true when task is executing)
+
+## Quick Help
+
+**Problem: UNSAT (No solution)**
+- Check if constraints are too strict
+- Increase time horizon (`end = ...`)
+- Use `--mode satisfy` for debugging
+
+**Problem: Timeout**
+- Try `--mode satisfy` instead of optimize
+- Simplify the problem
+- See [performance.md](performance.md) for guidelines
+
+**Problem: Unexpected schedule**
+- Verify impact timing (pre/maint/post)
+- Check initial timeline values
+- Review task dependencies
