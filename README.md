@@ -7,44 +7,52 @@ TaskSAT can be applied to scheduling problems in autonomous systems, such as spa
 ### System Architecture
 
 ```
-       Data Objects                    Processes
-
-┌─────────────────────┐
-│   TaskNet (.tn)     │         User writes specification in DSL
-│    Specification    │
-└──────────┬──────────┘
-           │
-           │              ┌──────────────────────┐
-           └─────────────>│   Parser (PLY)       │  Lexer + Parser
-                          └──────────┬───────────┘
-                                     │
-                          ┌──────────▼───────────┐
-                          │        AST           │  Abstract Syntax Tree
-                          └──────────┬───────────┘
-                                     │
-                                     │  ┌──────────────────────┐
-                                     └─>│  Wellformedness      │  Semantic validation
-                                        │     Checker          │
-                          ┌──────────────────────┬───────────┘
-                          │   Validated AST      │
-                          └──────────┬───────────┘
-                                     │
-                                     │  ┌──────────────────────┐
-                                     └─>│   SMT Encoder        │  Zone-based time
-                                        │                      │  discretization
-                          ┌──────────────────────┬───────────┘
-                          │   Z3 Formula         │  Quantifier-free
-                          │   (constraints)      │  SMT formula
-                          └──────────┬───────────┘
-                                     │
-                                     │  ┌──────────────────────┐
-                                     └─>│    Z3 Solver         │  SAT/Optimize mode
-                                        └──────────┬───────────┘
-                                                   │
-                          ┌────────────────────────▼───────────┐
-                          │   Schedule or UNSAT               │
-                          │   (with proof/unsat core)         │
-                          └───────────────────────────────────┘
+  ┌─────────────────────┐
+  │   TaskNet (.tn)     │  User-written specification
+  │    Specification    │
+  └──────────┬──────────┘
+             │
+             v
+  ╔═════════════════════╗
+  ║   Parser (PLY)      ║  Lexer + Parser (Python Lex-Yacc)
+  ╚══════════┬══════════╝
+             │
+             v
+  ┌─────────────────────┐
+  │        AST          │  Abstract Syntax Tree
+  └──────────┬──────────┘
+             │
+             v
+  ╔═════════════════════╗
+  ║  Wellformedness     ║  Semantic validation
+  ║     Checker         ║  (type checking, constraint validation)
+  ╚══════════┬══════════╝
+             │
+             v
+  ┌─────────────────────┐
+  │   Validated AST     │  Semantically valid AST
+  └──────────┬──────────┘
+             │
+             v
+  ╔═════════════════════╗
+  ║   SMT Encoder       ║  Zone-based time discretization
+  ║                     ║  Converts to quantifier-free formulas
+  ╚══════════┬══════════╝
+             │
+             v
+  ┌─────────────────────┐
+  │   Z3 Formula        │  SMT constraints (Real + Int + Bool)
+  └──────────┬──────────┘
+             │
+             v
+  ╔═════════════════════╗
+  ║    Z3 Solver        ║  SMT solving (satisfy or optimize mode)
+  ╚══════════┬══════════╝
+             │
+             v
+  ┌─────────────────────┐
+  │  Schedule / UNSAT   │  Valid schedule or proof of infeasibility
+  └─────────────────────┘
 ```
 
 ## Documentation
