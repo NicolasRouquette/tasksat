@@ -29,11 +29,71 @@ pip install -r requirements.txt
 ```
 
 4. Verify installation:
+
+We shall now verify the installation. Execute the following command:
+
 ```bash
 python src/smt/tasknet_verifier.py tests/tasknet_files/examples/my_robot.tn
 ```
 
-If you see a schedule output, you're ready to go!
+If you see a schedule output like the one below, you're ready to go!
+
+```
+*** NEW SCHEDULE***
+
+Schedule for TaskNet `MyRobot`:
+  charge        : start =    1, end =   15
+  drive         : start =   16, end =   17
+
+Zone boundaries (z_i):
+  z_ 0 = 0
+  z_ 1 = 1
+  z_ 2 = 15
+  z_ 3 = 16
+  z_ 4 = 17
+  z_ 5 = 100
+
+Values in each zone:
+
+  -- zone 0: (0, 1] --
+    active tasks : (none)
+    battery        = 50 -> 50
+    location       = home
+
+  -- zone 1: (1, 15] --
+    active tasks : charge
+    battery        = 50 -> 78
+    location       = home
+
+  -- zone 2: (15, 16] --
+    active tasks : (none)
+    battery        = 78 -> 78
+    location       = home
+
+  -- zone 3: (16, 17] --
+    active tasks : drive
+    battery        = 78 -> 77
+    location       = target
+
+  -- zone 4: (17, 100] --
+    active tasks : (none)
+    battery        = 77 -> 77
+    location       = target
+
+No temporal properties attached to this TaskNet.
+```
+
+It shows
+
+- When each task runs (start/end times)
+- How resources change over time (battery levels, location)
+- Whether temporal properties are satisfied (✓ or ✗)
+
+Specifically it shows that
+
+- The robot charged for 20 time units (battery: 50 → 90)
+- The robot drove for 30 time units (battery: 90 → 60)
+- The battery never went below 0 (property satisfied ✓)
 
 ### Optional: VS Code Syntax Highlighting
 
@@ -44,11 +104,10 @@ cd vscode-dsl
 code --install-extension tasknet-0.0.1.vsix --force
 ```
 
-## Your First TaskNet
+## My Robot
 
-Let's create a simple robot scheduling problem. You can either create this file yourself or use the provided example at [tests/tasknet_files/examples/my_robot.tn](../tests/tasknet_files/examples/my_robot.tn).
-
-### Step 1: Create `my_robot.tn`
+The example we executed above was the one shown below in the file
+[tests/tasknet_files/examples/my_robot.tn](../tests/tasknet_files/examples/my_robot.tn).
 
 ```tasknet
 tasknet MyRobot {
@@ -99,45 +158,6 @@ tasknet MyRobot {
 }
 ```
 
-### Step 2: Run the Verifier
-
-```bash
-python src/smt/tasknet_verifier.py my_robot.tn --mode satisfy
-```
-
-### Step 3: Understand the Output
-
-You'll see a schedule showing:
-- When each task runs (start/end times)
-- How resources change over time (battery levels, location)
-- Whether temporal properties are satisfied (✓ or ✗)
-
-Example output:
-```
-*** NEW SCHEDULE***
-
-Schedule for TaskNet `MyRobot`:
-  charge : start =   0, end =  20
-  drive  : start =  25, end =  55
-
-Values in each zone:
-  -- zone 0: (0, 20] --
-    battery        = 50 -> 90
-    location       = home
-
-  -- zone 1: (25, 55] --
-    battery        = 90 -> 60
-    location       = target
-
-Temporal properties:
-  ✓ battery_safe: always (battery >= 0.0)
-```
-
-**What happened:**
-- Robot charged for 20 time units (battery: 50 → 90)
-- Robot drove for 30 time units (battery: 90 → 60)
-- Battery never went below 0 (property satisfied ✓)
-
 ## Solver Modes
 
 TaskSAT has two verification modes:
@@ -154,44 +174,7 @@ python src/smt/tasknet_verifier.py my_robot.tn --mode optimize
 ```
 Finds the **best** schedule (minimizes optional tasks). Slower but optimal.
 
-## Next Steps
 
-Now that you have TaskSAT running:
 
-- **[Tutorial](tutorial.md)** - Learn concepts in depth with detailed examples
-- **[Language Reference](language-reference.md)** - Complete syntax documentation
-- **[Examples](examples.md)** - Real-world patterns and applications
-- **[Performance](performance.md)** - Understand scaling and complexity
 
-## Quick Help
 
-**Problem: UNSAT (No solution)**
-- Check if constraints are too strict
-- Increase time horizon (`end = ...`)
-- Use `--mode satisfy` for debugging
-
-**Problem: Timeout**
-- Try `--mode satisfy` instead of optimize
-- Simplify the problem
-- See [performance.md](performance.md) for guidelines
-
-**Problem: Unexpected schedule**
-- Verify impact timing (pre/maint/post)
-- Check initial timeline values
-- Review task dependencies
-
-## Running Examples in this Document
-
-All examples in this document are organized in 
-
-```
-tests/tasknet_files/examples.
-```
-
-Users can run any example, say `my_robot.py` in this documentation as folows:
-
-```
-python src/smt/tasknet_verifier.py tests/tasknet_files/examples/my_robot.tn --mode satisfy
-```
-
-If `--mode ...` is left out it will run in the default `optimize` mode.

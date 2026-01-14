@@ -64,3 +64,18 @@ TaskSAT can be applied to scheduling problems in autonomous systems, such as spa
 - **[Performance & Scaling](doc/performance.md)** - Stress test results and complexity guidelines
 - **[Architecture](doc/architecture.md)** - Implementation details and SMT encoding
 
+## Running Examples in this Document
+
+All examples in this document are organized in 
+
+```
+tests/tasknet_files/examples.
+```
+
+Users can run any example, say `my_robot.py` in this documentation as folows:
+
+```
+python src/smt/tasknet_verifier.py tests/tasknet_files/examples/my_robot.tn --mode satisfy
+```
+
+If `--mode ...` is left out it will run in the default `optimize` mode.
