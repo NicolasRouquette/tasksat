@@ -21,3 +21,16 @@ LONGER TERM
 - They distinguish between atomic and Boolean timelines.
 - TILs: environment updates to timelines.
 - Scalability
+
+==========
+
+In MEXEC:
+- Timeline ids are used for reference
+- Task definition ids are used for reference
+- Parameters - we need them
+- Requests: maximal
+- Priority: order in which it tries to schedule
+  Bigger number means higher priority
+- After and contains create instances of definitions.
+  Can't refer to instances.
+- Instances might not even be scheduled.
