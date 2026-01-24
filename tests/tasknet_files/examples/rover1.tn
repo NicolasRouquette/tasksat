@@ -1,4 +1,4 @@
-tasknet MyRobot {
+tasknet Rover1 {
   end = 100;
 
   timelines {

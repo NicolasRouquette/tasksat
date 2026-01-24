@@ -1,12 +1,16 @@
-tasknet MyRobot {
+tasknet Rover2 {
   end = 400;
 
   timelines {
-    battery : rate [10.0, 100.0] bounds [0.0, 100.0] = 60.0;
-    temperature : rate [5.0, 40.0] bounds [0.0, 100.0] = 10.0;
-    location : state(home, target) = home;
     arm : atomic = false;
+    location : state(home, target) = home;
     data : cumulative [0.0, 50.0] bounds [0.0, 100.0] = 0.0;
+    battery : rate [10.0, 100.0] bounds [0.0, 100.0];
+    temperature : rate [5.0, 40.0] bounds [0.0, 100.0] = 10.0;
+  }
+
+  initial {
+    battery in [0,59];
   }
 
   taskdef charge_def {
@@ -41,6 +45,14 @@ tasknet MyRobot {
     duration_range [60,70];
   }
 
+  task drive: drive_def {
+    start_range [100, 120];
+    end_range [130, 160];
+    duration_range [30,40];
+
+    # after charge; # this will yield unsat
+  }
+
   optional task heating {
     duration_range [10, 10];
 
@@ -50,14 +62,6 @@ tasknet MyRobot {
         temperature +~ 2;  # Increase temperature
       }
     }
-  }
-
-  task drive: drive_def {
-    start_range [100, 120];
-    end_range [130, 160];
-    duration_range [30,40];
-
-    # after charge; # this will yield unsat
   }
   
   task collect {
@@ -85,14 +89,14 @@ tasknet MyRobot {
   }
 
   constraints {
-     prop not_charge_drive: always not (active(charge) and active(drive));
-     prop not_charge_collect: always not (active(charge) and active(collect));
-     prop temperature10: always temperature >= 10;
+    prop not_charge_drive: always not (active(charge) and active(drive));
+    prop not_charge_collect: always not (active(charge) and active(collect));
+    prop temperature10: always temperature >= 10;
   }
 
   properties {
-   prop target_reached: eventually (location = target and data >= 30);
-   prop drive_charge: always (active(drive) -> eventually active(charge));
-   prop temperature: always temperature >= 10;
+    prop target_reached: eventually (location = target and data >= 30);
+    prop drive_charge: always (active(drive) -> eventually active(charge));
+    prop temperature: always temperature >= 10;
   }
 }

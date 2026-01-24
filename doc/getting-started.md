@@ -31,11 +31,11 @@ pip install -r requirements.txt
 ## Verify installation:
 
 We shall now verify the installation. The file 
-[tests/tasknet_files/examples/my_robot.tn](../tests/tasknet_files/examples/my_robot.tn)
+[tests/tasknet_files/examples/rover1.tn](../tests/tasknet_files/examples/rover1.tn)
 contains the following tasknet:
 
 ```tasknet
-tasknet MyRobot {
+tasknet Rover1 {
   end = 100;
 
   timelines {
@@ -81,7 +81,7 @@ tasknet MyRobot {
 }
 ```
 
-It specifies a tasknet of a robot that is supposed to drive to a target, but the driving engine needs to be heated first. It defines 
+It specifies a tasknet of a rover that is supposed to drive to a target, but the driving engine needs to be heated first. It defines 
 two timelines (global variables that tasks can update) and two tasks.
 The `battery` time line is bound to be within 0 to 100 (its type) but a constraint is that it stays within 10 to 100 in a schedule. Its initial value is 10. The `location` timeline is an enumerated type representing the rover's location. 
 
@@ -96,7 +96,7 @@ This is a property we want to verify.
 Execute the following command:
 
 ```bash
-python src/smt/tasknet_verifier.py tests/tasknet_files/examples/my_robot.tn
+python src/smt/tasknet_verifier.py tests/tasknet_files/examples/rover1.tn
 ```
 
 If you see a schedule output like the one below, you're ready to go!
@@ -104,7 +104,7 @@ If you see a schedule output like the one below, you're ready to go!
 ```
 *** NEW SCHEDULE***
 
-Schedule for TaskNet `MyRobot`:
+Schedule for TaskNet `Rover1`:
   charge        : start =    1, end =   41
   drive         : start =   42, end =   82
 
@@ -156,8 +156,8 @@ It shows
 
 Specifically it shows that
 
-- The robot charged for 40 time units: battery: 50 → 90
-- The robot drove for 40 time units: battery: 90 → 30
+- The rover charged for 40 time units: battery: 50 → 90
+- The rover drove for 40 time units: battery: 90 → 30
 - The temporal property is satisfied: ✓
 
 ### Optional: VS Code Syntax Highlighting
