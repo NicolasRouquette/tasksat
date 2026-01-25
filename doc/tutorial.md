@@ -672,8 +672,10 @@ Both Modes do This:
 
   This is the traditional planning problem that a planner will solve.
 
-- Step 2 - universal: 
+- Step 2 - universal: prove that for any initial state and schedule the execution of which satisfies the constraints (including the initial state constraints) the properties hold:
   * ∀ initial, schedule. constraints(execution(initial, schedule)) → properties(execution(initial, schedule))
+
+  This is a verification mode planners normally canot do.
 
 In optimize mode, Step 1 finds the optimal schedule rather than just any schedule.
 
