@@ -664,22 +664,30 @@ python src/smt/tasknet_verifier.py some_tasknet.tn --mode satisfy
 
 ### Explanation
 
-Both Modes do This:
 
-- Step 1 - existential: find a schedule the execution of which satisfies the constraints (including the initial state constraints):
-  * ∃ initial, schedule. constraints(execution(initial)(schedule))
-  * Then evaluate properties on this specific schedule found.
+Both modes perform two steps:
 
-  This is the traditional planning problem that a planner will solve.
+#### Step 1 - Find a schedule (existential):
 
-- Step 2 - universal: prove that for any initial state and schedule the execution of which satisfies the constraints (including the initial state constraints) the properties hold:
-  * ∀ initial, schedule. constraints(execution(initial, schedule)) → properties(execution(initial, schedule))
+∃ initial, schedule. constraints(initial, schedule)
 
-  This is a verification mode planners normally canot do.
+Find a schedule that satisfies all constraints. The found schedule is displayed with property evaluation results.
 
-In optimize mode, Step 1 finds the optimal schedule rather than just any schedule.
+This is the traditional planning problem that planners solve.
 
+#### Step 2 - Verify properties (universal):
 
+∀ initial, schedule. constraints(initial, schedule) → properties(schedule)
+
+Prove that properties hold for all valid schedules, not just the one found in Step 1.
+
+This verification capability goes beyond what traditional planners can do.
+
+#### The difference between modes:
+
+- Optimize mode: Finds the optimal schedule in Step 1
+- Satisfy mode: Finds any valid schedule in Step 1
+  Both modes perform the same universal property verification in Step 2.
 
 
 
