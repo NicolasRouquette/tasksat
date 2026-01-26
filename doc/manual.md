@@ -139,6 +139,8 @@ Timelines model state variables and resources that change over time. Each timeli
 
 ### Impact Operations Summary
 
+![Impacts](impacts.png)
+
 This table shows which impact operations are allowed on each timeline type:
 
 | Timeline Type | Assignment (`=`) | Delta (`+=`/`-=`) | Rate (`+~`/`-~`) | When Allowed |
