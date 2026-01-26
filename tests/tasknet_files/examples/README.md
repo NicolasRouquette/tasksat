@@ -75,5 +75,5 @@ pytest tests/
 - [Main Documentation](../../../README.md)
 - [Getting Started Guide](../../../doc/getting-started.md)
 - [Tutorial](../../../doc/tutorial.md)
-- [Language Reference](../../../doc/language-reference.md)
+- [Manual](../../../doc/manual.md)
 - [Examples Guide](../../../doc/examples.md)
