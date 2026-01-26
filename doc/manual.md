@@ -146,8 +146,8 @@ This table shows which impact operations are allowed on each timeline type:
 | **State** | ✓ | ✗ | ✗ | pre, post only |
 | **Atomic** | ✓ | ✗ | ✗ | pre, post only |
 | **Claimable** | ✗ | ✓ | ✗ | **maint only** |
-| **Cumulative** | ✓ (pre/post only) | ✓ (all) | ✗ | Delta: pre/maint/post<br>Assignment: pre/post only |
-| **Rate** | ✓ (pre/post only) | ✓ (all) | ✓ (all) | Delta/Rate: pre/maint/post<br>Assignment: pre/post only |
+| **Cumulative** | ✓    | ✓ | ✗ | Delta: pre/maint/post<br>Assignment: pre/post only |
+| **Rate** | ✓   | ✓    | ✓ | Delta/Rate: pre/maint/post<br>Assignment: pre/post only |
 
 **Key rules:**
 - **State & Atomic**: Only assignments, no deltas or rates, no maint assignments
