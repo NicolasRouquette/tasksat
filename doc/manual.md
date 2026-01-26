@@ -361,6 +361,9 @@ post {
 
 **constraints**
 
+- Temporal constraints used to constrain what schedules are generated
+- Just like pre, inv, and post conditions constrain what schedules are generated
+
 ```tasknet
 constraints {
   prop name1: formula1;
@@ -371,6 +374,9 @@ constraints {
 
 **properties**
 
+- Temporal properties checked on generated schedules
+- Note that these do **not** influence what schedules are generated
+
 ```tasknet
 properties {
   prop name1: formula1;
@@ -380,6 +386,8 @@ properties {
 ```
 
 ### Temporal Operators
+
+Temporal properties are expressed in a temporal logic.
 
 **For state/atomic timelines:**
 - `timeline = value` (equality)
