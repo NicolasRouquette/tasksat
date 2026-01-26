@@ -169,15 +169,9 @@ This table shows which impact operations are allowed on each timeline type:
 |---------------|------------------|-------------------|------------------|--------------|
 | **State** | ✓ | ✗ | ✗ | pre, post only |
 | **Atomic** | ✓ | ✗ | ✗ | pre, post only |
-| **Claimable** | ✗ | ✓ | ✗ | **maint only** |
+| **Claimable** | ✗ | ✓ | ✗ | like cumulative but maint only |
 | **Cumulative** | ✓    | ✓ | ✗ | Delta: pre/maint/post<br>Assignment: pre/post only |
 | **Rate** | ✓   | ✓    | ✓ | Delta/Rate: pre/maint/post<br>Assignment: pre/post only |
-
-**Key rules:**
-- **State & Atomic**: Only assignments, no deltas or rates, no maint assignments
-- **Claimable**: ONLY delta impacts in maint (claim/release pattern)
-- **Cumulative**: Delta impacts anywhere, assignments only in pre/post, NO rate impacts
-- **Rate**: All impact types allowed, but assignments only in pre/post
 
 ### State Timeline
 
