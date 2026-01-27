@@ -131,14 +131,9 @@ task task_name {
 
 ---
 
-# Detailed Reference
-
 ## Timelines
 
-
 Timelines model state variables and resources that change over time. Each timeline has a type that determines what values it can hold and how it can be modified.
-
-### The Five Kinds of Timelines
 
 There are five kinds of timelines, shown here in schematic form:
 
@@ -177,11 +172,11 @@ init {
 }
 ```
 
-### Constraints
+## A Word on Constraints
 
-The constraints shown above for initializing timelines represent the general form of constraints, also used in pre, inv, and post conditions.
+The constraints shown above for initializing timelines represent the general form of constraints, also used in pre, inv, and post conditions introduced below.
 
-### Impact Operations Summary
+## Impact Operations
 
 There are three different ways to update a timeline
 
@@ -221,7 +216,7 @@ This table shows which impact operations are allowed on each timeline type:
 
 TaskSAT supports reusable task definitions that can be instantiated multiple times.
 
-### Task Definitions
+**Task Definitions**
 
 Define a reusable task template with `taskdef`:
 
@@ -238,7 +233,7 @@ taskdef charge_def {
 }
 ```
 
-### Task Instances
+**Task Instances**
 
 Create instances of a definition:
 
@@ -270,7 +265,7 @@ This creates an instance with all properties inherited from the definition.
 - **Merging**: Instance properties override definition properties
 - **Impacts merge**: If both definition and instance have impacts, they are merged (both apply)
 
-### Standalone Tasks
+**Standalone Tasks**
 
 Tasks can also be defined directly without using definitions:
 
@@ -288,46 +283,41 @@ task drive {
 
 Tasks represent operations with durations, constraints, and effects.
 
-### Task Fields
-
 All task fields are optional unless marked as required.
 
-**duration** or **duration_range** (required, choose one)
-- Fixed duration: `duration 30;`
-- Variable duration: `duration_range [10, 50];`
+**duration**
+- Preferred duration
+- Example: `duration` 10;
 
-**start** (optional)
-- Fixed start time: `start 100;`
-- Overrides any start_range if both are specified
+**duration_range**
+- Duration range which is enforced
+- Example:`duration_range` [10, 50];
 
-**start_range** / **end_range** (optional)
+**start** 
+- Preferred start time: 
+- Example: `start` 100;
+
+**start_range** / **end_range**
 - Constrain when task can start/end
-- Example: `start_range [0, 50];`
-- Example: `end_range [100, 200];`
+- Example: `start_range` [0, 50];
+- Example: `end_range` [100, 200];
 
-**priority** (optional)
+**priority**
 - Integer priority for scheduling preferences (lower values = higher priority)
-- Used in optimization mode to prefer certain tasks
-- Example: `priority 10;`
+- Example: `priority` 10;
 
-**after** (optional)
+**after**
 - Task ordering: this task must start after other tasks end
-- Can specify multiple tasks: `after task1, task2, task3;`
-- This task's start time must be >= all specified tasks' end times
-- Example: `after heating;`
-- Example: `after warmup, calibrate;`
+- Example: `after` warmup, calibrate;
 
-**containedin** (optional)
-- Hierarchical constraint: this task must execute entirely within another task
-- Can specify multiple parent tasks: `containedin parent1, parent2;`
-- This task's start >= parent's start AND this task's end <= parent's end
-- Example: `containedin maintenance_window;`
-- Example: `containedin daylight, communication_window;`
+**containedin**
+- Hierarchical constraint: this task must execute entirely within another task.
+  This task's start >= parent's start AND this task's end <= parent's end
+- Example: `containedin` daylight, communication_window;
 
-**optional** (keyword)
-- Mark task as optional for optimization
-- Solver will try to minimize number of optional tasks included
-- Example: `optional task bonus_science { ... }`
+**optional** 
+- Marks task as optional, it may only be scheduled if needed
+- Example: `optional` task bonus_science { ... }
 
 **pre** (preconditions)
 - Must be true when task starts
@@ -360,10 +350,9 @@ post {
 ```
 
 **constraints**
-
 - Temporal constraints used to constrain what schedules are generated
 - Just like pre, inv, and post conditions constrain what schedules are generated
-
+- Example:
 ```tasknet
 constraints {
   prop name1: formula1;
@@ -373,10 +362,9 @@ constraints {
 ```
 
 **properties**
-
 - Temporal properties checked on generated schedules
 - Note that these do **not** influence what schedules are generated
-
+- Example:
 ```tasknet
 properties {
   prop name1: formula1;
@@ -385,9 +373,11 @@ properties {
 }
 ```
 
-### Temporal Formulas
+### Temporal Constaints
 
-Temporal properties are expressed in a temporal logic.
+Temporal constraints mentioned just above are 
+expressed in a linear temporal logic with future and past time
+temporal operators.
 
 **Atomic Formulas**
 
