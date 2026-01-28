@@ -308,6 +308,5 @@ $$\mathtt{minimize} \sum_{t \in \mathcal{T} : \mathtt{dur}_t^{\mathtt{pref}} \te
 
 ## References
 
-- de Moura, L., & Bjørner, N. (2008). Z3: An efficient SMT solver. *TACAS 2008*.
-- Laborie, P., & Rogerie, J. (2008). Reasoning with conditional time-intervals. *FLAIRS 2008*.
-- Cimatti, A., et al. (2016). Timed sequence alignment with SMT. *FMCAD 2016*.
+- [The Z3 Prover](https://github.com/Z3Prover/z3)
+
