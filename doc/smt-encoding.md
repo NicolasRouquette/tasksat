@@ -4,9 +4,122 @@
 
 We describe a formal encoding of TaskNet scheduling problems into Satisfiability Modulo Theories (SMT) using the theory of linear integer and real arithmetic. The encoding transforms a TaskNet specification—consisting of tasks with temporal constraints, timelines of various types, and task impacts on those timelines—into a quantifier-free formula suitable for solving with Z3.
 
-## 2. Zone Abstraction
+## 2. TaskNet: Problem Definition
 
-### 2.1 Time Discretization
+A **TaskNet** is a scheduling problem specification consisting of tasks that execute over a finite time horizon and modify shared timelines through their execution.
+
+**Definition 2.1 (TaskNet).** A TaskNet is a structure $\mathcal{N} = \langle H, \mathcal{T}, \mathcal{L}, \mathcal{I}, C_0, \Phi, \Psi \rangle$ where:
+
+- $H \in \mathbb{N}$ is the **time horizon**
+- $\mathcal{T}$ is a finite set of **tasks**
+- $\mathcal{L}$ is a finite set of **timelines**
+- $\mathcal{I}$ is a set of **impacts** (modifications tasks perform on timelines)
+- $C_0$ is a set of **initial state constraints**
+- $\Phi$ is a set of **temporal constraints** (must hold for schedule generation)
+- $\Psi$ is a set of **temporal properties** (to be verified on generated schedules)
+
+### 2.1 Tasks
+
+Each task $t \in \mathcal{T}$ represents an activity to be scheduled within the horizon. A task is characterized by:
+
+- **Identifier**: Unique name for the task
+- **Kind**: $k_t \in \{\mathtt{required}, \mathtt{optional}\}$ indicating whether the task must be scheduled
+- **Temporal bounds**: Optional constraints on start time, end time, and duration
+  - Start range: $[s_{\min}, s_{\max}]$
+  - End range: $[e_{\min}, e_{\max}]$
+  - Duration range: $[d_{\min}, d_{\max}]$
+  - Preferred start time and duration (soft constraints)
+- **Dependencies**:
+  - Precedence: set $\mathtt{after}_t \subseteq \mathcal{T}$ of tasks that must complete before $t$ starts
+  - Containment: set $\mathtt{within}_t \subseteq \mathcal{T}$ of tasks within which $t$ must execute
+- **Priority**: Optional integer $p_t \in \mathbb{Z}$ for optimization (lower is higher priority)
+- **Conditions**: Boolean formulas over timeline states that must hold at specific execution points
+  - Preconditions $\mathtt{pre}_t$: must hold when task starts
+  - Invariants $\mathtt{inv}_t$: must hold throughout task execution
+  - Postconditions $\mathtt{post}_t$: must hold when task completes
+
+We partition tasks as $\mathcal{T} = \mathcal{T}_{\mathtt{req}} \cup \mathcal{T}_{\mathtt{opt}}$ where $\mathcal{T}_{\mathtt{req}}$ are required tasks and $\mathcal{T}_{\mathtt{opt}}$ are optional tasks.
+
+### 2.2 Timelines
+
+Timelines represent **state variables** that evolve over time as tasks execute. Each timeline $\ell \in \mathcal{L}$ has a type that determines its value domain and allowed operations.
+
+**Definition 2.2 (Timeline Types).**
+
+1. **State Timeline**: $\sigma \in \mathcal{L}_{\mathtt{state}}$ with finite value set $\Sigma$ and optional initial value $v_0 \in \Sigma$
+
+2. **Atomic Timeline**: $\alpha \in \mathcal{L}_{\mathtt{atomic}}$ with boolean values $\{\mathtt{true}, \mathtt{false}\}$ and optional initial value $v_0 \in \{\mathtt{true}, \mathtt{false}\}$
+
+3. **Claimable Timeline**: $\kappa \in \mathcal{L}_{\mathtt{claim}}$ with real values $\mathbb{R}$, range $[r_{\min}, r_{\max}]$, and optional initial value $v_0 \in \mathbb{R}$
+
+4. **Cumulative Timeline**: $\gamma \in \mathcal{L}_{\mathtt{cumul}}$ with real values $\mathbb{R}$, range $[r_{\min}, r_{\max}]$, bounds $[b_{\min}, b_{\max}]$, and optional initial value $v_0 \in \mathbb{R}$
+
+5. **Rate Timeline**: $\rho \in \mathcal{L}_{\mathtt{rate}}$ with real values $\mathbb{R}$, range $[r_{\min}, r_{\max}]$, bounds $[b_{\min}, b_{\max}]$, and optional initial value $v_0 \in \mathbb{R}$
+
+We have $\mathcal{L} = \mathcal{L}_{\mathtt{state}} \cup \mathcal{L}_{\mathtt{atomic}} \cup \mathcal{L}_{\mathtt{claim}} \cup \mathcal{L}_{\mathtt{cumul}} \cup \mathcal{L}_{\mathtt{rate}}$.
+
+**Semantics:**
+- **Range** $[r_{\min}, r_{\max}]$ constrains values at all times (hard constraint)
+- **Bounds** $[b_{\min}, b_{\max}]$ define limits for accumulation with clamping semantics
+
+### 2.3 Impacts
+
+Tasks modify timelines through **impacts**. An impact is a tuple $(t, \ell, w, \textit{op}, v)$ where:
+
+- $t \in \mathcal{T}$ is the task performing the impact
+- $\ell \in \mathcal{L}$ is the timeline being modified
+- $w \in \{\mathtt{pre}, \mathtt{maint}, \mathtt{post}\}$ specifies when the impact occurs (at task start, during execution, or at task end)
+- $\textit{op} \in \{=, \delta, \sim\}$ is the operation type
+- $v$ is the value (interpretation depends on operation and timeline type)
+
+**Definition 2.3 (Impact Operations).**
+
+1. **Assignment** ($=$): Set timeline to value $v$
+   - Permitted on state/atomic timelines at $\mathtt{pre}$ and $\mathtt{post}$
+   - Permitted on numeric timelines at $\mathtt{pre}$ and $\mathtt{post}$
+
+2. **Delta** ($\delta$, written `+=` or `-=` in syntax): Instantaneous change by $v$
+   - Permitted on claimable timelines only at $\mathtt{maint}$
+   - Permitted on cumulative/rate timelines at $\mathtt{pre}$, $\mathtt{maint}$, $\mathtt{post}$
+
+3. **Rate** ($\sim$, written `+~` or `-~` in syntax): Continuous change at rate $v$
+   - Permitted only on rate timelines at $\mathtt{pre}$, $\mathtt{maint}$, $\mathtt{post}$
+
+### 2.4 Constraints and Properties
+
+**Initial Constraints** $C_0$: Boolean formulas over timeline values that must hold at time 0.
+
+**Temporal Constraints** $\Phi$: A set of temporal logic formulas that must hold during schedule generation. These constrain which schedules are valid.
+
+**Temporal Properties** $\Psi$: A set of temporal logic formulas to be verified. A property $\psi \in \Psi$ holds if it is satisfied by all valid schedules (those satisfying temporal constraints $\Phi$).
+
+**Temporal Logic:** Formulas are built from:
+- Atomic propositions: comparisons over timeline values (e.g., $\nu^{\ell} > c$, $\sigma^{\ell} = v$)
+- Boolean connectives: $\land, \lor, \neg, \rightarrow$
+- Temporal operators: $\mathtt{always}$ ($\Box$), $\mathtt{eventually}$ ($\Diamond$), $\mathtt{until}$ ($\mathcal{U}$), $\mathtt{since}$ ($\mathcal{S}$), $\mathtt{once}$, $\mathtt{sofar}$
+- Task predicates: $\mathtt{active}(t)$ (true when task $t$ is executing)
+
+### 2.5 Scheduling Problem
+
+Given a TaskNet $\mathcal{N}$, the **scheduling problem** is to find:
+
+1. A **schedule**: An assignment of start and end times $s_t, e_t \in [0, H]$ for each $t \in \mathcal{T}_{\mathtt{req}}$ and a subset $\mathcal{T}' \subseteq \mathcal{T}_{\mathtt{opt}}$ with start/end times for included optional tasks
+
+2. A **timeline trace**: Functions $\sigma^\ell(t), \alpha^\ell(t), \nu^\ell(t)$ giving timeline values at each time $t \in [0, H]$
+
+such that:
+- All temporal bounds, dependencies, and conditions are satisfied
+- Initial constraints $C_0$ hold at time 0
+- Timeline values evolve according to impact semantics
+- All temporal constraints $\Phi$ are satisfied
+
+**Property Verification:** Given a valid schedule, check whether each temporal property $\psi \in \Psi$ holds universally.
+
+**Optimization:** If multiple schedules exist, prefer schedules that minimize: (1) number of optional tasks, (2) priority-weighted cost, (3) deviation from preferred start times and durations.
+
+## 3. Zone Abstraction
+
+### 3.1 Time Discretization
 
 Given a TaskNet with horizon $H \in \mathbb{N}$ and tasks $\mathcal{T} = \{t_1, \ldots, t_n\}$, we partition time into **zones** defined by task boundaries.
 
@@ -18,7 +131,7 @@ $$z_i < z_{i+1} \quad \text{for all } i \in \{0, \ldots, Z-2\}$$
 
 **Definition (Zone):** Zone $i$ corresponds to the time interval $(z_i, z_{i+1}]$ for $i \in \{0, \ldots, Z-2\}$.
 
-### 2.2 Task-Zone Correspondence
+### 3.2 Task-Zone Correspondence
 
 For each task $t \in \mathcal{T}$, let $s_t$ and $e_t$ denote its start and end time variables. We enforce a bijection between internal zone boundaries $\{z_1, \ldots, z_{Z-2}\}$ and task boundaries $\{s_t, e_t \mid t \in \mathcal{T}\}$:
 
@@ -30,9 +143,9 @@ $$\bigwedge_{j=1}^{Z-2} \bigvee_{t \in \mathcal{T}} (s_t = z_j \lor e_t = z_j)$$
 
 $$\bigwedge_{t_i, t_j \in \mathcal{T}, i \neq j} (s_{t_i} \neq s_{t_j}) \land (e_{t_i} \neq e_{t_j}) \land (s_{t_i} \neq e_{t_j}) \land (e_{t_i} \neq s_{t_j})$$
 
-## 3. Timeline Encoding
+## 4. Timeline Encoding
 
-### 3.1 Timeline Types
+### 4.1 Timeline Types
 
 We consider five timeline types, each with distinct semantics:
 
@@ -49,7 +162,7 @@ We consider five timeline types, each with distinct semantics:
 
 Variables: $\nu^{\ell}[j] \in \mathbb{R}$ for timeline $\ell$ at zone $j$
 
-### 3.2 Initial State
+### 4.2 Initial State
 
 For each timeline $\ell$ with initial value specification $v_0^{\ell}$:
 
@@ -59,7 +172,7 @@ $$\nu^{\ell}[0] = v_0^{\ell} \quad \text{(numeric)}$$
 
 where $\mathtt{encode}: \Sigma \to \{0, \ldots, |\Sigma|-1\}$ maps state values (strings) to integer indices for SMT encoding.
 
-### 3.3 Range Constraints
+### 4.3 Range Constraints
 
 For numeric timelines with range $[r_{\min}, r_{\max}]$:
 
@@ -69,9 +182,9 @@ For cumulative and rate timelines with bounds $[b_{\min}, b_{\max}]$:
 
 $$b_{\min} \leq \nu^{\ell}[0] \leq b_{\max}$$
 
-## 4. Task Encoding
+## 5. Task Encoding
 
-### 4.1 Temporal Constraints
+### 5.1 Temporal Constraints
 
 For each task $t \in \mathcal{T}$:
 
@@ -95,7 +208,7 @@ $$e_{t'} \leq s_t$$
 
 $$s_{t'} \leq s_t \land e_t \leq e_{t'}$$
 
-### 4.2 Task Conditions
+### 5.2 Task Conditions
 
 **Preconditions:** For each zone $j$, if $z_j = s_t$ then preconditions $\mathtt{pre}_t$ hold at zone $j$:
 
@@ -115,9 +228,9 @@ $$\mathtt{eval}(\mathcal{C}, j) = \bigwedge_{\ell \in \mathcal{C}} \left( \bigve
 
 Here, $\mathcal{C}$ is a set of **timeline conditions** (TlCon), where each condition specifies requirements for a timeline $\ell$. For each timeline $\ell$, we have a list of alternatives $\mathcal{C}[\ell]$ (a disjunction), and $\mathtt{test}(\ell, c, j)$ checks if timeline $\ell$ satisfies constraint $c$ at zone $j$ (e.g., $\nu^{\ell}[j] \in [a, b]$ or $\sigma^{\ell}[j] = v$). All timelines must satisfy their respective conditions (conjunction over timelines).
 
-## 5. Impact Semantics
+## 6. Impact Semantics
 
-### 5.1 Impact Types
+### 6.1 Impact Types
 
 Tasks modify timelines through three impact mechanisms:
 
@@ -125,7 +238,7 @@ Tasks modify timelines through three impact mechanisms:
 **Delta ($\pm$):** Instantaneous change by a fixed amount
 **Rate ($\pm\!\!\sim$):** Continuous change at a fixed rate
 
-### 5.2 State and Atomic Timelines
+### 6.2 State and Atomic Timelines
 
 For state timeline $\ell$ and atomic timeline $\alpha$, only assignments are permitted at boundaries (no maint assignments).
 
@@ -141,7 +254,7 @@ v & \text{if } \exists t : z_i = e_t \land (t, \ell, \mathtt{post}, =v) \in \mat
 
 where $\mathcal{I}$ denotes the set of all impacts. Multiple assignments to the same timeline at the same time are disallowed.
 
-### 5.3 Numeric Timelines: Delta Accumulation
+### 6.3 Numeric Timelines: Delta Accumulation
 
 **Impact Notation:** We represent impacts as tuples $(t, \ell, w, \textit{op}, v)$ where:
 - $t$ is the task performing the impact
@@ -168,7 +281,7 @@ $$\mathtt{active}(t, \mathtt{maint}, i) = \begin{cases}
 
 $$\mathtt{active}(t, \mathtt{post}, i) = \begin{cases} 1 & \text{if } z_i = e_t \\ 0 & \text{otherwise} \end{cases}$$
 
-### 5.4 Numeric Timelines: Rate Integration
+### 6.4 Numeric Timelines: Rate Integration
 
 For rate timeline $\nu^{\ell}$ over zone $i$ with duration $\Delta t_i = z_{i+1} - z_i$, define the rate contribution:
 
@@ -182,7 +295,7 @@ $$\mathtt{rate\_active}(t, \mathtt{maint}, i) = \begin{cases} 1 & \text{if } s_t
 
 $$\mathtt{rate\_active}(t, \mathtt{post}, i) = \begin{cases} 1 & \text{if } z_i \geq e_t \\ 0 & \text{otherwise} \end{cases}$$
 
-### 5.5 Zone Transition for Numeric Timelines
+### 6.5 Zone Transition for Numeric Timelines
 
 The value at zone boundary $i+1$ is computed as:
 
@@ -208,9 +321,9 @@ v & \text{if } \exists t : z_i = e_t \land (t, \ell, \mathtt{post}, =v) \in \mat
 \nu^{\ell}_{\mathtt{clamped}}[i+1] & \text{otherwise}
 \end{cases}$$
 
-## 6. Temporal Logic Encoding
+## 7. Temporal Logic Encoding
 
-### 6.1 LTL Operators over Zones
+### 7.1 LTL Operators over Zones
 
 Temporal formulas are evaluated at zone positions. Let $\phi[j]$ denote the encoding of formula $\phi$ at zone index $j$.
 
@@ -241,7 +354,7 @@ $$\mathtt{once}(\phi)[j] \equiv \bigvee_{k=0}^{j} \phi[k]$$
 
 $$(\phi_1 \mathbin{\mathtt{since}} \phi_2)[j] \equiv \bigvee_{k=0}^{j} \left( \phi_2[k] \land \bigwedge_{m=k+1}^{j} \phi_1[m] \right)$$
 
-### 6.2 Constraint and Property Checking
+### 7.2 Constraint and Property Checking
 
 **Constraints:** Formulas in the `constraints` block must hold at position 0:
 
@@ -252,22 +365,22 @@ $$\bigwedge_{\phi \in \mathtt{constraints}} \phi[0]$$
 $$\mathtt{SAT}\left( \Phi_{\mathtt{sched}} \land \Phi_{\mathtt{zones}} \land \Phi_{\mathtt{init}} \land \Phi_{\mathtt{impacts}} \land \bigwedge_{\phi \in \mathtt{constraints}} \phi[0] \land \neg \psi[0] \right)$$
 
 where:
-- $\Phi_{\mathtt{sched}}$ = task scheduling constraints (duration, precedence, containment, distinctness) from Section 4.1
-- $\Phi_{\mathtt{zones}}$ = zone boundary constraints and task-zone correspondence from Section 2
-- $\Phi_{\mathtt{init}}$ = initial state and bounds constraints from Section 3.2-3.3
-- $\Phi_{\mathtt{impacts}}$ = zone transitions with impact semantics and task conditions from Section 4.2 and 5
+- $\Phi_{\mathtt{sched}}$ = task scheduling constraints (duration, precedence, containment, distinctness) from Section 5.1
+- $\Phi_{\mathtt{zones}}$ = zone boundary constraints and task-zone correspondence from Section 3
+- $\Phi_{\mathtt{init}}$ = initial state and bounds constraints from Section 4.2-4.3
+- $\Phi_{\mathtt{impacts}}$ = zone transitions with impact semantics and task conditions from Section 5.2 and 6
 
 If unsatisfiable, the property holds for all valid schedules.
 
-## 7. Optional Tasks and Optimization
+## 8. Optional Tasks and Optimization
 
-### 7.1 Optional Task Inclusion
+### 8.1 Optional Task Inclusion
 
 For each optional task $t \in \mathcal{T}_{\mathtt{opt}}$, introduce a Boolean variable $\iota_t$ indicating inclusion. All constraints for task $t$ are guarded by $\iota_t$:
 
 $$\iota_t \rightarrow (\text{task } t \text{ constraints})$$
 
-### 7.2 Multi-Objective Optimization
+### 8.2 Multi-Objective Optimization
 
 The encoding supports lexicographic optimization with the following objective hierarchy:
 
@@ -287,7 +400,7 @@ $$\mathtt{minimize} \sum_{t \in \mathcal{T} : \mathtt{start}_t^{\mathtt{pref}} \
 
 $$\mathtt{minimize} \sum_{t \in \mathcal{T} : \mathtt{dur}_t^{\mathtt{pref}} \text{ specified}} |(e_t - s_t) - \mathtt{dur}_t^{\mathtt{pref}}|$$
 
-## 8. Soundness and Completeness
+## 9. Soundness and Completeness
 
 **Theorem (Soundness):** If the SMT encoding produces a satisfying model $\mathcal{M}$, then the extracted schedule and timeline trace satisfy all TaskNet constraints.
 
@@ -295,7 +408,7 @@ $$\mathtt{minimize} \sum_{t \in \mathcal{T} : \mathtt{dur}_t^{\mathtt{pref}} \te
 
 **Proof Sketch:** The zone abstraction is complete because it explicitly represents all task start and end times as zone boundaries. The bijection ensures no task boundaries are lost. Timeline semantics are preserved through direct encoding of impact accumulation and clamping. Temporal logic operators are bounded by the finite zone sequence, ensuring decidability.
 
-## 9. Complexity
+## 10. Complexity
 
 **Encoding Size:** For $n$ tasks and $m$ timelines:
 - Zone variables: $O(n)$
