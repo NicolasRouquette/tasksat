@@ -78,6 +78,6 @@ python src/smt/tasknet_verifier.py tests/tasknet_files/examples/my_robot.tn --mo
 
 If `--mode ...` is left out it will run in the default `optimize` mode.
 
-## The Source of Inspiration: MEXEC
+## The Role of MEXEC
 
-TaskSAT was created in order to explore an alternative method for analysing and verifying tasknets, which form the inputs to JPL's  [MEXEC](https://ai.jpl.nasa.gov/public/projects/mexec/) scheduling system. The constructs of the TaskSAT language is designed as close as possible to the MEXEC tasknet concepts, with a semantics as close as possible to the perceived semantics of MEXEC tasknets. However, it is not a precise map since (a) on occasions the exact semantics of MEXEC has not been clear, and (b) we have added some new features, most importantly temporal logic constraints. 
+TaskSAT was created in order to explore an alternative method for analysing and verifying tasknets, which form the inputs to JPL's  [MEXEC](https://ai.jpl.nasa.gov/public/projects/mexec/) scheduling system. The constructs of the TaskSAT language are designed as close as possible to the MEXEC tasknet "concepts", with a semantics as close as possible to the perceived semantics of MEXEC tasknets. However, it is not a precise match since (a) on occasions the exact semantics of MEXEC has not been clear to us, (b) we have added some new language features, most importantly temporal logic constraints, (c) the scheduling algorithm is different, based on constraint solving, and (d) we have added a verification step.
