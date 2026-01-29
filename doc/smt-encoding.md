@@ -307,9 +307,8 @@ If bounds $[b_{\min}, b_{\max}]$ are specified, apply clamping (i.e., constrain 
 ====
 
 $$\nu^{\ell}_{\mathtt{clamped}}[i+1] = 
-\begin{cases}
-b_{\min} &  \nu {\ell}[i+1] < b_{\min} 
-\end{cases}$$
+b_{\min} \nu {\ell}[i+1] < b_{\min} 
+$$
 
 ====
 
