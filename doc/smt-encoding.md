@@ -304,13 +304,13 @@ $$\nu^{\ell}_{\mathtt{raw}}[i+1] = \nu^{\ell}[i] + \Delta^{\ell}[i] + R^{\ell}[i
 
 If bounds $[b_{\min}, b_{\max}]$ are specified, apply clamping (i.e., constrain the value to lie within bounds):
 
-====
+
 
 $$\nu^{\ell}_{clamped}[i+1] = 
 b_{\min} \nu {\ell}[i+1] < b_{\min} 
 $$
 
-====
+
 
 Equivalently:
 
