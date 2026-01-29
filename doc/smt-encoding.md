@@ -8,7 +8,7 @@ We describe a formal encoding of TaskNet scheduling problems into Satisfiability
 
 A **TaskNet** is a scheduling problem specification consisting of tasks that execute over a finite time horizon and modify shared timelines through their execution.
 
-**Definition 2.1 (TaskNet).** A TaskNet is a structure $N} = \langle H, T}, L}, I}, C_0, \Phi, \Psi \rangle$ where:
+**Definition 2.1 (TaskNet).** A TaskNet is a structure $N = \langle H, T, L, I, C_0, \Phi, \Psi \rangle$ where:
 
 - $H \in \mathbb{N}$ is the **time horizon**
 - $T$ is a finite set of **tasks**
