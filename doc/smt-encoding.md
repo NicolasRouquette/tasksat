@@ -356,11 +356,13 @@ $$\bigwedge_{\phi \in \mathtt{constraints}} \phi[0]$$
 **Property Verification:** To check if property $\psi$ holds universally, we search for a counterexample by solving:
 
 $$\mathtt{SAT}\left( 
+  \Phi_{\mathtt{zones}} 
+  \and
+  \Phi_{\mathtt{init}} 
+  \land
   \Phi_{\mathtt{sched}} 
   \land 
-  \Phi_{\mathtt{zones}} 
-  \land 
-  \Phi_{\mathtt{init}} 
+  \Phi_{\mathtt{conditions}} 
   \land 
   \Phi_{\mathtt{impacts}} 
   \land 
