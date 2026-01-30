@@ -306,17 +306,7 @@ If bounds $[b_{\min}, b_{\max}]$ are specified, apply clamping (i.e., constrain 
 
 hello
 
-
-
-
-Equivalently:
-
-$$clamped(\nu^{\ell}[i+1]) = 
-\begin{cases}
-b_{\min} & \text{if } \nu^{\ell}_{\mathtt{raw}}[i+1] < b_{\min} \\
-b_{\max} & \text{if } \nu^{\ell}_{\mathtt{raw}}[i+1] > b_{\max} \\
-\nu^{\ell}_{\mathtt{raw}}[i+1] & \text{otherwise}
-\end{cases}$$
+$$clamped(\nu^{\ell}[i+1]) = \max(b_{\min}, \min(b_{\max}, \nu^{\ell}_{\mathtt{raw}}[i+1]))$$
 
 
 Finally, assignments override the accumulated value:
