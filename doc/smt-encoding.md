@@ -355,13 +355,26 @@ $$\bigwedge_{\phi \in \mathtt{constraints}} \phi[0]$$
 
 **Property Verification:** To check if property $\psi$ holds universally, we search for a counterexample by solving:
 
-$$\mathtt{SAT}\left( \Phi_{\mathtt{sched}} \land \Phi_{\mathtt{zones}} \land \Phi_{\mathtt{init}} \land \Phi_{\mathtt{impacts}} \land \bigwedge_{\phi \in \mathtt{constraints}} \phi[0] \land \neg \psi[0] \right)$$
+$$\mathtt{SAT}\left( 
+  \Phi_{\mathtt{sched}} 
+  \land 
+  \Phi_{\mathtt{zones}} 
+  \land 
+  \Phi_{\mathtt{init}} 
+  \land 
+  \Phi_{\mathtt{impacts}} 
+  \land 
+  \bigwedge_{\phi \in \mathtt{constraints}} \phi[0] 
+  \land 
+  \neg \psi[0] \right)
+$$
 
 where:
-- $\Phi_{\mathtt{sched}}$ = task scheduling constraints (duration, precedence, containment, distinctness) from Section 5.1
 - $\Phi_{\mathtt{zones}}$ = zone boundary constraints and task-zone correspondence from Section 3
 - $\Phi_{\mathtt{init}}$ = initial state and bounds constraints from Section 4.2-4.3
-- $\Phi_{\mathtt{impacts}}$ = zone transitions with impact semantics and task conditions from Section 5.2 and 6
+- $\Phi_{\mathtt{sched}}$ = task scheduling constraints (duration, precedence, containment, distinctness) from Section 5.1
+- $\Phi_{\mathtt{conditions}}$ = task conditions from Section 5.2
+- $\Phi_{\mathtt{impacts}}$ = zone transitions with impact semantics from Section 6
 
 If unsatisfiable, the property holds for all valid schedules.
 
