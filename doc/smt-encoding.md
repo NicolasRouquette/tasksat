@@ -314,7 +314,7 @@ Finally, assignments override the accumulated value:
 $$\nu^{\ell}[i+1] = \begin{cases}
 v & \text{if } \exists t : z_i = s_t \land (t, \ell, \mathtt{pre}, =v) \in I \\
 v & \text{if } \exists t : z_i = e_t \land (t, \ell, \mathtt{post}, =v) \in I \\
-\nu^{\ell}_{\mathtt{clamped}}[i+1] & \text{otherwise}
+\mathtt{clamped}(\nu^{\ell}[i+1]) & \text{otherwise}
 \end{cases}$$
 
 ## 7. Temporal Logic Encoding
